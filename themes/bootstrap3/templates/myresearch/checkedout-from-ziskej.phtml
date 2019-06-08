@@ -1,16 +1,9 @@
 <?
 $isAJAX = isset($AJAX) && $AJAX === true; $i = 0;
-foreach ($this->tickets as $source => $ticket):
+foreach ($this->libraryIdentity['transactions'] as $resource):
      ++$i; ?>
-<!--  --><?// $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
+  <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
   <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row well" style="margin-bottom: 2px;">
-
-      <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['loan_id'])): ?>
-        <? $safeId = preg_replace('/[^a-zA-Z0-9]/', '', $ilsDetails['loan_id']); ?>
-        <input form="renewTransactions" class="pull-left" type="checkbox" name="renewSelectedIDS[]" value="<?=$this->escapeHtml($ilsDetails['loan_id'])?>" id="checkbox_<?=$safeId?>" />
-        <input form="renewTransactions" class="pull-left" type="hidden" name="renewAllIDS[]" value="<?=$this->escapeHtml($ilsDetails['loan_id'])?>" />
-      <? endif; ?>
-
     <div class="col-md-2 text-center">
       <?
         $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
@@ -48,87 +41,29 @@ foreach ($this->tickets as $source => $ticket):
         <?=$this->transEsc('by')?>:
         <a href="<?=$this->record($resource)->getLink('author', $listAuthor)?>"><?=$this->escapeHtml($listAuthor)?></a><br/>
       <? endif; ?>
-      <? /* TODO: tags
-      {if $resource.tags}
-        <?=$this->transEsc('Your Tags')?>:
-        {foreach from=$resource.tags item=tag name=tagLoop}
-          <a href="{$url}/Search/Results?tag={$tag->tag|escape:"url"}">{$tag->tag|escape}</a>{if !$smarty.foreach.tagLoop.last},{/if}
-        {/foreach}
-        <br/>
-      {/if}
-       */ ?>
-      <? /* TODO: notes
-      {if $resource.notes}
-        <?=$this->transEsc('Notes')?>: {$resource.notes|escape}<br/>
-      {/if}
-       */ ?>
       <? $formats = $resource->getFormats(); if (count($formats) > 0): ?>
         <?=$this->record($resource)->getFormatList()?>
         <br/>
       <? endif; ?>
-      <? if (!is_a($resource, 'VuFind\\RecordDriver\\Missing')): ?>
-        <? $field996 = $resource->getItem996($ilsDetails['item_id']); ?>
+
+      <? if(isset($ilsDetails['date_created'])): ?>
+        <strong><?=$this->transEsc('Date Created')?>:</strong> <?=$this->escapeHtml($ilsDetails['date_created'])?><br/>
       <? endif; ?>
-      <? if (isset($ilsDetails['volume']) && !empty($ilsDetails['volume'])): ?>
-        <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['volume'])?>
-        <br />
-      <? elseif(isset($field996['d']) && !empty($field996['d'])): ?>
-        <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($field996['d'])?>
-        <br />
-      <? elseif(isset($field996['v']) && !empty($field996['v'])): ?>
-        <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($field996['v'])?>
-        <br />
+      <? if(isset($ilsDetails['date_return'])): ?>
+        <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['date_return'])?></strong><br/>
+      <? endif; ?>
+      <? if(isset($ilsDetails['date_requested'])): ?>
+        <strong><?=$this->transEsc('Date Requested')?>: <?=$this->escapeHtml($ilsDetails['date_requested'])?></strong><br/>
       <? endif; ?>
 
-      <? if (isset($ilsDetails['publication_year']) && !empty($ilsDetails['publication_year'])): ?>
-        <strong><?=$this->transEsc('Year of Publication')?>:</strong> <?=$this->escapeHtml($ilsDetails['publication_year'])?>
-        <br />
+      <? if($ilsDetails['is_open']): ?>
+        <strong><?=$this->transEsc('Is open')?>: <?=$this->translate('Yes')?></strong><br/>
+      <?else:?>
+        <strong><?=$this->transEsc('Is open')?>: <?=$this->translate('No')?></strong><br/>
       <? endif; ?>
 
-      <? if (isset($ilsDetails['institution_name']) && !empty($ilsDetails['institution_name'])): ?>
-        <strong><?=$this->transEsc('location_' . $ilsDetails['institution_name'], array(), $ilsDetails['institution_name'])?></strong>
-        <br />
-      <? endif; ?>
-
-      <? if (isset($ilsDetails['renew'])): ?>
-        <strong><?=$this->transEsc('Renewed')?>:</strong> <?=$this->transEsc($ilsDetails['renew'])?>
-        <? if (isset($ilsDetails['renewLimit'])): ?>
-          / <?=$this->transEsc($ilsDetails['renewLimit'])?>
-        <? endif; ?>
-        <br />
-      <? endif; ?>
-
-      <? $showStatus = true; ?>
-
-      <? if (isset($libraryIdentity['renewResult'][$ilsDetails['item_id']])): ?>
-        <? $renewDetails = $this->libraryIdentity['renewResult'][$ilsDetails['item_id']]; ?>
-        <? if (isset($renewDetails['success']) && $renewDetails['success']): ?>
-          <? $showStatus = false; ?>
-          <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?> <? if (isset($renewDetails['new_time'])): ?><?=$this->escapeHtml($renewDetails['new_time'])?><? endif; ?></strong>
-          <div class="alert alert-success"><?=$this->transEsc('renew_success')?></div>
-        <? else: ?>
-          <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
-          <div class="alert alert-danger"><?=$this->transEsc('renew_fail')?><? if (isset($renewDetails['sysMessage'])): ?>: <?=$this->escapeHtml($renewDetails['sysMessage'])?><? endif; ?></div>
-        <? endif; ?>
-      <? else: ?>
-        <strong><?=$this->transEsc('Due Date')?>: <?=$this->escapeHtml($ilsDetails['duedate'])?><? if (isset($ilsDetails['dueTime'])): ?> <?=$this->escapeHtml($ilsDetails['dueTime'])?><? endif; ?></strong>
-        <?if (!empty($ilsDetails['fine'])):?>
-          | <strong><?=$this->transEsc('Fine')?>: <?=$this->safeMoneyFormat($this->escapeHtml($ilsDetails['fine']))?></strong>
-        <?endif;?>
-        <? if ($showStatus): ?>
-          <? if (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "overdue"): ?>
-            <div class="alert alert-danger"><?=$this->transEsc("renew_item_overdue")?></div>
-          <? elseif (isset($ilsDetails['dueStatus']) && $ilsDetails['dueStatus'] == "due"): ?>
-            <div class="alert alert-info"><?=$this->transEsc("renew_item_due")?></div>
-          <? endif; ?>
-        <? endif; ?>
-      <? endif; ?>
-
-      <? if ($showStatus && isset($ilsDetails['message']) && !empty($ilsDetails['message'])): ?>
-        <div class="alert alert-info"><?=$this->transEsc($ilsDetails['message'])?></div>
-      <? endif; ?>
-      <? if (isset($ilsDetails['renewable']) && $ilsDetails['renewable'] && isset($ilsDetails['renew_link'])): ?>
-        <a href="<?=$this->escapeHtml($ilsDetails['renew_link'])?>"><?=$this->transEsc('renew_item')?></a>
+      <? if(isset($ilsDetails['status_label'])): ?>
+        <strong><?=$this->transEsc('Status')?>: <?=$this->escapeHtml($ilsDetails['status_label'])?></strong><br/>
       <? endif; ?>
     </div>
   </div>

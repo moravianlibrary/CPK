@@ -1,21 +1,20 @@
 $(function() { // Onload DOM ..
     $('div[data-type=loadingDiv]').each(function() {
 	var cat_username = this.getAttribute('id');
-	var ziskejCookie = getCookie( 'ziskej' );
-	fetchTransactions(cat_username, ziskejCookie);
+	fetchTransactions(cat_username);
     })
     goToAnchorIfAny();
 });
 
 function goToAnchorIfAny() {
     var hasAnchor = window.location.href.match(/CheckedOut[/]?#[a-z]+$/);
-    
+
     if (hasAnchor !== null) {
 	window.location = window.location.href;
     }
 }
 
-function fetchTransactions(cat_username, cookie = 'disabled') {
+function fetchTransactions(cat_username) {
     $.ajax({
 	type : 'POST',
 	url : '/AJAX/JSON?method=getMyTransactions',
@@ -23,8 +22,7 @@ function fetchTransactions(cat_username, cookie = 'disabled') {
 	async : true,
 	// json object to sent to the authentication url
 	data : {
-	    cat_username : cat_username,
-			ziskejCookie: cookie
+	    cat_username : cat_username
 	},
 	success : function(response) {
 	    updateTransactions(response);
@@ -34,7 +32,7 @@ function fetchTransactions(cat_username, cookie = 'disabled') {
 }
 
 function updateTransactions(response) {
-    
+
     var data = response.data, status = response.status;
     if (typeof data.dg !== 'undefined') {
         fillDebug(data.dg);
@@ -44,19 +42,19 @@ function updateTransactions(response) {
     // TODO process overdue somehow ..
 
     var pointer = $('div#' + cat_username);
-    
+
     if (! pointer.length) {
 
 	if (typeof response === "object" && typeof response.toSource !== "undefined") // Only Mozilla can convert object to source string ..
 	    response = response.toSource();
-	
+
 	console.error("cat_username from the response was not found on this page .. cannot update checked out items! " + response, arguments);
 	return;
     }
-    
+
     // Overwrite current div with the new one from renderer
-    
-    if (status !== 'ERROR') 
+
+    if (status !== 'ERROR')
 	pointer[0].outerHTML = html;
     else {
 	// FIXME ! rework to angular app with an html directive ..
@@ -64,8 +62,8 @@ function updateTransactions(response) {
 	    <div class="label label-danger">' + data.message + '</div>\
 	  </div>';
     }
-    
-    // Decide if there will be cancel buttons or not ..    
+
+    // Decide if there will be cancel buttons or not ..
     if (data.canRenew) {
 	$('form#renewTransactions').removeAttr('hidden');
     }
@@ -84,19 +82,4 @@ function updateTransactions(response) {
     }
 
 
-}
-function getCookie (cname) {
-	let name = cname + '=';
-	let decodedCookie = decodeURIComponent( document.cookie );
-	let ca = decodedCookie.split( ';' );
-	for (let i = 0; i < ca.length; i++) {
-		let c = ca[i];
-		while (c.charAt( 0 ) === ' ') {
-			c = c.substring( 1 );
-		}
-		if (c.indexOf( name ) === 0) {
-			return c.substring( name.length, c.length );
-		}
-	}
-	return 'disabled';
 }

@@ -673,9 +673,39 @@ class AjaxController extends AjaxControllerBase
                         foreach ($sourceEppn as $source => $eppn) {
                             $tickets[$source] = $this->getContent($ziskej->getUserTickets($eppn, true));
                         }
+                        $i = 0;
+                        foreach ($tickets as $source) {
+                            foreach ($source['items'] as $current) {
+                                $i++;
+                                $resource = $this->getDriverForILSRecord($current, true);
+                                // We need to let JS know what to opt for ...
+                                $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
+                                $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                                if ($bibInfo) {
+                                    $recordId = "#cover_$recordId";
+
+                                    $bibInfo = json_decode($bibInfo);
+
+                                    $recordId = preg_replace("/[\.:]/", "", $recordId);
+
+                                    $obalky[$recordId] = [
+                                        'bibInfo' => $bibInfo,
+                                        'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
+                                            'checkedout')
+                                    ];
+                                }
+
+                                $ilsDetails = $resource->getExtraDetail('ils_details');
+                                if (isset($ilsDetails['dueStatus']) &&
+                                    $ilsDetails['dueStatus'] == "overdue") {
+                                    $showOverdueMessage = true;
+                                }
+                                $transactions[] = $resource;
+                            }
+                        }
                         $html = $renderer->render('myresearch/checkedout-from-ziskej.phtml',
                             [
-                                'tickets' => $tickets,
+                                'libraryIdentity' => compact('transactions'),
                                 'AJAX' => true
                             ]);
                         $toRet = [
@@ -683,10 +713,9 @@ class AjaxController extends AjaxControllerBase
                             'obalky' => $obalky,
                             'canRenew' => 'no',
                             'overdue' => 'over',
-                            'cat_username' => 'ziskej',
+                            'cat_username' => 'ziskejAjaxLoad',
                             'source' => 'ziskej'
                         ];
-
                         return $this->output($toRet, self::STATUS_OK);
                     }
                 } catch (\Exception $e) {}
@@ -1103,9 +1132,13 @@ class AjaxController extends AjaxControllerBase
      *
      * @return \VuFind\RecordDriver\AbstractBase
      */
-    protected function getDriverForILSRecord($current)
+    protected function getDriverForILSRecord($current, $ziskej = false)
     {
-        $id = isset($current['id']) ? $current['id'] : null;
+        if ($ziskej) {
+            $id = isset($current['doc_id']) ? $current['doc_id'] : null;
+        } else {
+            $id = isset($current['id']) ? $current['id'] : null;
+        }
         $source = isset($current['source']) ? $current['source'] : 'VuFind';
         $record = $this->getServiceLocator()
             ->get('VuFind\RecordLoader')
@@ -2585,13 +2618,11 @@ class AjaxController extends AjaxControllerBase
         $postParams = $this->params()->fromPost();
         $message = $postParams['message'];
         $id = $postParams['ticketId'];
-        $ziskejCookie = $postParams['ziskejCookie'];
-        $url = $this->getConfig()->Ziskej->$cookie;
-        $sensZiskejConfig = $this->getConfig()->SensitiveZiskej->toArray();
+
         $request = $this->getRequest();
         $eppn = $request->getServer()->eduPersonPrincipalName;
-        $catalog = $this->getILS();
-        $ilsDriver = $catalog->getDriver();
+
+        $ilsDriver = $this->getILS()->getDriver();
         $patron = [
             'eppn' => $eppn,
             'id' => $id,
