@@ -236,10 +236,10 @@ class RecordController extends RecordControllerBase
 
         // Set up MVS button
         $request = $this->getRequest();
-        $mvsCookie = $request->getCookie()->ziskej;
+        $ziskejCookie = $request->getCookie()->ziskej;
 
-        if (isset($config->Ziskej, $config->Ziskej->$mvsCookie) && $mvsCookie != 'disabled') {
-            $view->mvsUrl = $config->Ziskej->$mvsCookie;
+        if (isset($config->Ziskej, $config->Ziskej->$ziskejCookie) && $ziskejCookie != 'disabled') {
+            $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
             $view->eppn = $request->getServer()->eduPersonPrincipalName;
             $view->serverName = $request->getServer()->SERVER_NAME;
             $view->entityId = $request->getServer('Shib-Identity-Provider');
