@@ -48,8 +48,8 @@
               <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>
             </h2>
 
-          <? if (isset($this->mvsUrl)): ?>
-            <form action="<?= $this->mvsUrl ?>" id="mvs" method="POST">
+          <? if (isset($this->ziskejUrl)): ?>
+            <form action="<?= $this->ziskejUrl ?>" id="mvs" method="POST">
               <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
               <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
               <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
