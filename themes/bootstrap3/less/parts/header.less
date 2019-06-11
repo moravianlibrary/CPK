@@ -67,19 +67,18 @@ header {
   }
 }
 
-
-//styling of knihovny.cz logo
+// styling of knihovny.cz logo
 .navbar-brand {
   padding: 0px;
-  //logo is in square, we have to set no overflow, to avoid overflowing
-  //outside the header
-  overflow: hidden;
-  div {
-    height: 50px;
-    i {
-      cursor: pointer;
-      color: inherit;
-    }
+  overflow: hidden; // logo is in square, we have to set no overflow, to avoid overflowing outside the header
+  width: 225px;
+  height: 63px;
+  display: block;
+  position: relative;
+  i {
+    display: block;
+    cursor: pointer;
+    color: inherit;
   }
 }
 
@@ -99,21 +98,14 @@ header {
   border: none;
   transition: width 500ms, background 500ms;
 }
-.navbar-brand {
-  height: auto;
-}
 
 .slogan{
   font-family: LatoWeb;
   position: absolute;
-  left: 72px;
-  top: 64px;
+  top: 37px;
+  left: 67px;
   color: #a4a4a4;
-}
-.navbar-brand
-{
-  //smaller padding because of BETA logo
-  padding-bottom: 13px;
+  font-size: 15px;
 }
 
 .full-width.navbar {
@@ -200,5 +192,11 @@ tr.link {
     .panel-col {
       padding-top: 10px;
     }
+  }
+}
+
+@media (min-width: 768px){
+  .navbar-collapse{
+    margin-top: 3px;
   }
 }
