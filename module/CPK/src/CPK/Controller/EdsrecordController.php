@@ -64,6 +64,7 @@ class EdsrecordController extends EdsrecordControllerBase
         $referer = $this->params()->fromQuery('referer', false);
         if ($referer) {
             $view->referer = $referer;
+            $view->refererUrl = $this->base64url_decode($referer);
         }
 
         $view->isEdsDatabase = true;
@@ -83,5 +84,9 @@ class EdsrecordController extends EdsrecordControllerBase
 
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
         return $view;
+    }
+
+    protected function base64url_decode($data) {
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 }
