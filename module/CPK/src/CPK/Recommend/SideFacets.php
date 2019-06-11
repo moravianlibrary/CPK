@@ -60,6 +60,13 @@ class SideFacets extends SideFacetsBase
     protected $timelineFacets = [];
 
     /**
+     * Collapsed facet setting
+     *
+     * @var array
+     */
+    protected $expandedHierarchicalFacets = [];
+
+    /**
      * Store the configuration of the recommendation module.
      *
      * @param string $settings Settings from searches.ini.
@@ -147,6 +154,12 @@ class SideFacets extends SideFacetsBase
             $this->timelineFacets = $config->SpecialFacets->timeline->toArray();
         }
 
+        // Expanded hierarchical facet setting
+        if (isset($config->SpecialFacets->expandedHierarchicalFacets)) {
+            $this->expandedHierarchicalFacets
+                = $config->SpecialFacets->expandedHierarchicalFacets->toArray();
+        }
+
     }
 
     /**
@@ -183,6 +196,9 @@ class SideFacets extends SideFacetsBase
                 $newFacetSet[$name] = ['label' => $desc, 'list' => [], 'ajax' => true ];
             } else {
                 $newFacetSet[$name] = &$facetSet[$name];
+            }
+            if (in_array($name, $this->expandedHierarchicalFacets)) {
+                $newFacetSet[$name]['expand'] = true;
             }
         }
         return $newFacetSet;

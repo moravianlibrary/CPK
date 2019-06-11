@@ -1,19 +1,13 @@
 /*global htmlEncode, VuFind */
-function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
+function buildFacetNodes(data, facetName, allowExclude, excludeTitle, counts)
 {
   var json = [];
 
   $(data).each(function() {
     var html = '';
-
-    var lastFacetInString = this.exclude.split( '=' ).pop();
-    var facetName = lastFacetInString.split( '%3A' ).shift().substring(1);
-    var facetFilterBase = facetName + ':"' + this.value + '"';
-    var facetFilter;
+    var facetFilter = facetName + ':"' + this.value + '"';
     if (this.operator == 'OR') {
-      facetFilter = '~' + facetFilterBase;
-    } else {
-      facetFilter = facetFilterBase;
+      facetFilter = '~' + facetFilter;
     }
     if (!this.isApplied && counts) {
       html = "<span class='badge";
@@ -23,37 +17,13 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 
       html += "' style='float: right'>" + this.count.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate("number_thousands_separator"));
       if (allowExclude) {
-        var excludeURL = currentPath + this.exclude;
-        excludeURL.replace("'", "\\'");
         // Just to be safe
         html += " <a href='" + facetFilter + "' title='" + htmlEncode(excludeTitle) + "'><i class='fa fa-times'></i></a>";
       }
       html += '</span>';
     }
 
-    var institutionCategory = facetFilter.split('/')[1];
-
-    var url = currentPath + this.href;
-    // Just to be safe
-    url.replace("'", "\\'");
     html += "<span data-facet='" + facetFilter + "' class='main" + (this.isApplied ? " applied" : "");
-
-    if (facetName == "local_region_institution_facet_str_mv") {
-        html +="";
-    }
-    else {
-        if (facetName == "local_statuses_facet_str_mv" || facetName == "cpk_detected_format_facet_str_mv") {
-            html += "";
-        }
-        else {
-            if (facetName == "conspectus_str_mv" ) {
-                html += "";
-            }
-            else {
-                html += " facet-filter";
-            }
-        }
-    }
 
     html += "' title='" + htmlEncode(this.tooltiptext) + "'>";
     if (this.operator == 'OR') {
@@ -74,15 +44,13 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 
     var children = null;
     if (typeof this.children !== 'undefined' && this.children.length > 0) {
-      children = buildFacetNodes(this.children, currentPath, allowExclude, excludeTitle, counts);
+      children = buildFacetNodes(this.children, facetName, allowExclude, excludeTitle, counts);
     }
     
     var appliedFacetFilters = [];
     
     $( '#hiddenFacetFilters .hidden-filter' ).each( function( index, element ) {
-		//if( $( element ).val() != facetFilter) {
-			appliedFacetFilters.push($( element ).val());
-		//}
+		appliedFacetFilters.push($( element ).val());
     });
     
     var filters = appliedFacetFilters;
@@ -95,47 +63,30 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
     
     //console.log( 'Compressed facetFilters:' );
     var compressedFilters = specialUrlEncode( LZString.compressToBase64( filtersAsString ) );
-    
-      if (facetName == "local_statuses_facet_str_mv" || facetName == "conspectus_str_mv" || facetName == "cpk_detected_format_facet_str_mv" || facetName == "region_disctrict_facet_str_mv") {
-          json.push({
-              'id': facetFilter,
-              'text': html,
-              'children': children,
-              'applied': this.isApplied,
-              'state': {
-                  'opened': this.hasAppliedChildren,
-                  'selected': this.isApplied
-              },
-              'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
-              'a_attr': this.isApplied ? { 'class': 'active facet-filter-or' } :
-              { 'href': window.location.href + "&filter%5B%5D=" + compressedFilters ,
-                  'class' : 'facet-filter-or'
-              },
-          });
-      }
-      else {
-          json.push({
-              'id': facetFilter,
-              'text': html,
-              'children': children,
-              'applied': this.isApplied,
-              'state': {
-                  'opened': this.hasAppliedChildren,
-                  'selected': this.isApplied
-              },
-              'li_attr': (this.count == 0) ? {'class': 'emptyFacet'} : {},
-              'a_attr': this.isApplied ? {'class': 'active'} :
-              {
-                  'href': window.location.href + "&filter%5B%5D=" + compressedFilters,
-              },
-          });
-      };
+
+    var addClass = (facetName == 'local_region_institution_facet_str_mv') ? '' : ' facet-filter-or';
+    json.push({
+      'id': facetFilter,
+      'text': html,
+      'children': children,
+      'applied': this.isApplied,
+      'state': {
+        'opened': this.hasAppliedChildren,
+        'selected': this.isApplied
+      },
+      'li_attr': (this.count==0) ? { 'class': 'emptyFacet' } : {},
+      'a_attr': this.isApplied ? { 'class': 'active' + addClass } :
+        { 'href': window.location.href + "&filter%5B%5D=" + compressedFilters ,
+          'class' : addClass
+        },
+    });
+
   });
 
   return json;
 }
 
-function initFacetTree(treeNode, inSidebar)
+function initFacetTree(treeNode, inSidebar, expandAll)
 {
   var loaded = treeNode.data('loaded');
   if (loaded) {
@@ -145,7 +96,6 @@ function initFacetTree(treeNode, inSidebar)
 
   var facet = treeNode.data('facet');
   var operator = treeNode.data('operator');
-  var currentPath = treeNode.data('path');
   var allowExclude = treeNode.data('exclude');
   var excludeTitle = treeNode.data('exclude-title');
   var sort = treeNode.data('sort');
@@ -164,7 +114,7 @@ function initFacetTree(treeNode, inSidebar)
     },
     function(response, textStatus) {
       if (response.status == "OK") {
-        var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
+        var results = buildFacetNodes(response.data, facet, allowExclude, excludeTitle, inSidebar);
         treeNode.find('.fa-spinner').parent().remove();
         if (inSidebar) {
           treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
@@ -172,126 +122,25 @@ function initFacetTree(treeNode, inSidebar)
             treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
           });
         }
-        treeNode.jstree({
+        var config = {
           'core': {
             'data': results
           }
-        });
-      }
-    }
-  );
-}
-
-function initFacetOrTree(treeNode, inSidebar)
-{
-    var loaded = treeNode.data('loaded');
-    if (loaded) {
-        return;
-    }
-    treeNode.data('loaded', true);
-
-    var facet = treeNode.data('facet');
-    var operator = treeNode.data('operator');
-    var currentPath = treeNode.data('path');
-    var allowExclude = treeNode.data('exclude');
-    var excludeTitle = treeNode.data('exclude-title');
-    var sort = treeNode.data('sort');
-    var query = window.location.href.split('?')[1];
-
-    if (inSidebar) {
-        treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
-    } else {
-        treeNode.prepend('<div><i class="fa fa-spinner fa-spin"></i><div>');
-    }
-    $.getJSON(VuFind.getPath() + '/AJAX/JSON?' + query,
-        {
-            method: "getFacetData",
-            facetName: facet,
-            facetSort: sort,
-            facetOperator: operator
-        },
-        function(response, textStatus) {
-            if (response.status == "OK") {
-                var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
-                treeNode.find('.fa-spinner').parent().remove();
-                if (inSidebar) {
-                    treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
-
-                        // Open online in availability facet
-                        if (facet == 'local_statuses_facet_str_mv') {
-                            treeNode.jstree('open_node', $('#\\~local_statuses_facet_str_mv\\:\\"0\\/online\\/\\"'));
-                        }
-
-                        treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
-                        treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
-                    });
-                }
-                treeNode.jstree({
-                    'plugins': ["wholerow", "checkbox"],
-                    'core': {
-                        'data': results,
-                        'themes': {
-                            'name': 'proton',
-                            'responsive': true,
-                            "icons":false
-                        }
-                    }
-                });
-            }
+        };
+        if (operator  == 'OR') {
+          config['plugins'] = ["wholerow", "checkbox"];
+          config['core']['themes'] = {
+            'name': 'proton',
+            'responsive': true,
+            'icons': false
+		  };
         }
-    );
-}
-
-
-function initInstitutionsTree(treeNode, inSidebar)
-{
-  var loaded = treeNode.data('loaded');
-  if (loaded) {
-    return;
-  }
-  treeNode.data('loaded', true);
-
-  var facet = treeNode.data('facet');
-  var operator = treeNode.data('operator');
-  var currentPath = treeNode.data('path');
-  var allowExclude = treeNode.data('exclude');
-  var excludeTitle = treeNode.data('exclude-title');
-  var sort = treeNode.data('sort');
-  var query = window.location.href.split('?')[1];
-
-  if (inSidebar) {
-    treeNode.prepend('<li class="list-group-item"><i class="fa fa-spinner fa-spin"></i></li>');
-  } else {
-    treeNode.prepend('<div><i class="fa fa-spinner fa-spin"></i><div>');
-  }
-  $.getJSON(VuFind.getPath() + '/AJAX/JSON?' + query,
-    {
-      method: "getFacetData",
-      facetName: facet,
-      facetSort: sort,
-      facetOperator: operator
-    },
-    function(response, textStatus) {
-      if (response.status == "OK") {
-        var results = buildFacetNodes(response.data, currentPath, allowExclude, excludeTitle, inSidebar);
-        treeNode.find('.fa-spinner').parent().remove();
-        if (inSidebar) {
-          treeNode.on('loaded.jstree open_node.jstree', function (e, data) {
-            treeNode.find('ul.jstree-container-ul > li.jstree-node').addClass('list-group-item');
-            treeNode.find('ul.jstree-container-ul > li.jstree-node .jstree-icon').attr( 'title', VuFind.translate( 'Expand or collapse' ) );
+        var tree = treeNode.jstree( config );
+        if (expandAll) {
+          tree.bind( "loaded.jstree", function ( event, data ) {
+            $( this ).jstree( "open_all" );
           });
         }
-        treeNode.jstree({
-          'plugins': ["wholerow", "checkbox"],
-          'core': {
-            'data': results,
-            'themes': {
-              'name': 'proton',
-              'responsive': true,
-              "icons":false
-            }
-          }
-        });
       }
     }
   );
