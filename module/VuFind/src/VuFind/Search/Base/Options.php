@@ -266,6 +266,9 @@ abstract class Options implements TranslatorAwareInterface
      */
     public function getAdvancedHandlers()
     {
+        if (isset($this->advancedHandlers["SO"])) {
+            $this->advancedHandlers["SO"] = "Published in";
+        }
         return $this->advancedHandlers;
     }
 
