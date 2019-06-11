@@ -239,7 +239,7 @@
             </div>
            	<? endif; ?>
                 <div class="tab-content well border" id="record-tabs">
-                  <? if($this->activeTab != 'ziskej' || $this->isZiskej): ?>
+                  <? if(($this->activeTab != 'ziskej' || $this->isZiskej) && isset($this->ziskejUrl)): ?>
                     <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
                       <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
                     </div>
@@ -383,7 +383,7 @@
                     disableTab($( '#branches' ));
                 }
 
-                <? if(!$this->isZiskej): ?>
+                <? if(!$this->isZiskej || !isset($this->ziskejUrl)): ?>
                     disableTab($( '#ziskej' ));
                 <? endif; ?>
 
