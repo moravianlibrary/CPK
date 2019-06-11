@@ -38,6 +38,12 @@ class MkpNCIPNormalizer extends NCIPNormalizer
         $locations = $response->getArray('LookupAgencyResponse', 'Ext', 'LocationName', 'LocationNameInstance');
 
         $skipped_count = 0;
+
+        $response->unsetDataValue(
+            'ns1:LookupAgencyResponse',
+            "ns1:AgencyAddressInformation"
+        );
+
         foreach ($locations as $i => $location) {
 
             $i -= $skipped_count;
