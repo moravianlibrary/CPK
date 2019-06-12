@@ -22,3 +22,4 @@ public/robots.txt
 public/sitemap*.xml
 fatal-errors.log
 .idea
+/themes/bootstrap3/assets/vendor/
