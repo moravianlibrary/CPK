@@ -10,6 +10,7 @@
     "font-awesome": "4.6.x",
     "jquery": "2.1.x",
     "jquery-visible": "1.2.x",
-    "js-cookie": "2.0.x"
+    "js-cookie": "2.0.x",
+    "jstree": "3.0.x"
   }
 }

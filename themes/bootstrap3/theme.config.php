@@ -30,7 +30,7 @@ $toRet = array(
         'lightbox.js',
         'eu-cookies.js',
         'search-results.js',
-        'vendor/jsTree/jstree.min.js',
+        '../assets/vendor/jstree/dist/jstree.min.js',
         'facets.js',
         'lz-string.js',
         'obalkyknih.js',
