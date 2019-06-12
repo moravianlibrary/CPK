@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+bootstrap-growl-ifightcrime@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/bootstrap-growl-ifightcrime/-/bootstrap-growl-ifightcrime-1.1.0.tgz#3f83c12bd29281315580a05ec13841d60031539e"
+  integrity sha1-P4PBK9KSgTFVgKBewThB1gAxU54=
+
 bootstrap-select@1.10.x:
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/bootstrap-select/-/bootstrap-select-1.10.0.tgz#9499679e70004dbc00872522322d3b93a0f132e4"

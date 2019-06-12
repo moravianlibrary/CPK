@@ -35,7 +35,7 @@ $toRet = array(
         'lz-string.js',
         'obalkyknih.js',
         '../assets/vendor/jquery-visible/jquery.visible.min.js',
-        'vendor/jquery.bootstrap-growl.js', //@todo obsolete
+        '../assets/vendor/bootstrap-growl-ifightcrime/jquery.bootstrap-growl.min.js',
         'notifications.module.js',
     ),
     'less' => array(
