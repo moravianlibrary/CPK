@@ -3,5 +3,13 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
+    "bootstrap": "3.3.x",
+    "bootstrap-select": "1.10.x",
+    "bootstrap-slider": "5.0.x",
+    "bootstrap-validator": "^0.6.0",
+    "font-awesome": "4.6.x",
+    "jquery": "2.1.x",
+    "jquery-visible": "1.2.x",
+    "js-cookie": "2.0.x"
   }
 }

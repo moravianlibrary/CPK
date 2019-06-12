@@ -2,30 +2,30 @@
 $toRet = array(
     'extends' => 'root',
     'css' => array(
-        // 'vendor/bootstrap.min.css',
-        // 'vendor/bootstrap-accessibility.css',
-        // 'bootstrap-custom.css',
+        //'vendor/bootstrap.min.css',
+        //'vendor/bootstrap-accessibility.css',
+        //'bootstrap-custom.css',
         'compiled.css',
-        'vendor/font-awesome.min.css',
-        'vendor/bootstrap-slider.css',
-        'vendor/bootstrap-select.min.css',
+        '../assets/vendor/font-awesome/css/font-awesome.min.css',
+        '../assets/vendor/bootstrap-slider/dist/css/bootstrap-slider.min.css',
+        '../assets/vendor/bootstrap-select/dist/css/bootstrap-select.min.css',
         'print.css:print',
         'ol.css'
     ),
     'js' => array(
-        'vendor/base64.js:lt IE 10', // btoa polyfill
-        'vendor/jquery.min.js',
-        'vendor/bootstrap.min.js',
-        'vendor/rc4.js',
-        'vendor/js.cookie.js',
-        'vendor/bootstrap-datepicker.js',
-        'vendor/bootstrap-datepicker.cs.js',
-        'vendor/bootstrap-select.min.js',
-        'vendor/bootstrap-slider.js',
+        'vendor/base64.js:lt IE 10', // btoa polyfill   //@todo obsolete - find alternative or move to custom scripts
+        '../assets/vendor/jquery/dist/jquery.min.js',
+        '../assets/vendor/bootstrap/dist/js/bootstrap.min.js',
+        'vendor/rc4.js',    //@todo obsolete
+        '../assets/vendor/js-cookie/src/js.cookie.js',
+        'vendor/bootstrap-datepicker.js',   //@todo obsolete
+        'vendor/bootstrap-datepicker.cs.js',    //@todo obsolete
+        '../assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js',
+        '../assets/vendor/bootstrap-slider/dist/bootstrap-slider.min.js',
         'vendor/jquery.validate.min.js',
         'vendor/validation-additional-methods.js',
         'autocomplete.js',
-        'vendor/validator.min.js',
+        '../assets/vendor/bootstrap-validator/dist/validator.min.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
@@ -34,8 +34,8 @@ $toRet = array(
         'facets.js',
         'lz-string.js',
         'obalkyknih.js',
-        'vendor/jquery.visible.min.js',
-        'vendor/jquery.bootstrap-growl.js',
+        '../assets/vendor/jquery-visible/jquery.visible.min.js',
+        'vendor/jquery.bootstrap-growl.js', //@todo obsolete
         'notifications.module.js',
     ),
     'less' => array(
