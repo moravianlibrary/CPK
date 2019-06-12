@@ -674,6 +674,10 @@ jQuery( document ).ready( function( $ ) {
     $( '#mvs-modal' ).modal( 'show' );
   })
 
+  $('.ziskej-lib-title').on('click', function (e) {
+    var id = this.id;
+    $('#content_'+id).toggleClass('hidden');
+  })
 
 });
 
