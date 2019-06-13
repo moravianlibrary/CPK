@@ -4,6 +4,7 @@
   "license": "MIT",
   "dependencies": {
     "bootstrap": "3.3.x",
+    "bootstrap-datepicker": "^1.9.0",
     "bootstrap-growl-ifightcrime": "^1.1.0",
     "bootstrap-select": "1.10.x",
     "bootstrap-slider": "5.0.x",

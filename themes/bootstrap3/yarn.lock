@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+bootstrap-datepicker@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/bootstrap-datepicker/-/bootstrap-datepicker-1.9.0.tgz#e4bfce3fcce1967876b21dc6833ec5994aaed090"
+  integrity sha512-9rYYbaVOheGYxjOr/+bJCmRPihfy+LkLSg4fIFMT9Od8WwWB/MB50w0JO1eBgKUMbb7PFHQD5uAfI3ArAxZRXA==
+  dependencies:
+    jquery ">=1.7.1 <4.0.0"
+
 bootstrap-growl-ifightcrime@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/bootstrap-growl-ifightcrime/-/bootstrap-growl-ifightcrime-1.1.0.tgz#3f83c12bd29281315580a05ec13841d60031539e"
@@ -51,7 +58,7 @@ jquery@2.1.x:
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-2.1.4.tgz#228bde698a0c61431dc2630a6a154f15890d2317"
   integrity sha1-IoveaYoMYUMdwmMKahVPFYkNIxc=
 
-jquery@>=1.8, jquery@>=1.9.1, "jquery@^1.7 || ^2.0 || ^3.1":
+"jquery@>=1.7.1 <4.0.0", jquery@>=1.8, jquery@>=1.9.1, "jquery@^1.7 || ^2.0 || ^3.1":
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
   integrity sha512-36+AdBzCL+y6qjw5Tx7HgzeGCzC81MDDgaUP8ld2zhx58HdqXGoBd+tHdrBMiyjGQs0Hxs/MLZTu/eHNJJuWPw==

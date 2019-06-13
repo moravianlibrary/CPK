@@ -18,8 +18,8 @@ $toRet = array(
         '../assets/vendor/bootstrap/dist/js/bootstrap.min.js',
         'vendor/rc4.js',    //@todo obsolete
         '../assets/vendor/js-cookie/src/js.cookie.js',
-        'vendor/bootstrap-datepicker.js',   //@todo obsolete
-        'vendor/bootstrap-datepicker.cs.js',    //@todo obsolete
+        '../assets/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+        '../assets/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.cs.min.js',
         '../assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js',
         '../assets/vendor/bootstrap-slider/dist/bootstrap-slider.min.js',
         '../assets/vendor/jquery-validation/dist/jquery.validate.min.js',
