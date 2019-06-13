@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "dependencies": {
+    "angular": "1.5.x",
     "bootstrap": "3.3.x",
     "bootstrap-datepicker": "^1.9.0",
     "bootstrap-growl-ifightcrime": "^1.1.0",
