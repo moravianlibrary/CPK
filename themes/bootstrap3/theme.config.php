@@ -22,8 +22,8 @@ $toRet = array(
         'vendor/bootstrap-datepicker.cs.js',    //@todo obsolete
         '../assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js',
         '../assets/vendor/bootstrap-slider/dist/bootstrap-slider.min.js',
-        'vendor/jquery.validate.min.js',
-        'vendor/validation-additional-methods.js',
+        '../assets/vendor/jquery-validation/dist/jquery.validate.min.js',
+        // removed line
         'autocomplete.js',
         '../assets/vendor/bootstrap-validator/dist/validator.min.js',
         'common.js',
