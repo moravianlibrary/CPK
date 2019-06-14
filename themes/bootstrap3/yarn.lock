@@ -73,9 +73,9 @@ js-cookie@2.0.x:
   resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.0.4.tgz#5f43d1872118aaf5e7a16029b70976eb7315c6a5"
   integrity sha1-X0PRhyEYqvXnoWAptwl263MVxqU=
 
-jstree@3.0.x:
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/jstree/-/jstree-3.0.9.tgz#d562ce3510325d4680e72140649cd255d377c7b7"
-  integrity sha1-1WLONRAyXUaA5yFAZJzSVdN3x7c=
+jstree@3:
+  version "3.3.8"
+  resolved "https://registry.yarnpkg.com/jstree/-/jstree-3.3.8.tgz#8d0f506028d65e5207efa7b78e6541cbe35622c1"
+  integrity sha512-0/nhGxVLSGfGQyVg+q59ocqSEKWRDKHoA8wNrcOIvlzCCw19tzvcMNGJ19hf+U0b7fycABowkny7fQPcLgUwwA==
   dependencies:
     jquery ">=1.9.1"
