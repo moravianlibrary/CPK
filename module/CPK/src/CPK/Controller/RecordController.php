@@ -270,9 +270,12 @@ class RecordController extends RecordControllerBase
                 $view->setVariable('connectedLibs', $connectedLibs);
                 $view->setVariable('sourceEppn', $sourceEppn);
             }
+            $view->setVariable('ziskejLibSources', $libraryIds);
             $this->layout()->ziskejLibIds = $libraryIds;
         } catch (\Exception $e) {
             $view->setVariable('ziskejLibs', []);
+            $view->setVariable('connectedLibs', []);
+            $view->setVariable('sourceEppn', []);
         }
 
         $view->setVariable('ziskejVars', [

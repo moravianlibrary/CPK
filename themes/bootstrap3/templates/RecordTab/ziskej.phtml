@@ -20,12 +20,12 @@
         <? endif; ?>
       <h4><?= $this->translate('ziskej_available_header') ?></h4>
       <div class="panel panel-default">
-        <? foreach ($this->ziskejLibs as $sigla): ?>
-          <div class="panel-heading ziskej-lib-title" id="<?=$sigla?>" style="cursor: pointer;"><?= $this->translate('sigla_'.$sigla) ?><i class="fa fa-arrow-down" style="float:right;"></i></div>
-          <div class="panel-body hidden ziskej-hidden-content" id="<?='content_'.$sigla?>">
+        <? foreach ($this->ziskejLibSources as $source): ?>
+          <div class="panel-heading ziskej-lib-title" id="<?=$source?>" style="cursor: pointer;"><?= $this->translate('source_'.$source) ?><i class="fa fa-arrow-down" style="float:right;"></i></div>
+          <div class="panel-body hidden ziskej-hidden-content" id="<?='content_'.$source?>">
             <div class="row">
               <div class="col-md-6">
-                  <?= $this->translate('sigla_'.$sigla) ?>
+                  <?= $this->translate('source_'.$source) ?>
               </div>
               <div class="col-md-6">
                 <button class="btn btn-default">Log in</button>
@@ -43,23 +43,34 @@
       </a>
     </div>
   <? else: ?>
+  <div class="row">
     <div class="col-md-6">
       <div class="row">
         <h4><?= $this->translate('ziskej_available_header') ?></h4>
-        <ul>
-            <? foreach ($this->ziskejLibs as $sigla): ?>
-              <li><a href=""><?= $this->translate('sigla_'.$sigla) ?></a></li>
-            <?endforeach; ?>
-        </ul>
-      </div>
-      <div class="row text-center">
-        <div id="" data-toggle="modal" data-target="#ziskejTabLoginModal" class="">
-          <button class='login-button btn-primary btn'><?=$this->transEsc("Institutional Login")?></button>
+        <div class="panel panel-default">
+          <? foreach ($this->ziskejLibSources as $source): ?>
+            <div class="panel-heading ziskej-lib-title" id="<?=$source?>" style="cursor: pointer;">
+                <?= $this->translate('source_'.$source) ?><i class="fa fa-arrow-down" style="float:right;"></i>
+            </div>
+            <div class="panel-body hidden ziskej-hidden-content" id="<?='content_'.$source?>">
+              <div class="row">
+                <div class="row">
+                  <div>
+                      <?= $this->translate('source_'.$source) ?>
+                  </div>
+                </div>
+                <div class="row" style="float: right;">
+                  <div data-toggle="modal" data-target="#ziskejTabLoginModal" class="col-md-6">
+                    <button class='login-button btn-primary btn'><?=$this->transEsc("Institutional Login")?></button>
+                  </div>
+                  <div class="col-md-6">
+                    <button class="register-button btn btn-default">Register</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <?endforeach; ?>
         </div>
-        <p>Nejste zaregistrovaní do žádné z této knihoven?</p> <?// @todo add translate ?>
-        <form action="">
-          <input type="submit" class="btn btn-primary" value="Register Online">
-        </form>
       </div>
     </div>
     <div class="col-md-6 text-center" id="ziskejMinimalButton">
@@ -67,5 +78,6 @@
         <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
       </a>
     </div>
+  </div>
   <? endif; ?>
 </div>
