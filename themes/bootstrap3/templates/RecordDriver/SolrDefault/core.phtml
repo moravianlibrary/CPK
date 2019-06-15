@@ -44,33 +44,12 @@
           <? else: ?>
           <div class="col-sm-12 record-information">
           <? endif; ?>
-            <h2 class='record-title' property='name'>
-              <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>
-            </h2>
-
-          <? if (isset($this->ziskejUrl)): ?>
-            <form action="<?= $this->ziskejUrl ?>" id="mvs" method="POST">
-              <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
-              <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
-              <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($id) ?>">
-              <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
-              <? foreach ($this->records as $record): ?>
-                <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
-              <? endforeach; ?>
-<!--              <div class="row">-->
-<!--                <input type="submit" class='col-xs-12 col-lg-4 mvs' id="mvs-submit" value="--><?//= $this->translate('MVS') ?><!--">-->
-<!--              </div>-->
-              <div class="row">
-                <a href="" class="col-xs-12 col-lg-4 mvs"><?= $this->translate('MVS') ?></a>
-              </div>
-            </form>
-          <? else: ?>
-            <div class="row">
-              <div class='col-xs-12 col-lg-4 want-it'>
-                  <?= $this->translate('Want it') ?>
-              </div>
+          <h2 class='record-title' property='name'><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
+          <div class="row">
+            <div class='col-xs-12 col-lg-4 want-it'>
+                <?= $this->translate('Want it') ?>
             </div>
-          <? endif; ?>
+          </div>
 
             <? $summ = $this->driver->getSummary(); if (!empty($summ)): ?>
               <? foreach ($summ as $field): ?>

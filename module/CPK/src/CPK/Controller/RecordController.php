@@ -239,9 +239,7 @@ class RecordController extends RecordControllerBase
 
         /* @var $request Request */
         $request = $this->getRequest();
-        // Set up MVS button
         $ziskejCookie = $request->getCookie()->ziskej;
-
         if (isset($config->Ziskej, $config->Ziskej->$ziskejCookie) && $ziskejCookie != 'disabled') {
             $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
         }
@@ -274,7 +272,7 @@ class RecordController extends RecordControllerBase
             }
             $this->layout()->ziskejLibIds = $libraryIds;
         } catch (\Exception $e) {
-
+            $view->setVariable('ziskejLibs', []);
         }
 
         $view->setVariable('ziskejVars', [
