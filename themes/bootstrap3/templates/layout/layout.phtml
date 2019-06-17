@@ -310,50 +310,52 @@
     </header>
 
     <? if (!$this->themeConfiguration()->themeConfig['hide_header_panel'] && $this->layout()->frontpage): ?>
-      <div class='header-panel container'>
-        <div class='row'>
-          <div class='col-md-3 text-center panel-col panel-title'>
-            <?=$this->transEsc('header_panel_first_column')?>
-          </div>
-          <div class='col-md-3 text-center panel-col'>
-            <div class='content row'>
-              <div class='icon col-md-2'>
-                <i class='icon-chci-to-knihovna'></i>
-              </div>
-              <div class='text col-md-10'>
-                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_second_column_link']?>'
-                   title='<?=$this->transEsc('header_panel_second_column')?>'
-                   class='panel-link'>
-                  <?=$this->transEsc('header_panel_second_column')?>
-                </a>
+      <div class='header-panel'>
+        <div class="container">
+          <div class='row'>
+            <div class='col-md-3 text-center panel-col panel-title'>
+              <?=$this->transEsc('header_panel_first_column')?>
+            </div>
+            <div class='col-md-3 text-center panel-col'>
+              <div class='content row'>
+                <div class='icon col-md-2'>
+                  <i class='icon-chci-to-knihovna'></i>
+                </div>
+                <div class='text col-md-10'>
+                  <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_second_column_link']?>'
+                     title='<?=$this->transEsc('header_panel_second_column')?>'
+                     class='panel-link'>
+                    <?=$this->transEsc('header_panel_second_column')?>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-          <div class='col-md-3 text-center panel-col'>
-            <div class='content'>
-              <div class='icon col-md-2'>
-                <i class='pr-misc-globe'></i>
-              </div>
-              <div class='text col-md-10'>
-                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_third_column_link']?>'
-                   title='<?=$this->transEsc('header_panel_third_column')?>'
-                   class='panel-link'>
-                  <?=$this->transEsc('header_panel_third_column')?>
-                </a>
+            <div class='col-md-3 text-center panel-col'>
+              <div class='content'>
+                <div class='icon col-md-2'>
+                  <i class='pr-misc-globe'></i>
+                </div>
+                <div class='text col-md-10'>
+                  <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_third_column_link']?>'
+                     title='<?=$this->transEsc('header_panel_third_column')?>'
+                     class='panel-link'>
+                    <?=$this->transEsc('header_panel_third_column')?>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-          <div class='col-md-3 text-center panel-col'>
-            <div class='content'>
-              <div class='icon col-md-2'>
-                <i class='fa fa-laptop'></i>
-              </div>
-              <div class='text col-md-10'>
-                <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_fourth_column_link']?>'
-                   title='<?=$this->transEsc('header_panel_fourth_column')?>'
-                   class='panel-link'>
-                  <?=$this->transEsc('header_panel_fourth_column')?>
-                </a>
+            <div class='col-md-3 text-center panel-col'>
+              <div class='content'>
+                <div class='icon col-md-2'>
+                  <i class='fa fa-laptop'></i>
+                </div>
+                <div class='text col-md-10'>
+                  <a href='<?=$this->themeConfiguration()->themeConfig['header_panel_fourth_column_link']?>'
+                     title='<?=$this->transEsc('header_panel_fourth_column')?>'
+                     class='panel-link'>
+                    <?=$this->transEsc('header_panel_fourth_column')?>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
