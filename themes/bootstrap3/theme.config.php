@@ -6,36 +6,36 @@ $toRet = array(
         //'vendor/bootstrap-accessibility.css',
         //'bootstrap-custom.css',
         'compiled.css',
-        '../css/assets/vendor/font-awesome/css/font-awesome.min.css',
-        '../css/assets/vendor/bootstrap-slider/dist/css/bootstrap-slider.min.css',
-        '../css/assets/vendor/bootstrap-select/dist/css/bootstrap-select.min.css',
+        '../assets/vendor/font-awesome/css/font-awesome.min.css',
+        '../assets/vendor/bootstrap-slider/dist/css/bootstrap-slider.min.css',
+        '../assets/vendor/bootstrap-select/dist/css/bootstrap-select.min.css',
         'print.css:print',
         'ol.css'
     ),
     'js' => array(
         'vendor/base64.js:lt IE 10', // btoa polyfill   //@todo obsolete - find alternative or move to custom scripts
-        '../css/assets/vendor/jquery/dist/jquery.min.js',
-        '../css/assets/vendor/bootstrap/dist/js/bootstrap.min.js',
+        '../assets/vendor/jquery/dist/jquery.min.js',
+        '../assets/vendor/bootstrap/dist/js/bootstrap.min.js',
         'vendor/rc4.js',    //@todo obsolete
-        '../css/assets/vendor/js-cookie/src/js.cookie.js',
-        '../css/assets/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
-        '../css/assets/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.cs.min.js',
-        '../css/assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js',
-        '../css/assets/vendor/bootstrap-slider/dist/bootstrap-slider.min.js',
-        '../css/assets/vendor/jquery-validation/dist/jquery.validate.min.js',
+        '../assets/vendor/js-cookie/src/js.cookie.js',
+        '../assets/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+        '../assets/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.cs.min.js',
+        '../assets/vendor/bootstrap-select/dist/js/bootstrap-select.min.js',
+        '../assets/vendor/bootstrap-slider/dist/bootstrap-slider.min.js',
+        '../assets/vendor/jquery-validation/dist/jquery.validate.min.js',
         // removed line
         'autocomplete.js',
-        '../css/assets/vendor/bootstrap-validator/dist/validator.min.js',
+        '../assets/vendor/bootstrap-validator/dist/validator.min.js',
         'common.js',
         'lightbox.js',
         'eu-cookies.js',
         'search-results.js',
-        '../css/assets/vendor/jstree/dist/jstree.min.js',
+        '../assets/vendor/jstree/dist/jstree.min.js',
         'facets.js',
         'lz-string.js',
         'obalkyknih.js',
-        '../css/assets/vendor/jquery-visible/jquery.visible.min.js',
-        '../css/assets/vendor/bootstrap-growl-ifightcrime/jquery.bootstrap-growl.min.js',
+        '../assets/vendor/jquery-visible/jquery.visible.min.js',
+        '../assets/vendor/bootstrap-growl-ifightcrime/jquery.bootstrap-growl.min.js',
         'notifications.module.js',
     ),
     'less' => array(
@@ -89,12 +89,12 @@ if (!($angularForbiddenForIE && USES_IE)) {
     if ($useCompiledAngular) {
 
         // Add compiled angular apps
-        array_push($toRet['js'], '../css/assets/vendor/angular/angular.min.js', 'ng-cpk/ng-cpk.min.js');
+        array_push($toRet['js'], '../assets/vendor/angular/angular.min.js', 'ng-cpk/ng-cpk.min.js');
     } else {
 
         $jsToInclude = [
 
-            '../css/assets/vendor/angular/angular.min.js',
+            '../assets/vendor/angular/angular.min.js',
 
             'ng-cpk/favorites/module.js',
             'ng-cpk/favorites/favsNotifications.service.js',
