@@ -52,7 +52,7 @@
       <? if (! $this->themeConfiguration()->themeConfig['hide_library_search']): ?>
         <li class="<?= $this->layout()->headerType == 'newlibraries' ? 'active' : '' ?>" id="librariesSearchLink">
           <a href="<?= $this->layout()->librariesUrl ?>">
-            <?= $this->help()->getElementHelp('element_help_header_libraries', $this->translate('Libraries')) ?>
+            <?= $this->help()->getElementHelp('element_help_header_libraries', $this->translate('List of libraries')) ?>
           </a>
         </li>
       <? endif; ?>
