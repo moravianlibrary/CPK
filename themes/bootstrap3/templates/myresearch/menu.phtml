@@ -36,6 +36,10 @@
             <?= $this->help()->getElementHelp('element_help_profile', $titleHtml) ?>
             <span class="pull-right flip"><i class="pr-user-single"></i></span>
 	    </a>
+
+	  <? endif; ?>
+  <? endif; ?>
+  <? if ($user): ?>
 	    <a href="<?=$this->url('myresearch-settings')?>" class="list-group-item<?=$this->active == 'settings' ? ' active' : ''?>">
 	      <?=$this->transEsc('Settings')?>
 	      <span class="pull-right flip"><i class="pr-setting-wrench"></i></span>
@@ -46,9 +50,8 @@
 	        <span class="pull-right flip"><i class="pr-setting-gear2"></i></span>
 	      </a>
 	    <? endif; ?>
-
-	  <? endif; ?>
   <? endif; ?>
+
   <? if ($user && $user->libraryCardsEnabled()): ?>
     <a href="<?=$this->url('librarycards-home')?>" class="list-group-item<?=$this->active == 'librarycards' ? ' active' : ''?>">
         <? $titleHtml = $this->transEsc('Linked accounts'); ?>
