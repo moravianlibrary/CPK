@@ -66,8 +66,13 @@
                 <? endif; ?>
               </h4>
               <p class='list-group-item-text'>
-                <? if ($this->widget->getDescription() == 'author'): ?>
-                  <?= $item->getRecordDriver()->getDeduplicatedAuthors()['main'] ?>
+                <? if ($this->widget->getDescription() == 'author'):
+                    $authors = $item->getRecordDriver()->getDeduplicatedAuthors();
+                    if (!empty($authors['main'])): ?>
+                      <?= $authors['main'] ?>
+                    <? else: ?>
+                      <?= $authors['corporate'] ?>
+                  <? endif; ?>
                 <? elseif ($this->widget->getDescription() == 'description'): ?>
                   <?= ($this->language == 'cs') ? $item->getDescriptionCs() : $item->getDescriptionEn() ?>
                 <? endif; ?>
