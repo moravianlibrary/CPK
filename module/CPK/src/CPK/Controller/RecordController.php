@@ -239,7 +239,7 @@ class RecordController extends RecordControllerBase
         $ziskejCookie = $request->getCookie()->ziskej;
 
         if (isset($config->Ziskej, $config->Ziskej->$ziskejCookie) && $ziskejCookie != 'disabled') {
-            $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
+            $view->mvsUrl = $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
             $view->eppn = $request->getServer()->eduPersonPrincipalName;
             $view->serverName = $request->getServer()->SERVER_NAME;
             $view->entityId = $request->getServer('Shib-Identity-Provider');
