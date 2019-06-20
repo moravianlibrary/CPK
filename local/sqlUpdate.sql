@@ -831,3 +831,92 @@ DROP COLUMN `user_requested`,
 DROP COLUMN `timestamp_approved`,
 CHANGE COLUMN `timestamp_requested` `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
 UPDATE `system` SET `value` = '64' WHERE `key`='DB_VERSION';
+
+/* feature-1192 */
+/* Make Knihovny.cz database structure compatible with original VuFind */
+/* VuFind 2.5 */
+ALTER TABLE `user`
+  MODIFY COLUMN `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  MODIFY COLUMN `email` varchar(255) NOT NULL DEFAULT '';
+
+/* VuFind 3.0 */
+ALTER TABLE `user`
+  MODIFY COLUMN `cat_password` varchar(70) DEFAULT NULL;
+
+ALTER TABLE `resource`
+  MODIFY COLUMN `record_id` varchar(255) NOT NULL DEFAULT '';
+
+ALTER TABLE `resource`
+  MODIFY COLUMN `title` varchar(255) NOT NULL DEFAULT '',
+  MODIFY COLUMN `author` varchar(255) DEFAULT NULL;
+
+/* Modification needed for MySQL strict mode */
+ALTER TABLE `comments`
+  MODIFY COLUMN `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
+
+ALTER TABLE `oai_resumption`
+  MODIFY COLUMN `expires` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
+
+ALTER TABLE `search`
+  MODIFY COLUMN `created` date NOT NULL DEFAULT '2000-01-01';
+
+ALTER TABLE `session`
+  MODIFY COLUMN `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
+
+ALTER TABLE `user`
+  MODIFY COLUMN `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
+
+ALTER TABLE `user_card`
+  MODIFY COLUMN `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
+
+ALTER TABLE `user_list`
+  MODIFY COLUMN `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
+
+/* VuFind 3.1 */
+ALTER TABLE `tags` CONVERT TO CHARACTER SET utf8 COLLATE utf8_bin;
+
+/* VuFind 4.0 */
+CREATE TABLE `external_session` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(128) NOT NULL,
+  `external_session_id` varchar(255) NOT NULL,
+  `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `session_id` (`session_id`),
+  KEY `external_session_id` (`external_session_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;
+
+ALTER TABLE `user`
+  ADD COLUMN `cat_id` varchar(255) DEFAULT NULL AFTER email,
+  ADD UNIQUE KEY `cat_id` (`cat_id`);
+
+/* VuFind 5.0 */
+ALTER TABLE `user`
+  ADD COLUMN auth_method varchar(50) DEFAULT NULL AFTER last_login;
+
+ALTER TABLE `session`
+  MODIFY COLUMN `data` mediumtext;
+
+/* VuFind 5.1 */
+ALTER TABLE `resource`
+  ADD COLUMN `extra_metadata` mediumtext DEFAULT NULL AFTER source;
+
+ALTER TABLE `user`
+  MODIFY COLUMN `cat_pass_enc` varchar(255) DEFAULT NULL;
+
+ALTER TABLE `user_card`
+  MODIFY COLUMN `cat_password` varchar(70) DEFAULT NULL,
+  MODIFY COLUMN `cat_pass_enc` varchar(255) DEFAULT NULL;
+
+/* VuFind 6.0 */
+ALTER TABLE `user`
+  ADD COLUMN `email_verified` datetime DEFAULT NULL AFTER email;
+
+CREATE TABLE `shortlinks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `path` mediumtext NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin;
+
+UPDATE `system` SET `value` = '65' WHERE `key`='DB_VERSION';
