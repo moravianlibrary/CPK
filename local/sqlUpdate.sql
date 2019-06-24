@@ -847,6 +847,10 @@ ALTER TABLE `resource`
   MODIFY COLUMN `record_id` varchar(255) NOT NULL DEFAULT '';
 
 ALTER TABLE `resource`
+  `source` varchar(50) NOT NULL DEFAULT 'Solr';
+UPDATE `resource` SET source='Solr' WHERE source='VuFind';
+
+ALTER TABLE `resource`
   MODIFY COLUMN `title` varchar(255) NOT NULL DEFAULT '',
   MODIFY COLUMN `author` varchar(255) DEFAULT NULL;
 
