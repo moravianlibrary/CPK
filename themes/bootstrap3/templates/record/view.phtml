@@ -19,6 +19,15 @@
   }
 
   $this->layout()->title = $this->driver->getShortTitle();
+
+  // Add tag link rel canonical if needed
+  $currentUrl = $this->serverUrl(true);
+  $canonicalUrl = $this->serverUrl() . $this->recordLink()->getUrl($this->driver);
+  if (!empty($canonicalUrl)) {
+    if ($currentUrl != $canonicalUrl) {
+      $this->headLink(['rel' => 'canonical', 'href' => $canonicalUrl]);
+    }
+  }
 ?>
 
 <script>
