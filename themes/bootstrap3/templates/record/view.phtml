@@ -21,8 +21,10 @@
   $this->layout()->title = $this->driver->getShortTitle();
 
   // Add tag link rel canonical if needed
-  $currentUrl = $this->serverUrl(true);
-  $canonicalUrl = $this->serverUrl() . $this->recordLink()->getUrl($this->driver);
+  $serverUrl = $this->plugin('serverUrl');
+  $serverUrl->setUseProxy(true);
+  $currentUrl = $serverUrl->getScheme() . '://' . $serverUrl->getHost() . $_SERVER['REQUEST_URI'];
+  $canonicalUrl = $serverUrl->getScheme() . '://' . $serverUrl->getHost() . $this->recordLink()->getUrl($this->driver);
   if (!empty($canonicalUrl)) {
     if ($currentUrl != $canonicalUrl) {
       $this->headLink(['rel' => 'canonical', 'href' => $canonicalUrl]);
