@@ -159,17 +159,4 @@ class NamedList implements Countable, Iterator
     {
         unset($this->list[key($this->list)]);
     }
-
-    public function retainKeys(array $keys)
-    {
-        $newList = [];
-        foreach ($this->list as $current) {
-            if (in_array($current[0], $keys)) {
-                $newList[] = $current;
-            }
-        }
-        $this->list = $newList;
-        $this->rewind();
-    }
-
 }

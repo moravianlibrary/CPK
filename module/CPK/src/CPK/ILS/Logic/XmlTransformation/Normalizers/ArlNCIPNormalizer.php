@@ -309,8 +309,8 @@ class ArlNCIPNormalizer extends NCIPNormalizer
                 if ($id !== null) {
 
                     $id = str_replace(
-                        array('li_us_cat*', 'cbvk_us_cat*', 'kl_us_cat*', 'vy_us_cat*'),
-                        array('LiUsCat_', 'CbvkUsCat_', 'KlUsCat_', 'VyUsCat_'),
+                        array('li_us_cat*', 'cbvk_us_cat*', 'kl_us_cat*'),
+                        array('LiUsCat_', 'CbvkUsCat_', 'KlUsCat_'),
                         $id,
                         $count
                     );

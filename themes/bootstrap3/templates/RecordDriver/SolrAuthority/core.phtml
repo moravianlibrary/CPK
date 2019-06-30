@@ -97,7 +97,7 @@
         <td><?=$this->transEsc('Authority')?></td>
       </tr>
 
-    <? if ($this->driver->hasPublications()): ?>
+	  <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
       <tr>
         <th><?=$this->transEsc('Publications')?>: </th>
         <td>
@@ -107,20 +107,6 @@
         </td>
       </tr>
 	  <? endif; ?>
-
-        <? if ($this->driver->hasPublicationsAbout()): ?>
-          <tr>
-            <th><?=$this->transEsc('Publications')?>: </th>
-            <td>
-              <div>
-                <a title="<?=$this->transEsc('Show publications about this person')?>"
-                   href="<?=$this->driver->getPublicationsAboutUrl()?>">
-                    <?=$this->translate('Show publications about this person')?>
-                </a>
-              </div>
-            </td>
-          </tr>
-        <? endif; ?>
 
     </table>
     <?/* End Main Details */?>

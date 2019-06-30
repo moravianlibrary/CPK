@@ -30,7 +30,6 @@ namespace VuFind\Search\Factory;
 
 use VuFind\Search\Solr\FilterFieldConversionListener;
 use VuFind\Search\Solr\HideFacetValueListener;
-use VuFind\Search\Solr\KeepFacetValueListener;
 use VuFind\Search\Solr\InjectHighlightingListener;
 use VuFind\Search\Solr\InjectConditionalFilterListener;
 use VuFind\Search\Solr\InjectSpellingListener;
@@ -248,11 +247,6 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         // Attach hide facet value listener:
         if ($hfvListener = $this->getHideFacetValueListener($backend, $facet)) {
             $hfvListener->attach($events);
-        }
-
-        // Attach keep facet value listener:
-        if ($kfvListener = $this->getKeepFacetValueListener($backend, $facet)) {
-            $kfvListener->attach($events);
         }
 
         $nested = [];
@@ -508,29 +502,6 @@ abstract class AbstractSolrBackendFactory implements FactoryInterface
         return new HideFacetValueListener(
             $backend,
             $facet->HideFacetValue->toArray()
-        );
-    }
-
-    /**
-     * Get a hide facet value listener for the backend
-     *
-     * @param BackendInterface $backend Search backend
-     * @param Config           $facet   Configuration of facets
-     *
-     * @return mixed null|HideFacetValueListener
-     */
-    protected function getKeepFacetValueListener(
-        BackendInterface $backend,
-        Config $facet
-    ) {
-        if (!isset($facet->KeepFacetValue)
-            || ($facet->KeepFacetValue->count()) == 0
-        ) {
-            return null;
-        }
-        return new KeepFacetValueListener(
-            $backend,
-            $facet->KeepFacetValue->toArray()
         );
     }
 

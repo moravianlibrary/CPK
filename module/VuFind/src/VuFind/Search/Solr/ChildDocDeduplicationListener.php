@@ -49,8 +49,6 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 class ChildDocDeduplicationListener extends DeduplicationListener
 {
 
-    const CHILD_DOCUMENT_LIMIT = 1000;
-
     /**
      * Record factory
      *
@@ -128,8 +126,7 @@ class ChildDocDeduplicationListener extends DeduplicationListener
                     if (empty($fl)) {
                         $fl = $this->fieldList;
                     }
-                    $limit = self::CHILD_DOCUMENT_LIMIT;
-                    $fl = $fl . ", [child parentFilter=merged_boolean:true $childFilter limit=$limit]";
+                    $fl = $fl . ", [child parentFilter=merged_boolean:true $childFilter]";
                     $params->set('fl', $fl);
                 } else {
                     $fq = '-merged_boolean:true';

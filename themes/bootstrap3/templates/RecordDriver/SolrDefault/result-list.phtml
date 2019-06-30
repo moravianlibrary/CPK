@@ -349,22 +349,12 @@
         <? endforeach; ?>
       <? endif; ?>
 
-        <? if ($publications = $this->driver->tryMethod('hasPublications')): ?>
-          <div>
-            <a title="<?=$this->transEsc('Show publications of this person')?>"
-               href="<?=$this->driver->getPublicationsUrl()?>">
-                <?=$this->translate('Show publications of this person')?>
-            </a>
-          </div>
+    <? if ($this->driver instanceof CPK\RecordDriver\SolrAuthority): ?>
+        <? if ($this->driver->hasPublications() && $recordSource !== 'osobnosti'): ?>
+      <div>
+      <a title="<?=$this->transEsc('Show publications of this person')?>" href="<?=$this->driver->getPublicationsUrl()?>"><?=$this->translate('Show publications of this person')?></a>
+      </div>
         <? endif; ?>
-
-        <? if ($hasPublicationsAbout = $this->driver->tryMethod('hasPublicationsAbout')): ?>
-          <div>
-            <a title="<?=$this->transEsc('Show publications about this person')?>"
-               href="<?=$this->driver->getPublicationsAboutUrl()?>">
-                <?=$this->translate('Show publications about this person')?>
-            </a>
-          </div>
       <? endif; ?>
 
       <? /* We need to find out if we're supposed to display an OpenURL link ($openUrlActive),
