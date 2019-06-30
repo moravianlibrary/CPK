@@ -247,6 +247,40 @@ class MyResearchController extends MyResearchControllerBase
 
         $viewVars['isSynchronous'] = $isSynchronous;
 
+        $ilsDriver = $this->getILS()->getDriver();
+        $ziskej = $ilsDriver->getZiskejDriver();
+        try {
+            $ziskejLibs = $this->getContent($ziskej->getLibraries());
+            $viewVars['ziskejLibs'] = $ziskejLibs['items'];
+            $libraryIds = [];
+            foreach ($ziskejLibs['items'] as $sigla) {
+                $libraryIds[] = $ilsDriver->siglaToSource($sigla);
+            }
+            if ($user) {
+                $userSources = $user->getNonDummyInstitutions();
+                $userLibCards = $user->getAllUserLibraryCards();
+                $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+                    return in_array($userLib, $libraryIds);
+                });
+                $sourceEppn = [];
+                foreach ($userLibCards as $userLibCard) {
+                    if(in_array($userLibCard->home_library, $connectedZiskejLibs)) {
+                        $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+                    }
+                }
+                $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
+
+                $userTickets = [];
+                foreach ($sourceEppn as $source => $eppn) {
+                    $userTickets[$source] = $this->getContent($ziskej->getUserTickets($eppn, true));
+                }
+//                $viewVars['ziskejIdentity'] = $userTickets;
+                $libraryIdentities['ziskej'] = $userTickets;
+            }
+        } catch (\Exception $e) {
+
+        }
+        $viewVars['libraryIdentities'] += $libraryIdentities;
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;

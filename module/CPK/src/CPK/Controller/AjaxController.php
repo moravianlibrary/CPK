@@ -474,6 +474,7 @@ class AjaxController extends AjaxControllerBase
     {
         // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
+        $type = $this->params()->fromPost('type');
 
         $hasPermissions = $this->hasPermissions($cat_username);
 
@@ -488,6 +489,13 @@ class AjaxController extends AjaxControllerBase
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
+            if ($cat_username == 'ziskejAjaxLoad') {
+                $obalky = [];
+                try {
+                    $toRet = $this->getZiskejTickets($type);
+                    return $this->output($toRet, self::STATUS_OK);
+                } catch (\Exception $e) {}
+            }
             $patron = [
                 'cat_username' => $cat_username,
                 'id' => $cat_username
@@ -628,10 +636,97 @@ class AjaxController extends AjaxControllerBase
                 self::STATUS_ERROR);
     }
 
+    protected function getZiskejTickets($type)
+    {
+        $renderer = $this->getViewRenderer();
+        $catalog = $this->getILS();
+        $ilsDriver = $catalog->getDriver();
+        $ziskej = $ilsDriver->getZiskejDriver();
+
+        $ziskejLibs = $this->getContent($ziskej->getLibraries());
+        $viewVars['ziskejLibs'] = $ziskejLibs['items'];
+        $libraryIds = [];
+        foreach ($ziskejLibs['items'] as $sigla) {
+            $libraryIds[] = $ilsDriver->siglaToSource($sigla);
+        }
+        if ($user = $this->getAuthManager()->isLoggedIn()) {
+            $userSources = $user->getNonDummyInstitutions();
+            $userLibCards = $user->getAllUserLibraryCards();
+            $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+                return in_array($userLib, $libraryIds);
+            });
+            $sourceEppn = $tickets = [];
+            foreach ($userLibCards as $userLibCard) {
+                if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
+                    $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+                }
+            }
+            $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
+
+            foreach ($sourceEppn as $source => $eppn) {
+                $tickets[$source] = $this->getContent($ziskej->getUserTickets($eppn, true));
+            }
+            $i = 0;
+            foreach ($tickets as $source) {
+                foreach ($source['items'] as $current) {
+                    $i++;
+                    $resource = $this->getDriverForILSRecord($current, true);
+                    // We need to let JS know what to opt for ...
+                    $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
+                    $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                    if ($bibInfo) {
+                        $recordId = "#cover_$recordId";
+
+                        $bibInfo = json_decode($bibInfo);
+
+                        $recordId = preg_replace("/[\.:]/", "", $recordId);
+
+                        $obalky[$recordId] = [
+                            'bibInfo' => $bibInfo,
+                            'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
+                                'checkedout')
+                        ];
+                    }
+
+                    $ilsDetails = $resource->getExtraDetail('ils_details');
+                    if (isset($ilsDetails['dueStatus']) &&
+                        $ilsDetails['dueStatus'] == "overdue") {
+                        $showOverdueMessage = true;
+                    }
+                    $transactions[] = $resource;
+                }
+            }
+            if ($type == 'checkedout') {
+                $html = $renderer->render('myresearch/checkedout-from-ziskej.phtml',
+                    [
+                        'libraryIdentity' => compact('transactions'),
+                        'AJAX' => true
+                    ]);
+            } elseif ($type == 'holds') {
+                $html = $renderer->render('myresearch/holds-from-ziskej.phtml',
+                    [
+                        'libraryIdentity' => compact('transactions'),
+                        'AJAX' => true
+                    ]);
+            }
+
+            $toRet = [
+                'html' => $html,
+                'obalky' => $obalky,
+//                'canRenew' => 'no',
+//                'overdue' => 'over',
+                'cat_username' => 'ziskejAjaxLoad',
+                'source' => 'ziskej'
+            ];
+        }
+        return $toRet;
+    }
+
     public function getMyTransactionsAjax()
     {
         // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
+        $type = $this->params()->fromPost('type');
 
         $hasPermissions = $this->hasPermissions($cat_username);
 
@@ -647,77 +742,9 @@ class AjaxController extends AjaxControllerBase
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
             if ($cat_username == 'ziskejAjaxLoad') {
                 $obalky = [];
-
-                $ziskej = $ilsDriver->getZiskejDriver();
                 try {
-                    $ziskejLibs = $this->getContent($ziskej->getLibraries());
-                    $viewVars['ziskejLibs'] = $ziskejLibs['items'];
-                    $libraryIds = [];
-                    foreach ($ziskejLibs['items'] as $sigla) {
-                        $libraryIds[] = $ilsDriver->siglaToSource($sigla);
-                    }
-                    if ($user = $this->getAuthManager()->isLoggedIn()) {
-                        $userSources = $user->getNonDummyInstitutions();
-                        $userLibCards = $user->getAllUserLibraryCards();
-                        $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
-                            return in_array($userLib, $libraryIds);
-                        });
-                        $sourceEppn = $tickets = [];
-                        foreach ($userLibCards as $userLibCard) {
-                            if(in_array($userLibCard->home_library, $connectedZiskejLibs)) {
-                                $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
-                            }
-                        }
-                        $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
-
-                        foreach ($sourceEppn as $source => $eppn) {
-                            $tickets[$source] = $this->getContent($ziskej->getUserTickets($eppn, true));
-                        }
-                        $i = 0;
-                        foreach ($tickets as $source) {
-                            foreach ($source['items'] as $current) {
-                                $i++;
-                                $resource = $this->getDriverForILSRecord($current, true);
-                                // We need to let JS know what to opt for ...
-                                $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
-                                $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
-                                if ($bibInfo) {
-                                    $recordId = "#cover_$recordId";
-
-                                    $bibInfo = json_decode($bibInfo);
-
-                                    $recordId = preg_replace("/[\.:]/", "", $recordId);
-
-                                    $obalky[$recordId] = [
-                                        'bibInfo' => $bibInfo,
-                                        'advert' => $renderer->record($resource)->getObalkyKnihAdvert(
-                                            'checkedout')
-                                    ];
-                                }
-
-                                $ilsDetails = $resource->getExtraDetail('ils_details');
-                                if (isset($ilsDetails['dueStatus']) &&
-                                    $ilsDetails['dueStatus'] == "overdue") {
-                                    $showOverdueMessage = true;
-                                }
-                                $transactions[] = $resource;
-                            }
-                        }
-                        $html = $renderer->render('myresearch/checkedout-from-ziskej.phtml',
-                            [
-                                'libraryIdentity' => compact('transactions'),
-                                'AJAX' => true
-                            ]);
-                        $toRet = [
-                            'html' => $html,
-                            'obalky' => $obalky,
-                            'canRenew' => 'no',
-                            'overdue' => 'over',
-                            'cat_username' => 'ziskejAjaxLoad',
-                            'source' => 'ziskej'
-                        ];
-                        return $this->output($toRet, self::STATUS_OK);
-                    }
+                    $toRet =  $this->getZiskejTickets($type);
+                    return $this->output($toRet, self::STATUS_OK);
                 } catch (\Exception $e) {}
             }
             $patron = [

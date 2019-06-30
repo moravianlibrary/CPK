@@ -2,7 +2,7 @@
 $isAJAX = isset($AJAX) && $AJAX === true; $i = 0;
 foreach ($this->libraryIdentity['transactions'] as $resource):?>
   <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
-  <? if(remove_accent($ilsDetails['status_label']) != 'Nova'):
+  <? if(remove_accent($ilsDetails['status_label']) == 'Nova'):
         ++$i;?>
     <div id="record<?=$this->escapeHtml($resource->getUniqueId())?>" class="row well" style="margin-bottom: 2px;">
       <div class="col-md-2 text-center">

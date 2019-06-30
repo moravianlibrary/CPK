@@ -23,7 +23,8 @@ function fetchHolds(cat_username) {
 	async : true,
 	// json object to sent to the authentication url
 	data : {
-	    cat_username : cat_username
+	    cat_username : cat_username,
+			type : 'holds'
 	},
 	success : function(response) {
 	    updateHolds(response);

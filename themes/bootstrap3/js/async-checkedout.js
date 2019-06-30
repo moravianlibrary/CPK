@@ -22,7 +22,8 @@ function fetchTransactions(cat_username) {
 	async : true,
 	// json object to sent to the authentication url
 	data : {
-	    cat_username : cat_username
+	    cat_username : cat_username,
+			type : 'checkedout'
 	},
 	success : function(response) {
 	    updateTransactions(response);
