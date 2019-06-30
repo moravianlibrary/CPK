@@ -38,8 +38,10 @@ $removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
 ?>
 
 <? if ($results->getResultTotal() > 0): ?>
-    <h3 class='side-facets-header facets-questionmark-help'>
-      <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
+    <div class='side-facets-header facets-questionmark-help'>
+      <h3>
+        <?=$this->transEsc(isset($this->overrideSideFacetCaption) ? $this->overrideSideFacetCaption : 'Narrow Search')?>
+      </h3>
       <? if($this->librarySearch): ?>
         <?= $this->help()->getQuestionMarkHelp('adr-facets') ?>
       <? elseif($filterClass): ?>
@@ -47,7 +49,7 @@ $removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
       <? else: ?>
           <?= $this->help()->getQuestionMarkHelp('facets') ?>
       <? endif; ?>
-    </h3>
+    </div>
 <? endif; ?>
 
 <? $filterList = array_merge($results->getParams()->getFilterList(true), $extraFilters); if (!empty($filterList)): ?>
@@ -262,84 +264,27 @@ JS;
 <!--Begin of other than Range Facet content-->
           <? if (in_array($title, $hierarchicalFacets)): ?>
 <!--Begin of hierarchical facets-->
-            <? $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : ''; ?>
-            <? if (!in_array($title, $collapsedFacets)): ?>
-<!--Begin of not collapsed facets-->
-              <? if($cluster['label'] == 'Institution'): ?>
-<!--Institution facet-->
-              <?
-              $script = <<<JS
+            <?
+              $sort = isset($hierarchicalFacetSortOptions[$title]) ? $hierarchicalFacetSortOptions[$title] : '';
+              $expand = json_encode((boolean) $cluster['expand'] ?? false);
+              $nodeId = json_encode('#facet_' . (($cluster['label'] == 'Institution') ? 'institution' : $title));
+              $script = '';
+              if (in_array($title, $collapsedFacets)) {
+                $script = <<<JS
+$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
+  initFacetTree($($nodeId), true, $expand);
+});
+JS;
+              } else {
+                $script = <<<JS
 $(document).ready(function() {
-  initInstitutionsTree($('#facet_institution'), true);
+  initFacetTree($($nodeId), true, $expand);
 });
 JS;
-              ?>
-<!--End of Institution facet-->
-              <? else: ?>
-                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")||($title == "cpk_detected_format_facet_str_mv")||($title == "region_disctrict_facet_str_mv")): ?>
-<!--Availability, Conspectus, Format facet-->
-                  <?
-                  $script = <<<JS
-        $(document).ready(function() {
-          initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
-          console.log("or" + '#facet_{$this->escapeHtml($title)}');
-        });
-JS;
-                  ?>
-<!--End of Availability, Conspectus, Format facet-->
-                  <? else: ?>
-<!--Other than Institution,Availability, Conspectus, Format facet-->
-                  <?
-                  $script = <<<JS
-        $(document).ready(function() {
-          initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
-          console.log("and" + '#facet_{$this->escapeHtml($title)}');
-        });
-JS;
-                  ?>
-<!--End of Other than Institution,Availability, Conspectus, Format facet-->
-                  <? endif; ?>
-              <? endif; ?>
-              <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
-<!--End of not collapsed facets-->
-            <? else: ?>
-<!--Begin collapsed facets-->
-              <? if($cluster['label'] == 'Institution'): ?>
-<!--Collapsed Institution facet-->
-              <?
-              $script = <<<JS
-$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initInstitutionsTree($('#facet_institution'), true);
-});
-JS;
-              ?>
-<!--End of Collapsed Institution facet-->
-              <? else: ?>
-                  <? if(($cluster['label'] == 'Availability')||($title == "conspectus_str_mv")||($title == "region_disctrict_facet_str_mv")): ?>
-<!--Collapsed Availability, Conspectus facet-->
-          <?
-          $script = <<<JS
-$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initFacetOrTree($('#facet_{$this->escapeHtml($title)}'), true);
-});
-JS;
-          ?>
-<!--End of Collapsed Availability, Conspectus facet-->
-                  <? else: ?>
-<!--Other than Collapsed Institution,Availability, Conspectus facet-->
-              <?
-              $script = <<<JS
-$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initFacetTree($('#facet_{$this->escapeHtml($title)}'), true);
-});
-JS;
-              ?>
-<!--End of Other than Collapsed Institution,Availability, Conspectus facet-->
-                  <? endif; ?>
-              <? endif; ?>
-              <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
-<!--End of collapsed facets-->
-            <? endif; ?>
+              }
+            ?>
+            <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
+
             <li id="facet_<? if($cluster['label'] == 'Institution'): ?>institution<? else: ?><?=$this->escapeHtml($title)?><? endif; ?>" class="jstree-facet"
                   data-facet="<?=$this->escapeHtmlAttr($title)?>"
                   data-path="<?=$this->currentPath()?>"

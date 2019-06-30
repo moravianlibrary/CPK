@@ -63,7 +63,7 @@
               <br/>
             <? endif; ?>
             <? if (!is_a($resource, 'VuFind\\RecordDriver\\Missing')): ?>
-              <? $field996 = $resource->getItem996($ilsDetails['item_id']); ?>
+              <? $field996 = $resource->getItem996($ilsDetails['barcode']); ?>
             <? endif; ?>
             <? if (isset($ilsDetails['volume']) && !empty($ilsDetails['volume'])): ?>
               <strong><?=$this->transEsc('Volume')?>:</strong> <?=$this->escapeHtml($ilsDetails['volume'])?>

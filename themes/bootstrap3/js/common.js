@@ -614,7 +614,7 @@ jQuery( document ).ready( function( $ ) {
   });
 
   /* Initialize questionmark helps when available */
-  $( '.questionmark-help .modal' ).appendTo( 'body' );
+  $( '.questionmark-help + .modal' ).appendTo( 'body' );
 
   $( '#modal_dg' ).appendTo( 'body' );
 
