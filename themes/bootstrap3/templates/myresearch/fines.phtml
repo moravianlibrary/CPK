@@ -35,7 +35,7 @@
         $source = explode('.', $identityFines['cat_username'])[0]; ?>
 
     <div class="well row blickable" id="<?=$source?>">
-    <h3>
+    <h3 class="contains-pull-elem">
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       </h3>
