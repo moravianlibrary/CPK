@@ -864,6 +864,9 @@ ALTER TABLE `oai_resumption`
 ALTER TABLE `search`
   MODIFY COLUMN `created` date NOT NULL DEFAULT '2000-01-01';
 
+ALTER TABLE `search`
+  ADD COLUMN `checksum` int(11) DEFAULT NULL AFTER search_object;
+
 ALTER TABLE `session`
   MODIFY COLUMN `created` datetime NOT NULL DEFAULT '2000-01-01 00:00:00';
 
