@@ -1765,7 +1765,12 @@ class AjaxController extends AjaxControllerBase
             $latitude = $coords['latitude'];
             $longitude = $coords['longitude'];
 
-            $geocode = file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&sensor=false&language=cs");
+            $apikey = $this->getConfig()->GoogleMaps->apikey;
+            $googleMapsUri = "https://maps.googleapis.com/maps/api/geocode/json" .
+                "?latlng=$latitude,$longitude" .
+                "&sensor=false" .
+                "&language=cs&key=$apikey";
+            $geocode = file_get_contents($googleMapsUri);
 
             $geoData = json_decode($geocode, true);
 
