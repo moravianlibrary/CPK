@@ -46,43 +46,43 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
 
     public function normalizeLookupUserProfile(JsonXML &$response)
     {
-        $uof = $response->get(
+        $uai = $response->get(
             'LookupUserResponse',
-            'UserOptionalFields'
+            'UserOptionalFields',
+            'UserAddressInformation'
         );
 
-        // Move email from PhysicalAddress to UserAddressInformation
-        $email = $response->getRelative(
-            $uof,
-            'UserAddressInformation',
-            'PhysicalAddress',
-            'ElectronicAddressData'
-        );
+        // Move email from PhysicalAddress to UserAddressInformation -> ElectronicAddress
+        $email = null;
+        foreach( $uai as $addressInfo) {
+            $potencialEmail = $response->getRelative(
+                $addressInfo,
+                'PhysicalAddress',
+                'ElectronicAddressData'
+            );
+            $email = $potencialEmail ?? null;
+        }
 
         $electronicAddresses = $response->getArrayRelative(
-            $uof,
-            'UserAddressInformation',
+            $uai,
             'ElectronicAddress'
-        );
-
-        $userAddressInformations = $response->getArrayRelative(
-            $uof,
-            'UserAddressInformation'
         );
 
         // We are going to append a new ElectronicAddress & UserAddressInformation ;)
         $countOfElectronicAddresses = sizeof($electronicAddresses);
-        $countOfUserAddressInformations = sizeof($userAddressInformations);
+        $countOfUserAddressInformations = sizeof($uai);
+
+        $namespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject()) ? 'ns1:' : '';
 
         $response->setDataValue(
             array(
-                'ns1:ElectronicAddressType' => 'mailto',
-                'ns1:ElectronicAddressDate' => $email
+                $namespace . 'ElectronicAddressType' => 'mailto',
+                $namespace . 'ElectronicAddressData' => $email
             ),
-            'ns1:LookupUserResponse',
-            'ns1:UserOptionalFields',
-            "ns1:UserAddressInformation[$countOfUserAddressInformations]",
-            "ns1:ElectronicAddress[$countOfElectronicAddresses]"
+            $namespace . 'LookupUserResponse',
+            $namespace . 'UserOptionalFields',
+            $namespace . "UserAddressInformation[$countOfUserAddressInformations]",
+            $namespace . "ElectronicAddress[$countOfElectronicAddresses]"
         );
     }
 
