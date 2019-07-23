@@ -223,7 +223,7 @@ var holdingsILS = {
 
 	} else {
 
-	    tableRow = holdingsILS.pointers.tbody.children("tr#" + id);
+	    tableRow = holdingsILS.pointers.tbody.children("tr#" + id.replace( /(:|\.|\[|\]|,|=|@|\/)/g, "\\$1" ));
 	}
 
 	var statusDiv = tableRow.find('td div[data-type=item-status]').first(), icon = statusDiv.children('i'), label = statusDiv.children('span.label');
