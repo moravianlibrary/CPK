@@ -1708,7 +1708,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
             $denormalizedJsonXmlRequest = $this->getNewNCIPDenormalizer($method)->denormalize($ncipRequest);
             $ncipRequest = $denormalizedJsonXmlRequest->toXmlString();
-
+            $this->logger->debug("Denormalized NCIP response for " . $method . ": \n" . $ncipRequest);
         } catch (JsonXMLException $e) {
             $this->logger->crit("NCIP: Failed to denormalize the request.");
             $this->logger->crit($e->getMessage());
@@ -1732,6 +1732,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $method = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 4)[3]['function'];
             $this->logger->debug("Normalizing NCIP response for " . $method . ": \n" . $inboundResponse);
             $normalizedJsonXmlResponse = $this->getNewNCIPNormalizer($method)->normalize($inboundResponse);
+            $this->logger->debug("Normalized NCIP response for " . $method . ": \n" . $normalizedJsonXmlResponse->toXmlString());
             return $normalizedJsonXmlResponse;
 
         } catch (JsonXMLException $e) {
