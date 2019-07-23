@@ -1624,7 +1624,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
     protected function hasOverdue($dateDue)
     {
-        $parsedDate = empty($dateDue) ? '' : strtotime($dateDue);
+        $parsedDate = empty($dateDue) ? 0 : strtotime($dateDue);
         $today_time = strtotime(date("Y-m-d"));
         $expire_time = strtotime(date('Y-m-d', $parsedDate));
         return ($expire_time < $today_time) ? 'overdue' : false;
