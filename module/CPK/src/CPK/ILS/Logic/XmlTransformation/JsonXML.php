@@ -174,10 +174,6 @@ class JsonXML implements \ArrayAccess, \Iterator
             $namespaces
         );
 
-        // WTF ???
-        //$jsonString = json_encode(simplexml_load_string(utf8_encode($xmlString), 'SimpleXMLElement', LIBXML_SCHEMA_CREATE), JSON_UNESCAPED_UNICODE);
-        // This just gives nothing ?!
-
         $xml = new SimpleXMLNestedAttributesSerializable($xml);
 
         // Encode the SimpleXMLElement to the JSON string (all attributes are stored as "@ATTRIBUTE_NAME")
