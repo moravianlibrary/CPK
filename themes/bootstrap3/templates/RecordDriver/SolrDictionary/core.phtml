@@ -40,61 +40,54 @@
 
   <div class="col-sm-9">
     <h2 class='record-title' property="name"><strong><?=$this->escapeHtml($this->driver->getTitle())?></strong></h2>
-    <?/* Display Main Details */?>
+      <? /* Display Main Details */ ?>
     <table class="table">
+        <?php
+        $items = [
+            'alternative_term' => $this->driver->getAlternatives(),
+            'english_term' => $this->driver->getEnglish(),
+            'explanation_term' => $this->driver->getExplanation(),
+            'relative_term' => $this->driver->getRelatives(),
+            'source_term' => $this->driver->getSource(),
+            'term_author' => $this->driver->getTermAuthors(),
+            'Format' => $this->record($this->driver)->getFormatList(),
+        ];
+        $itemsNotSuitableForEscaping = ['Format'];
+        foreach ( $items as $itemName => $itemValue ):
+            //empty string or no array items passed, skip round
+            if ( empty($itemValue) ){
+                continue;
+            }
+            //don't escape some fields listed in array of non escapable items
+            if (!in_array($itemName, $itemsNotSuitableForEscaping)){
+              //if the content is array, escape each item
+              if (is_array($itemValue) && count($itemValue) > 0){
+                foreach ($itemValue as &$value){
+                  $value = $this->escapeHtml($value);
+                }
+                //just in case
+              } elseif(is_string($itemValue)){
+                  $itemValue = $this->escapeHtml($itemValue);
+              }
+            }
+            //finally concatenate array items if content is array
+            if ( is_array($itemValue) ){
+                $itemValue = implode('<br/>', $itemValue);
+            }
 
-      <? $alternatives = $this->driver->getAlternatives(); if (!empty($alternatives)): ?>
-      <tr>
-         <th class="col-md-3"><?=$this->transEsc('alternative_term')?>: </th>
-         <td>
-             <? foreach ($alternatives as $alternative): ?>
-                 <?=$alternative?><br/>
-             <? endforeach; ?>
-         </td>
-      </tr>
-      <? endif; ?>
-
-      <? $english = $this->driver->getEnglish(); if (!empty($english)): ?>
-      <tr>
-         <th class="col-md-3"><?=$this->transEsc('english_term')?>: </th>
-         <td><?=$english?></td>
-      </tr>
-      <? endif; ?>
-
-      <? $explanation = $this->driver->getExplanation(); if (!empty($explanation)): ?>
-      <tr>
-         <th class="col-md-3"><?=$this->transEsc('explanation_term')?>: </th>
-         <td><?=$explanation?></td>
-      </tr>
-      <? endif; ?>
-
-      <? $relatives = $this->driver->getRelatives(); if (!empty($relatives)): ?>
-      <tr>
-         <th class="col-md-3"><?=$this->transEsc('relative_term')?>: </th>
-         <td>
-             <? foreach ($relatives as $relative): ?>
-                 <?=$relative?><br/>
-             <? endforeach; ?>
-         </td>
-      </tr>
-      <? endif; ?>
-
-      <? $source = $this->driver->getSource(); if (!empty($source)): ?>
-      <tr>
-         <th class="col-md-3"><?=$this->transEsc('source_term')?>: </th>
-         <td><?=$source?></td>
-      </tr>
-      <? endif; ?>
-
-      <? if (!empty($formats)): ?>
-      <tr>
-         <th class="col-md-3"><?=$this->transEsc('Format')?>: </th>
-         <td><?=$this->record($this->driver)->getFormatList()?></td>
-      </tr>
-      <? endif; ?>
+            ?>
+          <tr id="row-<?= $itemName ?>">
+            <th class="col-md-3"><?= $this->transEsc($itemName) ?>
+              :
+            </th>
+            <td><?= $itemValue ?></td>
+          </tr>
+        <?
+        endforeach;
+        ?>
 
     </table>
-    <?/* End Main Details */?>
+      <? /* End Main Details */ ?>
   </div>
 </div>
 </div>
