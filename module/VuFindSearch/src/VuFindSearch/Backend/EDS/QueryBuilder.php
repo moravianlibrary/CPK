@@ -79,8 +79,7 @@ class QueryBuilder
     {
         $expression = $query->getString();
         $operator = $query->getOperator();
-        $fieldCode = ($query->getHandler() == 'AllFields')
-            ? '' : $query->getHandler();  //fieldcode
+        $fieldCode = ($query->getHandler() == 'AllFields') ? '' : $query->getHandler();
         if (!empty($fieldCode)) {
             $expression = $fieldCode . ':' . $expression;
         }
@@ -100,8 +99,7 @@ class QueryBuilder
     protected function queryToEdsTerm(Query $query)
     {
         $expression = $query->getString();
-        $fieldCode = ($query->getHandler() == 'AllFields')
-            ? '' : $query->getHandler();  //fieldcode
+        $fieldCode = ($query->getHandler() == 'AllFields') ? '' : $query->getHandler();
         if (!empty($fieldCode)) {
             $expression = $fieldCode . ':' . $expression;
         }
@@ -163,17 +161,16 @@ class QueryBuilder
                 if ($first) {
                     $expression = $partial;
                     $first = false;
-                }
-                else {
-                    $expression .= ' '.$op.' '.$partial;
+                } else {
+                    $expression .= ' ' . $op . ' ' . $partial;
                 }
             }
             // Apply negation and parentheses
             $multiple = count($queries) > 1;
-            $expression = $query->isNegated() ? ($multiple ? 'NOT ('.$expression.')' : '(NOT '.$expression.')') : $expression;
-            return $depth > 0 && $multiple ? '('.$expression.')' : $expression;
-        }
-        else {
+            $negatedExpr = $multiple ? 'NOT (' . $expression . ')' : '(NOT ' . $expression . ')';
+            $expression = $query->isNegated() ? $negatedExpr : $expression;
+            return $depth > 0 && $multiple ? '(' . $expression . ')' : $expression;
+        } else {
             // Node is a simple query
             return $this->queryToEdsTerm($query);
         }
