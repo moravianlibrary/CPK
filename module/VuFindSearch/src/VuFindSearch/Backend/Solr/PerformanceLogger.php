@@ -85,16 +85,18 @@ class PerformanceLogger {
         }
         $url = rtrim($this->baseUrl, '/') . $_SERVER['REQUEST_URI'];
         $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
+        $requestId = isset($_SERVER['HTTP_X_REQUEST_ID']) ? $_SERVER['HTTP_X_REQUEST_ID'] : null;
         $perfEntry = [
-            'time'       => date('c'),
-            'ip'         => $_SERVER['REMOTE_ADDR'],
-            'session'    => session_id(),
-            'vufind_url' => $url,
-            'referer'    => $referer,
-            'solr_url'   => (string) $solrUrl,
-            'query_time' => $time,
-            'solr_time'  => $solrTime,
-            'cache'      => $cache,
+            'time'         => date('c'),
+            'ip'           => $_SERVER['REMOTE_ADDR'],
+            'session'      => session_id(),
+            'x_request_id' => $requestId,
+            'vufind_url'   => $url,
+            'referer'      => $referer,
+            'solr_url'     => (string) $solrUrl,
+            'query_time'   => $time,
+            'solr_time'    => $solrTime,
+            'cache'        => $cache,
         ];
         $json = json_encode($perfEntry, JSON_UNESCAPED_SLASHES) . "\n";
         file_put_contents($this->file, $json, FILE_APPEND);
