@@ -97,23 +97,14 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
                 'dateDue'
             );
 
-            $usesNamespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject());
+            $namespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject()) ? 'ns1:' : '';
 
-            if ($usesNamespace) {
-                $response->setDataValue(
-                    $dateDue,
-                    'ns1:LookupUserResponse',
-                    "ns1:LoanedItem[$i]",
-                    'ns1:DateDue'
-                );
-            } else {
-                $response->setDataValue(
-                    $dateDue,
-                    'LookupUserResponse',
-                    "LoanedItem[$i]",
-                    'DateDue'
-                );
-            }
+            $response->setDataValue(
+                $dateDue,
+                $namespace . 'LookupUserResponse',
+                $namespace . (count($loanedItems) > 1) ? "LoanedItem[$i]" : 'LoanedItem',
+                $namespace . 'DateDue'
+            );
         }
     }
 
