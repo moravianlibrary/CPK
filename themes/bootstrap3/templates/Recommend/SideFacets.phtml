@@ -237,24 +237,6 @@ $removeFilterUrl = '/Search/Results?' . http_build_query($queryParams);
             <? $this->headScript()->appendFile('vendor/bootstrap-slider.js'); ?>
             <?
               $script = <<<JS
-$(document).ready(function() {
-  var fillTexts = function() {
-  var v = {$this->escapeHtmlAttr($title)}dateSlider.getValue();
-  $('#{$this->escapeHtmlAttr($title)}from').val(v[0]);
-  $('#{$this->escapeHtmlAttr($title)}to').val(v[1]);
-  };
-  var {$this->escapeHtmlAttr($title)}dateSlider = $('#{$this->escapeHtmlAttr($title)}dateSlider')
-  .slider({
-    'min':{$min},
-    'max':{$max},
-    'handle':"square",
-    'tooltip':"hide",
-    'value':[{$low},{$high}],
-    'reversed': {$reversed}
-  })
-  .on('slide', fillTexts)
-  .data('slider');
-});
 JS;
             ?>
             <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
@@ -271,15 +253,9 @@ JS;
               $script = '';
               if (in_array($title, $collapsedFacets)) {
                 $script = <<<JS
-$('#side-collapse-{$this->escapeHtmlAttr($title)}').on('show.bs.collapse', function() {
-  initFacetTree($($nodeId), true, $expand);
-});
 JS;
               } else {
                 $script = <<<JS
-$(document).ready(function() {
-  initFacetTree($($nodeId), true, $expand);
-});
 JS;
               }
             ?>
@@ -442,31 +418,6 @@ JS;
   <? endif; ?>
   <? endforeach; ?>
 <? endif; ?>
-<script>
-$(function () {
-$('[data-toggle="tooltip"]').tooltip()
-})
-
-$(document).off("click", ".jstree-anchor").on("click", ".jstree-anchor", function() {
-
-    var useFacet = 0;
-    if ( $( this ).hasClass( 'jstree-clicked' ) ) {
-        useFacet = 1;
-    }
-
-    dataLayer.push({
-        'event': 'action.facet',
-        'actionContext': {
-            'eventCategory': 'facet',
-            'eventAction': $(this).find('.main').attr('data-facet').split(':')[0],
-            'eventLabel': $(this).find('.main').attr('data-facet').split(':')[1],
-            'eventValue': useFacet,
-            'nonInteraction': false
-        }
-    });
-});
-</script>
-
 <?=$this->render("Recommend/SideFacets/timelineModal.phtml")?>
 
 <?=$this->render("Recommend/SideFacets/saveTheseInstitutionsConfirmationModal.phtml")?>

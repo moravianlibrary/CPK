@@ -21,9 +21,6 @@
                     <? $recordId =  preg_replace("/:/", "", $recordId)?>
               		<a href='<?=$this->recordLink()->getUrl($similarRecordDriver)?><?="?referer=".$this->referer?>' title='<?=$this->escapeHtml($similarRecordDriver->getTitle())?> (<?=$this->translate($format)?>)' class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
                         <? if ($bibinfo = $this->record($similarRecordDriver)->getObalkyKnihJSONV3()): ?>
-                            <script type="text/javascript">
-                                obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
-                            </script>
                         <? endif;?>
 
                         <? if (! empty($formats)): ?>

@@ -24,17 +24,17 @@
               <? if ($bibinfo = $this->record($item->getRecordDriver())->getObalkyKnihJSONV3()): ?>
                 <script type='text/javascript'>
                   <? if ($item->getRecordDriver() instanceof \CPK\RecordDriver\SolrAuthority): ?>
-                    obalky.display_authority_thumbnail_cover_without_links(
-                        ".cover_<?= $recordId ?>",
-                        <?= $bibinfo ?>,
-                        <?= json_encode($item->getRecordDriver()->getPersonalName()) ?>
-                    );
+                    //obalky.display_authority_thumbnail_cover_without_links(
+                    //    ".cover_<?//= $recordId ?>//",
+                    //    <?//= $bibinfo ?>//,
+                    //    <?//= json_encode($item->getRecordDriver()->getPersonalName()) ?>
+                    //);
                   <? else: ?>
-                    obalky.display_thumbnail_without_links(
-                        ".cover_<?= $recordId ?>",
-                        <?= $bibinfo ?>,
-                        <?= json_encode($item->getRecordDriver()->getTitle()) ?>
-                    );
+                    //obalky.display_thumbnail_without_links(
+                    //    ".cover_<?//= $recordId ?>//",
+                    //    <?//= $bibinfo ?>//,
+                    //    <?//= json_encode($item->getRecordDriver()->getTitle()) ?>
+                    //);
                   <? endif; ?>
                 </script>
               <? endif;?>

@@ -38,14 +38,14 @@
 
   // Load Javascript dependencies into header:
   //$this->headScript()->appendFile("check_item_statuses.js");
-  $this->headScript()->appendFile("check_save_statuses.js");
-  $this->headScript()->appendFile("jquery-ui.min.js");
+  //$this->headScript()->appendFile("check_save_statuses.js");
+  //$this->headScript()->appendFile("jquery-ui.min.js");
 
-  $this->headScript()->appendFile('vendor/prism.js');
-  $this->headScript()->appendFile('vendor/chosen.jquery.js');
+  //$this->headScript()->appendFile('vendor/prism.js');
+  //$this->headScript()->appendFile('vendor/chosen.jquery.js');
 
-  $this->headLink()->appendStylesheet('vendor/prism.css');
-  $this->headLink()->appendStylesheet('vendor/chosen.css');
+  //$this->headLink()->appendStylesheet('vendor/prism.css');
+  //$this->headLink()->appendStylesheet('vendor/chosen.css');
   if ($this->librarySearch == true) {
     $this->layout()->headerType = "newlibraries";
   }
@@ -132,14 +132,6 @@
   }
 
 ?>
-<script>
-    dataLayer.push({
-        'page': {
-            'category': 'search',
-            'type': 'list'
-        }
-    });
-</script>
 <div id='search-result-list' class="search-result-list">
     <div class='row' id='flashedMessage' style='display: none;'>
         <div class='col-sm-12'></div>
@@ -245,117 +237,3 @@
       </div>
     </div>
 </div>
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?= $apikey ?>&amp;callback=getData"></script>
-<script>
-    jQuery( document ).ready( function( $ ) {
-        <? if ($this->extraResults && $this->referer): ?>
-            /* Save results to local storage for switching to next/previous record of search results */
-            if (typeof(Storage) !== 'undefined') {
-                localStorage.setItem('extraRecords', '<?= $this->extraResults ?>')
-            } else {
-                console.error('Sorry! No Web Storage support.')
-            }
-        <? endif; ?>
-
-        /* When we want to move in window history, we need to push state into
-           history, when the results page are displayed for the first time,
-           synchronously. */
-        var data = {};
-
-		<?php
-		  $index = 0;
-		  addUrlArrayParamsToJson('data', 'lookfor', $index);
-		  addUrlArrayParamsToJson('data', 'type', $index);
-		  addUrlArrayParamsToJson('data', 'bool', $index);
-
-		  addUrlScalarParamsToJson('data', 'filter');
-		  addUrlScalarParamsToJson('data', 'daterange');
-		  addUrlScalarParamsToJson('data', 'publishDatefrom');
-		  addUrlScalarParamsToJson('data', 'publishDateto');
-		  addUrlScalarParamsToJson('data', 'limit', '10');
-		  addUrlScalarParamsToJson('data', 'sort', 'relevance');
-		  addUrlScalarParamsToJson('data', 'page', '1');
-		  addUrlScalarParamsToJson('data', 'searchTypeTemplate', 'basic');
-          addUrlScalarParamsToJson('data', 'database', 'Solr');
-		  addUrlScalarParamsToJson('data', 'keepFacetsEnabled', 'true');
-		  addUrlScalarParamsToJson('data', 'join', 'AND');
-		?>
-		ADVSEARCH.updateUrl( data );
-
-    });
-
-    function getData(query, filter = '') {
-        if (undefined != query) {
-            let url = '/Libraries/markersJson?q=' + query + '&filter=' + filter;
-            $.getJSON(url, function(data) {
-                if (data.error) {
-                    $( '#map-loader' ).parent().addClass( 'hidden' );
-                    console.error( data.error );
-                } else {
-                    initialize(data);
-                    $( '#map-loader' ).parent().addClass( 'hidden' );
-                    $( '#map' ).css( 'height', '600px').removeClass( 'hidden' );
-                }
-            });
-        }
-    }
-    function initialize(libraries) {
-
-        let myLatLng = { lat: 49.78, lng: 15.39 };
-        let markers = [];
-        let map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 7,
-            center: myLatLng
-        });
-        let bounds = new google.maps.LatLngBounds();
-        let infoWindow = new google.maps.InfoWindow();
-        let info = [];
-
-        let oms = new OverlappingMarkerSpiderfier(map, {
-            markersWontMove: true,
-            markersWontHide: true,
-            basicFormatEvents: true
-        });
-
-        for (let i = 0; i < libraries.length; i++) {
-            let library = libraries[i];
-            let contentString = '<div id="content" class="marker-info">'+
-                '<div class="marker-title">' + library.name + '</div>'+
-                '<div class="marker-subtitle">' + library.address + '</div>' +
-                '<div class="marker-link"><a href="/Record/' + library.id +
-                '"><?=$this->translate('Library detail')?></a>' +
-                '</div>';
-
-            info.push(contentString);
-
-            let marker = new google.maps.Marker({
-                position: new google.maps.LatLng (library.latitude, library.longitude),
-                map: map,
-                title: library.name
-            });
-
-            bounds.extend(marker.getPosition());
-            markers.push(marker);
-
-            google.maps.event.addListener(marker, 'spider_click', (function(marker, index) {
-                return function() {
-                    infoWindow.setContent(info[index]);
-                    infoWindow.open(map, marker);
-                }
-            })(marker, i));
-
-            oms.addMarker(marker);
-        }
-
-        let mcOptions = { gridSize: 75, maxZoom: 10, imagePath: '/themes/bootstrap3/images/markerclusterer/m' };
-        let mc = new MarkerClusterer(map, markers, mcOptions);
-    }
-
-    <? if(isset($_GET['type0'][0]) && $_GET['type0'][0] == 'Libraries'): ?>
-
-    getData("<?=$this->query?>", "<?=$_GET['filter']?>");
-
-    <? endif; ?>
-
-</script>

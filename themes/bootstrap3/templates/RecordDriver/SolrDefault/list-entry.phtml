@@ -23,9 +23,9 @@
     <div id="cover_<?=$recordId?>" class="coverThumbnail">
       <? if ($bibinfo = $this->record($this->driver)->getObalkyKnihJSONV3()): ?>
         <script type="text/javascript">
-          $(document).ready(function() {
-            obalky.display_thumbnail_cover_without_links("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($this->driver)->getObalkyKnihAdvert('record'))?>);
-          });
+          //$(document).ready(function() {
+          //  obalky.display_thumbnail_cover_without_links("#cover_<?//=$recordId?>//", <?//=$bibinfo?>//, <?//=json_encode($this->record($this->driver)->getObalkyKnihAdvert('record'))?>//);
+          //});
         </script>
       <? endif;?>
       <? if (! empty($formats)): ?>
