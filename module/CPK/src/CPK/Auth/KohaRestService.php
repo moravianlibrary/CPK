@@ -151,6 +151,7 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
     public function handleAccessToken()
     {
         //Store tokens in session so we dont need to request from database
+        // FIXME: Token should not be saved in session, we need to use VuFind cache
         if (!($tokenData = $_SESSION['CPK\ILS\Driver\KohaRest'][$this->source]['accessToken'])) {
             $tokenData = $this->tokensTable->getAccessToken($this->source);
 
