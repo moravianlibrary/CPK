@@ -1107,10 +1107,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
      */
     public function getAdministratorEmail()
     {
-        if (isset($this->config['Catalog']['contactPerson']))
-            return $this->config['Catalog']['contactPerson'];
-        else
-            return null;
+        return $this->config['Catalog']['contactPerson'] ?? null;
     }
 
     public function getProlongRegistrationUrl($patron)

@@ -1550,10 +1550,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      */
     public function getAdministratorEmail()
     {
-        if (isset($this->config->Catalog->contactPerson))
-            return $this->config->Catalog->contactPerson;
-        else
-            return null;
+        return $this->config['Catalog']['contactPerson'] ?? null;
     }
 
     /**
