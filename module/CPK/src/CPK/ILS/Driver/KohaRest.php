@@ -49,7 +49,7 @@ use Zend\Log\LoggerInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:ils_drivers Wiki
  */
-class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorAwareInterface
+class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorAwareInterface, CPKDriverInterface
 {
     /**
      * Library prefix
@@ -1440,5 +1440,15 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
      */
     public function normalizeResponse($method) {
         return new KohaRestNormalizer($method, $this->dateConverter, $this->translator, $this->logger);
+    }
+
+    /**
+     * Gets the contact person for this driver instance.
+     *
+     * @return string
+     */
+    public function getAdministratorEmail()
+    {
+        return $this->config['Catalog']['contactPerson'] ?? null;
     }
 }
