@@ -847,7 +847,7 @@ ALTER TABLE `resource`
   MODIFY COLUMN `record_id` varchar(255) NOT NULL DEFAULT '';
 
 ALTER TABLE `resource`
-  `source` varchar(50) NOT NULL DEFAULT 'Solr';
+  MODIFY COLUMN `source` varchar(50) NOT NULL DEFAULT 'Solr';
 UPDATE `resource` SET source='Solr' WHERE source='VuFind';
 
 ALTER TABLE `resource`
