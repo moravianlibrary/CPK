@@ -64,7 +64,7 @@ default_core    = beta
 ; Set Max limit for ebooks to harvest from Solr to MySQL
 ; Solr can't return all rows by default and need Limit option
 ; Set this to much higher value than count of ebooks in Solr.
-harvest_ebooks_limit = 500 000
+harvest_ebooks_limit = 500000
 
 [Authentication]
 method		= ShibbolethIdentityManager
