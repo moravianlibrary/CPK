@@ -349,30 +349,38 @@ class SearchController extends SearchControllerBase
         $this->layout()->docCount = (! empty($results[0]['value'])) ? $results[0]['value'] : $view->results->getResultTotal();
 
         $frontendTable = $this->getTable('frontend');
-        $widgetNames = $frontendTable->getHomepageWidgets();
 
-        $widgetTable = $this->getTable('widget');
         $widgets = [];
-        foreach ($widgetNames as $key => $widgetName) {
-            $widget = $widgetTable->getWidgetByName($widgetName);
-            if ($widgetName == 'infobox') {
-                $infoboxTable = $this->getTable("infobox");
-                $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
-                $widget->setContents($infoboxItems);
-            } else if ($widgetName == 'conspectus') {
-                // do nothing, there is view prepared for it.
-                $widget = new \CPK\Widgets\Widget();
-                $widget->setName($widgetName);
-            } else if ($widgetName == 'Document_Types_Widget') {
-                // do nothing, there is view prepared for it.
-                $widget = new \CPK\Widgets\Widget();
-                $widget->setName($widgetName);
-                $view->documentTypesWidget = new DocumentTypesWidget($this->getConfig());
 
-            } else {
-                $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
+        // Load widgets if they are not hidden
+        $config = $this->getConfig('config');
+        $themeSection = $config->get('Theme');
+        if (empty($themeSection) || $themeSection->get('hide_widgets') != '1') {
+
+            $widgetNames = $frontendTable->getHomepageWidgets();
+            $widgetTable = $this->getTable('widget');
+
+            foreach ($widgetNames as $key => $widgetName) {
+                $widget = $widgetTable->getWidgetByName($widgetName);
+                if ($widgetName == 'infobox') {
+                    $infoboxTable = $this->getTable("infobox");
+                    $infoboxItems = $infoboxTable->getActualItems($widget->getShownRecordsNumber());
+                    $widget->setContents($infoboxItems);
+                } else if ($widgetName == 'conspectus') {
+                    // do nothing, there is view prepared for it.
+                    $widget = new \CPK\Widgets\Widget();
+                    $widget->setName($widgetName);
+                } else if ($widgetName == 'Document_Types_Widget') {
+                    // do nothing, there is view prepared for it.
+                    $widget = new \CPK\Widgets\Widget();
+                    $widget->setName($widgetName);
+                    $view->documentTypesWidget = new DocumentTypesWidget($this->getConfig());
+
+                } else {
+                    $widget->setContents($this->getWidgetContent($widgetName, $widget->getShownRecordsNumber()));
+                }
+                $widgets[][$widgetName] = $widget;
             }
-            $widgets[][$widgetName] = $widget;
         }
 
         $view->widgets = $widgets;
