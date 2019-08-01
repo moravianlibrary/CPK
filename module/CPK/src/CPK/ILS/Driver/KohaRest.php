@@ -51,6 +51,7 @@ use Zend\Log\LoggerInterface;
  */
 class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorAwareInterface, CPKDriverInterface
 {
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
     /**
      * Library prefix
      *
@@ -92,6 +93,12 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         'debt' => 'renew_debt'
     ];
 
+    /**
+     * Constructor
+     *
+     * @param \VuFind\Date\Converter $dateConverter Date converter
+     * @param \CPK\Auth\KohaRestService $kohaRestService Koha API authentication service
+     */
     public function __construct(DateConverter $dateConverter, KohaRestService $kohaRestService) {
         $this->dateConverter = $dateConverter;
         $this->kohaRestService = $kohaRestService;
@@ -942,9 +949,11 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         // Send request and retrieve response
         $startTime = microtime(true);
         $client->setMethod($method);
+
         try {
             $response = $client->send();
         } catch (\Exception $e) {
+
             $this->logger->err(
                 "$method request for '$apiUrl' failed: " . $e->getMessage()
             );
@@ -953,7 +962,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
 
         // If we get a 401, we need to renew the access token and try again
         if ($response->getStatusCode() == 401) {
-            $this->kohaRestService->renewToken();
+            $this->kohaRestService->invalidateToken();
 
             $client = $this->kohaRestService->createOAUTH2Client($apiUrl);
 
@@ -1027,45 +1036,46 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             false,
             false
         );
-        if (empty($result[0]['item_availabilities'])) {
+        /*if (empty($result[0]['item_availabilities'])) {
             return [];
-        }
+        }*/
 
         $statuses = [];
-        foreach ($result[0]['item_availabilities'] as $i => $item) {
-            $avail = $item['availability'];
-            $available = $avail['available'];
+        foreach ($result as $item_id => $availabilty) {
+            $available = $availabilty['allows_checkout'];
             $statusCodes = $this->getItemStatusCodes($item);
             $status = $this->pickStatus($statusCodes);
-            if (isset($avail['unavailabilities']['Item::CheckedOut']['date_due'])) {
+            // FIXME not implemented yet
+            /* if (isset($avail['unavailabilities']['Item::CheckedOut']['date_due'])) {
                 $duedate = $this->dateConverter->convertToDisplayDate(
                     'Y-m-d\TH:i:sP',
                     $avail['unavailabilities']['Item::CheckedOut']['date_due']
                 );
             } else {
                 $duedate = null;
-            }
+            }*/
+            $duedate = null;
 
             $entry = [
                 'id' => $id,
-                'item_id' => $item['itemnumber'],
+                'item_id' => $item_id,
                 'location' => $this->getItemLocationName($item),
                 'availability' => $available,
                 'status' => $status,
                 'status_array' => $statusCodes,
                 'reserve' => 'N',
-                'callnumber' => $item['itemcallnumber'],
+                //'callnumber' => $item['itemcallnumber'],
                 'duedate' => $duedate,
-                'number' => $item['enumchron'],
-                'barcode' => $item['barcode'],
-                'sort' => $i,
-                'requests_placed' => max(
-                    [$item['hold_queue_length'], $result[0]['hold_queue_length']]
-                )
+                //'number' => $item['enumchron'],
+                //'barcode' => $item['barcode'],
+                //'sort' => $i,
+                //'requests_placed' => max(
+                //    [$item['hold_queue_length'], $result[0]['hold_queue_length']]
+                //)
             ];
-            if (!empty($item['itemnotes'])) {
+            /*if (!empty($item['itemnotes'])) {
                 $entry['item_notes'] = [$item['itemnotes']];
-            }
+            }*/
 
             if ($patron && $this->itemHoldAllowed($item)) {
                 $entry['is_holdable'] = true;

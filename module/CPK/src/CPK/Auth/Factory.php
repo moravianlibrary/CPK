@@ -114,12 +114,15 @@ class Factory
      * Koha OAUTH2 service.
      *
      * @param ServiceManager $sm
+     *
      * @return KohaRestService
+     * @throws \Exception
      */
     public static function getKohaOAUTH2Service(ServiceManager $sm)
     {
         return new KohaRestService(
-            $sm->get('VuFind\DbTablePluginManager')->get('KohaTokens')
+            $sm->get('VuFind\CacheManager'),
+            $sm->get('VuFind\Config')->get('config')
         );
     }
 
