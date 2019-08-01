@@ -43,11 +43,11 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
     protected $config;
 
     /**
-     * Koha tokens database storage.
+     * Cache
      *
-     * @var KohaTokens
+     * @var
      */
-    protected $tokensTable;
+    protected $cache;
 
     /**
      * Institution source
@@ -59,15 +59,21 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
     protected $logger;
 
     /**
-     * Max time different between real expiration and saved expiration in seconds
+     * Constructor
      *
-     * @var
+     * @param \VuFind\Cache\Manager $cacheManager Cache manager
+     * @param \Zend\Config\Config $config Configuration
+     *
+     * @throws \Exception
      */
-    protected $tokenExpirationDiff = 30;
 
-    public function __construct(KohaTokens $kohaTokens)
+    public function __construct(\VuFind\Cache\Manager $cacheManager, \Zend\Config\Config $config)
     {
-        $this->tokensTable = $kohaTokens;
+        $this->config = $config;
+        if (isset($this->config['Cache']['type']) && $cacheManager) {
+            $this->cache = $cacheManager
+                ->getCache($this->config['Cache']['type']);
+        }
     }
 
     public function createHttpClient($url, $basicAuth = false)
@@ -110,7 +116,7 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
         return $client;
     }
 
-    public function requestNewOAUTH2Token()
+    protected function requestNewOAUTH2Token()
     {
         $tokenEndpoint = $this->config['Catalog']['tokenEndpoint'];
         $client = $this->createHttpClient($tokenEndpoint);
@@ -137,72 +143,74 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
             $this->logger->err(
                 "POST request for '$tokenEndpoint' failed: " . $e->getMessage()
             );
-            throw new ILSException('Problem with getting OAUTH2 access token.');
+            throw new ILSException('Problem with getting OAuth2 access token.');
         }
 
-        return json_decode($response->getContent(), true);
+        $responseContent = json_decode($response->getContent(), true);
+        if ($response->getStatusCode() != 200) {
+            $errorMessage = 'Error while getting OAuth2 access token';
+            if (key_exists('error', $responseContent)) {
+                $errorMessage .= ': ' . $responseContent['error'];
+            }
+            throw new ILSException($errorMessage);
+        }
+        return $responseContent;
     }
 
     /**
-     * Checks if is token in session. Gets token from DB and validates it
+     * Checks if is token in cache. Gets it from cache if possible. Request new if needed
      *
      * @return array|bool
      */
-    public function handleAccessToken()
+    public function getToken()
     {
-        //Store tokens in session so we dont need to request from database
-        // FIXME: Token should not be saved in session, we need to use VuFind cache
-        if (!($tokenData = $_SESSION['CPK\ILS\Driver\KohaRest'][$this->source]['accessToken'])) {
-            $tokenData = $this->tokensTable->getAccessToken($this->source);
+        // Try to get token from cache
+        $tokenData = $this->getTokenFromCache();
 
-            if (!$tokenData) {
-                $tokenData = $this->tokensTable->createAccessToken(
-                    $this->source,
-                    $this->requestNewOAUTH2Token()
-                );
-            } elseif ($this->isExpired($tokenData['timestamp_expiration'])) {
-                $tokenData = $this->tokensTable->renewAccessToken(
-                    $this->source,
-                    $this->requestNewOAUTH2Token()
-                );
-            }
-            $_SESSION['CPK\ILS\Driver\KohaRest'][$this->source]['accessToken'] = $tokenData;
-        } elseif($this->isExpired($tokenData['timestamp_expiration'])) {
-            $tokenData = $this->tokensTable->renewAccessToken(
-                $this->source,
-                $this->requestNewOAUTH2Token()
-            );
-            $_SESSION['CPK\ILS\Driver\KohaRest'][$this->source]['accessToken'] = $tokenData;
+        if (!$tokenData) {
+           $tokenData = $this->renewToken();
         }
-
         return $tokenData;
     }
 
     public function createOAUTH2Client($url)
     {
-        $tokenData = $this->handleAccessToken();
+        $tokenData = $this->getToken();
 
         $client = $this->createHttpClient($url);
 
         $client->getRequest()->getHeaders()->addHeaderLine(
             'Authorization', $tokenData['token_type'] . ' ' . $tokenData['access_token']
         );
-
         return $client;
     }
 
-    public function isExpired($expiration)
+    protected function renewToken()
     {
-        return strtotime(date('Y-m-d H:i:s')) >= strtotime($expiration) - $this->tokenExpirationDiff;
+        $tokenData = $this->requestNewOAUTH2Token();
+        $this->setToCache($tokenData);
     }
 
-    public function renewToken()
+    public function invalidateToken()
     {
-        $tokenData = $this->tokensTable->createAccessToken(
-            $this->source,
-            $this->requestNewOAUTH2Token()
-        );
-        $_SESSION['CPK\ILS\Driver\KohaRest'][$this->source]['accessToken'] = $tokenData;
+        $this->setToCache(null);
+    }
+
+    protected function getCacheKey() {
+        return "KohaREST_token_" . $this->source;
+    }
+
+    protected function setToCache($value) {
+        if ($this->cache) {
+            $this->cache->setItem($this->getCacheKey(), $value);
+        }
+    }
+
+    protected function getTokenFromCache() {
+        if ($this->cache) {
+            return $this->cache->getItem($this->getCacheKey());
+        }
+        return null;
     }
 
     public function setSource($source)
