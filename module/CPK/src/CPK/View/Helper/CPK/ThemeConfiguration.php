@@ -50,7 +50,7 @@ class ThemeConfiguration extends AbstractHelper
 		'hide_switch_language'            => false,
 		'hide_eds_source'                 => false,
 		'hide_header_panel'               => false,
-		'logo_href'                       => '/Search/Home',
+		'logo_href'                       => '/',
 		'header_panel_second_column_link' => '/Search/Results?lookfor=&type=AllFields'
 			.'&searchTypeTemplate=basic&page=1&database=Solr&limit=20&sort=relevance',
 
