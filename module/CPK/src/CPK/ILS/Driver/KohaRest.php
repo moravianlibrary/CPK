@@ -1027,7 +1027,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
      */
     protected function getItemStatusesForBiblio($id, $patron = null)
     {
-        $result = $this->makeRequest(
+        $availabilities = $this->makeRequest(
             ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'allows_checkout'],
             __FUNCTION__,
             [],
@@ -1040,22 +1040,33 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             return [];
         }*/
 
+        $items = $this->makeRequest(
+            ['v1', 'contrib', 'bibliocommons', 'biblios', $id, 'items'],
+            __FUNCTION__,
+            [],
+            'GET',
+            $patron,
+            false,
+            true
+        );
+
         $statuses = [];
-        foreach ($result as $item_id => $availabilty) {
-            $available = $availabilty['allows_checkout'];
+        foreach ($items as $item) {
+            $available = $availabilities[$item['item_id']]['allows_checkout'] ??  false;
             $statusCodes = $this->getItemStatusCodes($item);
             $status = $this->pickStatus($statusCodes);
+
             // FIXME not implemented yet
             /* if (isset($avail['unavailabilities']['Item::CheckedOut']['date_due'])) {
                 $duedate = $this->dateConverter->convertToDisplayDate(
                     'Y-m-d\TH:i:sP',
-                    $avail['unavailabilities']['Item::CheckedOut']['date_due']
+                 $avail['unavailabilities']['Item::CheckedOut']['date_due']
                 );
             } else {
                 $duedate = null;
             }*/
-            $duedate = null;
 
+            $duedate = null;
             $entry = [
                 'id' => $id,
                 'item_id' => $item_id,
@@ -1064,18 +1075,18 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
                 'status' => $status,
                 'status_array' => $statusCodes,
                 'reserve' => 'N',
-                //'callnumber' => $item['itemcallnumber'],
+                'callnumber' => $item['callnumber'],
                 'duedate' => $duedate,
-                //'number' => $item['enumchron'],
-                //'barcode' => $item['barcode'],
+                'number' => $item['serial_enum_chron'],
+                'barcode' => $item['barcode'],
                 //'sort' => $i,
                 //'requests_placed' => max(
                 //    [$item['hold_queue_length'], $result[0]['hold_queue_length']]
                 //)
             ];
-            /*if (!empty($item['itemnotes'])) {
-                $entry['item_notes'] = [$item['itemnotes']];
-            }*/
+            if (!empty($item['public_notes'])) {
+                $entry['item_notes'] = [$item['public_notes']];
+            }
 
             if ($patron && $this->itemHoldAllowed($item)) {
                 $entry['is_holdable'] = true;
