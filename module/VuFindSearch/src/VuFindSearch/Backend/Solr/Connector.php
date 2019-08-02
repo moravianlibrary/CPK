@@ -112,7 +112,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      *
      * @var string|AdapterInterface
      */
-    protected $adapter = 'Zend\Http\Client\Adapter\Socket';
+    protected $adapter = 'Zend\Http\Client\Adapter\Curl';
 
     /**
      * HTTP client adapter.
