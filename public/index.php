@@ -11,6 +11,10 @@ if (!empty($xhprof) && extension_loaded('xhprof')) {
     $xhprof = false;
 }
 
+if (extension_loaded('newrelic')) {
+    newrelic_add_custom_parameter('request_id', $_SERVER['HTTP_X_REQUEST_ID']);
+}
+
 // Define path to application directory
 defined('APPLICATION_PATH')
     || define(
