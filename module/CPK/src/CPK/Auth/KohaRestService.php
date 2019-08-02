@@ -56,6 +56,14 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
      */
     protected $source;
 
+    /**
+     * Access token
+     *
+     * @var
+     */
+    protected $token;
+
+
     protected $logger;
 
     /**
@@ -165,12 +173,14 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
     public function getToken()
     {
         // Try to get token from cache
-        $tokenData = $this->getTokenFromCache();
-
-        if (!$tokenData) {
-           $tokenData = $this->renewToken();
+        if (!$this->token) {
+            $this->token = $this->getTokenFromCache();
         }
-        return $tokenData;
+
+        if (!$this->token) {
+           $this->token = $this->renewToken();
+        }
+        return $this->token;
     }
 
     public function createOAUTH2Client($url)
@@ -189,10 +199,12 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
     {
         $tokenData = $this->requestNewOAUTH2Token();
         $this->setToCache($tokenData);
+        return $tokenData;
     }
 
     public function invalidateToken()
     {
+        $this->token = null;
         $this->setToCache(null);
     }
 
