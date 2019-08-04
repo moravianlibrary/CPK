@@ -1053,7 +1053,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         $statuses = [];
         foreach ($items as $item) {
             $available = $availabilities[$item['item_id']]['allows_checkout'] ??  false;
-            $statusCodes = $this->getItemStatusCodes($item);
+            $statusCodes = $this->getItemStatusCodes($availabilities[$item['item_id']]);
             $status = $this->pickStatus($statusCodes);
 
             // FIXME not implemented yet
@@ -1070,9 +1070,10 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             $entry = [
                 'id' => $id,
                 'item_id' => $item_id,
-                'location' => $this->getItemLocationName($item),
-                'availability' => $available,
-                'status' => $status,
+                'department' => $this->getItemLocationName($item),
+                'location' => $item['location'],
+                'availability' => $available ? 'A' : '',
+                'status' => $available ? 'available' : 'unavailable', //$status
                 'status_array' => $statusCodes,
                 'reserve' => 'N',
                 'callnumber' => $item['callnumber'],
@@ -1113,7 +1114,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
     protected function getItemStatusCodes($item)
     {
         $statuses = [];
-        if ($item['availability']['available']) {
+        if ($item['allows_checkout']) {
             $statuses[] = 'On Shelf';
         } elseif (isset($item['availability']['unavailabilities'])) {
             foreach ($item['availability']['unavailabilities'] as $key => $reason) {
@@ -1400,18 +1401,17 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
      */
     protected function getItemLocationName($item)
     {
-        $branchId = null !== $item['holdingbranch'] ? $item['holdingbranch']
-            : $item['homebranch'];
-        $name = $this->translate("location_$branchId");
-        if ($name === "location_$branchId") {
+        $library_id = $item['holding_library'] ?? $item['home_library'];
+        $name = $this->translate("location_$library_id");
+        if ($name === "location_$library_id") {
             $result = $this->makeRequest(
                 ['v1', 'libraries'], __FUNCTION__,false, 'GET'
             );
-            $branches = [];
-            foreach ($result as $branch) {
-                $branches[$branch['branchcode']] = $branch['branchname'];
+            $libraries = [];
+            foreach ($result as $library) {
+                $libraries[$library['library_id']] = $library['name'];
             }
-            $name = isset($branches[$branchId]) ? $branches[$branchId] : $branchId;
+            $name = $libraries[$library_id] ?? $library_id;
         }
         return $name;
     }
