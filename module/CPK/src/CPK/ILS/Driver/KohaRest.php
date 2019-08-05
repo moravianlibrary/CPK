@@ -46,6 +46,7 @@ use Zend\Log\LoggerInterface;
  * @package  ILS_Drivers
  * @author   Bohdan Inhliziian <bohdan.inhliziian@gmail.com>
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Josef Moravec <moravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:ils_drivers Wiki
  */
@@ -149,14 +150,14 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         $this->logger = $logger;
     }
 
-    public function setTranslator(TranslatorInterface $translator)
+/* FIXME remove this function    public function setTranslator(TranslatorInterface $translator)
     {
         if (method_exists($translator, "getTranslator")) {
             $this->translator = $translator->getTranslator();
         } else {
             $this->logger->err("Error getting translator.");
         }
-    }
+    }*/
 
     /**
      * Get Status
@@ -283,8 +284,8 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         );
 
         return [
-            'cat_username' => $patron['id'],
-            'id' => $patron['id'],
+            'cat_username' => $patron['userid'],
+            'id' => $patron['patron_id'],
             'firstname' => $result['firstname'],
             'lastname' => $result['surname'],
             'address1' => $result['address'],
@@ -293,10 +294,11 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             'country' => $result['country'],
             'zip' => $result['postal_code'],
             'phone' => $result['phone'],
-            'group' => '',
+            'group' => $result['category_id'],
             'blocks' => '',
             'email' => $result['email'],
-            'expire' => $result['expiry_date']
+            'expire' => $result['expiry_date'],
+            'expiration_date' => $result['expiry_date'], // For future compatibility with VuFind 6+
         ];
     }
 
@@ -327,15 +329,29 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             return $transactions;
         }
         foreach ($result as $entry) {
+            $renewability = $this->getCheckoutRenewability($entry['checkout_id']);
+            $item = null;
+            //$biblio = null;
+            if (isset($entry['item_id'])) {
+                $item = $this->getItem($entry['item_id']);
+                /* FIXME need biblio administartive data endpoint if (isset($item['biblio_id'])) {
+                    $biblio = $this->getBiblioRecord($item['biblio_id']);
+                }*/
+            }
             $transactions[] = [
-                'id' => $entry['item_id'],
+                'id' => $item['biblio_id'] ?? null,
                 'loan_id' => $entry['checkout_id'],
                 'item_id' => $entry['item_id'],
                 'duedate' => $entry['due_date'],
-                'dueStatus' => $entry['due_status'],
+                //'dueStatus' => $entry['due_status'],
                 'renew' => $entry['renewals'],
-                'barcode' => '',
-                'renewable' => $this->isItemRenewable($entry['checkout_id']),
+                'barcode' => $item['barcode'] ?? null,
+                'renewable' => $renewability['allows_renewal'] ?? false,
+                'renewLimit' => $renewability['max_renewals'] ?? null,
+                'message' => $renewability['error'] ?? null,
+                'borrowingLocation' => $entry['library_id'],
+                // publication_year => $biblio[''],
+                // title => $biblio[''],
             ];
         }
 
@@ -349,15 +365,14 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
      * @return bool
      * @internal param $checkout_id
      */
-    public function isItemRenewable($checkoutId) {
+    public function getCheckoutRenewability($checkoutId) {
         $result = $this->makeRequest(
-            ['v1', 'checkouts', $checkoutId, 'renewability'],
+            ['v1', 'checkouts', $checkoutId, 'allows_renewal'],
             __FUNCTION__,
             [],
             'GET'
         );
-
-        return $result['renewable'] && !$result['error'];
+        return $result;
     }
 
     /**
@@ -422,17 +437,16 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             ' ', !empty($params['sort']) ? $params['sort'] : 'checkout desc', 2
         );
         if ($sort[0] == 'checkout') {
-            $sortKey = 'issuedate';
+            $sortKey = 'checkout_date';
         } elseif ($sort[0] == 'return') {
             $sortKey = 'returndate';
         } else {
-            $sortKey = 'date_due';
+            $sortKey = 'checkin_date';
         }
         $direction = (isset($sort[1]) && 'desc' === $sort[1]) ? 'desc' : 'asc';
 
         $pageSize = isset($params['limit']) ? $params['limit'] : 50;
         $queryParams = [
-            'borrowernumber' => $patron['id'],
             'sort' => $sortKey,
             'order' => $direction,
             'offset' => isset($params['page'])
@@ -441,7 +455,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         ];
 
         $transactions = $this->makeRequest(
-            ['v1', 'checkouts', 'history'],
+            ['v1', 'patrons', $patron['id'], 'checkouts'],
             __FUNCTION__,
             $queryParams,
             'GET',
@@ -455,15 +469,15 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
 
         foreach ($transactions['records'] as $entry) {
             try {
-                $item = $this->getItem($entry['itemnumber']);
+                $item = $this->getItem($entry['item_id']);
             } catch (\Exception $e) {
                 $item = [];
             }
-            $volume = isset($item['enumchron'])
-                ? $item['enumchron'] : '';
+            $volume = isset($item['serial_enum_chron'])
+                ? $item['serial_enum_chron'] : '';
             $title = '';
-            if (!empty($item['biblionumber'])) {
-                $bib = $this->getBibRecord($item['biblionumber']);
+            if (!empty($item['biblio_id'])) {
+                $bib = $this->getBiblioRecord($item['biblio_id']);
                 if (!empty($bib['title'])) {
                     $title = $bib['title'];
                 }
@@ -485,20 +499,20 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             }
 
             $transaction = [
-                'id' => isset($item['biblionumber']) ? $item['biblionumber'] : '',
-                'checkout_id' => $entry['issue_id'],
-                'item_id' => $entry['itemnumber'],
+                'id' => $item['biblio_id'] ?? '',
+                'checkout_id' => $entry['checkout_id'],
+                'item_id' => $entry['item_id'],
                 'title' => $title,
                 'volume' => $volume,
                 'checkoutdate' => $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP', $entry['issuedate']
+                    'Y-m-d\TH:i:sP', $entry['checkout_date']
                 ),
                 'duedate' => $this->dateConverter->convertToDisplayDate(
                     'Y-m-d\TH:i:sP', $entry['date_due']
                 ),
                 'dueStatus' => $dueStatus,
                 'returndate' => $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP', $entry['returndate']
+                    'Y-m-d\TH:i:sP', $entry['checkin_date']
                 ),
                 'renew' => $entry['renewals']
             ];
@@ -525,7 +539,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         $result = $this->makeRequest(
             ['v1', 'holds'],
             __FUNCTION__,
-            ['borrowernumber' => $patron['id']],
+            ['patron_id' => $patron['id']],
             'GET',
             $patron
         );
@@ -536,16 +550,16 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         }
         foreach ($result as $entry) {
             $holds[] = [
-                'id' => $entry['biblionumber'],
-                'item_id' => $entry['biblionumber'] ? $entry['biblionumber'] : $entry['reserve_id'],
-                'location' => $entry['branchcode'],
-                'create' => $entry['reservedate'],
-                'expire' => $entry['expirationdate'],
+                'id' => $entry['biblio_id'],
+                'item_id' => $entry['item_id'] ?? null,
+                'location' => $entry['pickup_library_id'] ?? null,
+                'create' => $entry['hold_date'],
+                'expire' => $entry['expiration_date'],
                 'position' => $entry['priority'],
-                'available' => !empty($entry['waitingdate']),
-                'requestId' => $entry['reserve_id'],
-                'in_transit' => '',
-                'barcode' => ''
+                'available' => !empty($entry['waiting_date']),
+                'requestId' => $entry['hold_id'],
+                'in_transit' => !empty($entry['status']) && $entry['status'] == 'T',
+                'barcode' => $entry['item_id'] ?? ''
             ];
         }
         return $holds;
@@ -629,13 +643,13 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             ? explode(':', $this->config['Holds']['excludePickupLocations']) : [];
         foreach ($result as $location) {
             if (!$location['pickup_location']
-                || in_array($location['branchcode'], $excluded)
+                || in_array($location['library_id'], $excluded)
             ) {
                 continue;
             }
             $locations[] = [
-                'locationID' => $location['branchcode'],
-                'locationDisplay' => $location['branchname']
+                'locationID' => $location['library_id'],
+                'locationDisplay' => $location['name']
             ];
         }
 
@@ -726,13 +740,13 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         $level = isset($data['level']) ? $data['level'] : 'copy';
         if ('title' == $data['level']) {
             $result = $this->makeRequest(
-                ['v1', 'availability', 'biblio', 'hold'],
+                ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'alows_hold'],
                 __FUNCTION__,
-                ['biblionumber' => $id, 'borrowernumber' => $patron['id']],
+                ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron)],
                 'GET',
                 $patron
             );
-            if (!empty($result[0]['availability']['available'])) {
+            if (!empty($result['allows_hold']) && $result['allows_hold'] == true) {
                 return [
                     'valid' => true,
                     'status' => 'title_hold_place'
@@ -740,17 +754,17 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             }
             return [
                 'valid' => false,
-                'status' => $this->getHoldBlockReason($result)
+                'status' => $this->getHoldBlockReason($result) //FIXME
             ];
         }
         $result = $this->makeRequest(
-            ['v1', 'availability', 'item', 'hold'],
+            ['v1', 'contrib', 'knihovny_cz', 'items', $data['item_id'], 'allows_hold'],
             __FUNCTION__,
-            ['itemnumber' => $data['item_id'], 'borrowernumber' => $patron['id']],
+            ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron)],
             'GET',
             $patron
         );
-        if (!empty($result[0]['availability']['available'])) {
+        if (!empty($result['allows_hold']) && $result['allows_hold'] == true) {
             return [
                 'valid' => true,
                 'status' => 'hold_place'
@@ -822,15 +836,15 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         }
 
         $request = [
-            'biblionumber' => (int)$bibId,
-            'borrowernumber' => (int)$patron['id'],
-            'branchcode' => $pickUpLocation,
-            'expirationdate' => $this->dateConverter->convertFromDisplayDate(
+            'biblio_id' => (int)$bibId,
+            'patron_id' => (int)$patron['id'],
+            'pickup_library_id' => $pickUpLocation,
+            'expiration_date' => $this->dateConverter->convertFromDisplayDate(
                 'Y-m-d', $holdDetails['requiredBy']
             )
         ];
         if ($level == 'copy') {
-            $request['itemnumber'] = (int)$itemId;
+            $request['item_id'] = (int)$itemId;
         }
 
         list($code, $result) = $this->makeRequest(
@@ -1276,7 +1290,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
     protected function getPatronBlocks($patron)
     {
         $result = $this->makeRequest(
-            ['v1', 'patrons', $patron['id'], 'status'],
+            ['v1', 'patrons', $patron['id'], 'status'], //FIXME need endpoint
             __FUNCTION__,
             [],
             'GET',
@@ -1332,7 +1346,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
      *
      * @return array|null
      */
-    protected function getBibRecord($id)
+    protected function getBiblioRecord($id)
     {
         static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
