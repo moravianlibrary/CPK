@@ -1,7 +1,8 @@
 <? $results = $this->recommend->getResults(); ?>
-<? $checkboxFilters = $results->getParams()->getCheckboxFacets(); if (count($checkboxFilters) > 0): ?>
-<? $filterClass = (!isset($this->searchClassId) || $this->searchClassId == 'Solr') ? 'facet-filter' : 'facet-filter-central-index';?>
 <? $dbparam = '&database=' . $this->searchClassId; ?>
+<? $checkboxFilters = $results->getParams()->getCheckboxFacets(); ?>
+<? if (count($checkboxFilters) > 0): ?>
+<? $filterClass = (!isset($this->searchClassId) || $this->searchClassId == 'Solr') ? 'facet-filter' : 'facet-filter-central-index';?>
 <?
 
     $filterTranslations = [
@@ -380,10 +381,7 @@ JS;
                 $compressedFacetFilters = specialUrlEncode(\LZCompressor\LZString::compressToBase64($appliedFacetFiltersAsString));
 
                 $addURL .= '&filter='.$compressedFacetFilters;
-
-                if($this->searchClassId === 'EDS') {
-                  $addURL .= '&database=EDS';
-                }
+                $addURL .= $dbparam;
               ?>
               <? if ($allowExclude): ?>
                 <div class="list-group-item facet<?=$thisFacet['operator'] ?><? if ($i >= $facets_before_more): ?> <?=$moreClass ?><?endif ?>">
