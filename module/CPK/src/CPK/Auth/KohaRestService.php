@@ -26,14 +26,12 @@ namespace CPK\Auth;
 
 use CPK\Db\Table\KohaTokens;
 use VuFind\Exception\ILS as ILSException;
-use \VuFindHttp\HttpServiceAwareInterface;
-use VuFindHttp\HttpServiceAwareTrait;
-use \Zend\Log\LoggerAwareInterface;
-use Zend\Log\LoggerInterface;
 
-class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
+class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
+    \Zend\Log\LoggerAwareInterface
 {
-    use HttpServiceAwareTrait;
+    use \VuFindHttp\HttpServiceAwareTrait;
+    use \VuFind\Log\LoggerAwareTrait;
 
     /**
      * Institution configuration.
@@ -62,9 +60,6 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
      * @var
      */
     protected $token;
-
-
-    protected $logger;
 
     /**
      * Constructor
@@ -148,7 +143,7 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
         try {
             $response = $client->send();
         } catch (\Exception $e) {
-            $this->logger->err(
+            $this->logError(
                 "POST request for '$tokenEndpoint' failed: " . $e->getMessage()
             );
             throw new ILSException('Problem with getting OAuth2 access token.');
@@ -233,10 +228,5 @@ class KohaRestService implements HttpServiceAwareInterface, LoggerAwareInterface
     public function setConfig($config)
     {
         $this->config = $config;
-    }
-
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
     }
 }
