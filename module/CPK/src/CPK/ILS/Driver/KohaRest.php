@@ -33,11 +33,7 @@ use VuFind\ILS\Driver\AbstractBase;
 use CPK\ILS\Logic\KohaRestNormalizer;
 use VuFind\Exception\Date as DateException;
 use VuFind\Exception\ILS as ILSException;
-use Zend\I18n\Translator\TranslatorInterface;
-use VuFind\I18n\Translator\TranslatorAwareInterface;
 use \VuFind\Date\Converter as DateConverter;
-use \Zend\Log\LoggerAwareInterface;
-use Zend\Log\LoggerInterface;
 
 /**
  * VuFind Driver for Koha, using REST API
@@ -50,9 +46,11 @@ use Zend\Log\LoggerInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:ils_drivers Wiki
  */
-class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorAwareInterface, CPKDriverInterface
+class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
+    \VuFind\I18n\Translator\TranslatorAwareInterface, CPKDriverInterface
 {
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
+    use \VuFind\Log\LoggerAwareTrait;
     /**
      * Library prefix
      *
@@ -64,7 +62,6 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
     protected $defaultPickUpLocation;
     protected $kohaRestService;
     protected $translator;
-    protected $logger;
 
     /**
      * Item status rankings. The lower the value, the more important the status.
@@ -145,17 +142,12 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         $this->kohaRestService->setSource($this->source);
     }
 
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
 /* FIXME remove this function    public function setTranslator(TranslatorInterface $translator)
     {
         if (method_exists($translator, "getTranslator")) {
             $this->translator = $translator->getTranslator();
         } else {
-            $this->logger->err("Error getting translator.");
+            $this->logError("Error getting translator.");
         }
     }*/
 
@@ -968,7 +960,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             $response = $client->send();
         } catch (\Exception $e) {
 
-            $this->logger->err(
+            $this->logError(
                 "$method request for '$apiUrl' failed: " . $e->getMessage()
             );
             throw new ILSException('Problem with Koha REST API.');
@@ -983,7 +975,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             try {
                 $response = $client->send();
             } catch (\Exception $e) {
-                $this->logger->err(
+                $this->logError(
                     "$method request for '$apiUrl' failed: " . $e->getMessage()
                 );
                 throw new ILSException('Problem with Koha REST API.');
@@ -996,7 +988,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
         if ($method == 'GET') {
             $fullUrl .= '?' . $client->getRequest()->getQuery()->toString();
         }
-        $this->logger->debug(
+        $this->debug(
             '[' . round(microtime(true) - $startTime, 4) . 's]'
             . " $method request $fullUrl" . PHP_EOL . 'response: ' . PHP_EOL
             . $result
@@ -1012,7 +1004,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
             $params = $method == 'GET'
                 ? $client->getRequest()->getQuery()->toString()
                 : $client->getRequest()->getPost()->toString();
-            $this->logger->err(
+            $this->logError(
                 "$method request for '$apiUrl' with params '$params' and contents '"
                 . $client->getRequest()->getContent() . "' failed: "
                 . $response->getStatusCode() . ': ' . $response->getReasonPhrase()
@@ -1197,7 +1189,7 @@ class KohaRest extends AbstractBase implements LoggerAwareInterface, TranslatorA
                 $statuses[] = 'Not Available';
             }
         } else {
-            $this->logger->err(
+            $this->logError(
                 "Unable to determine status for item: " . print_r($item, true)
             );
         }
