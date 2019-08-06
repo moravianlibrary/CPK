@@ -34,9 +34,6 @@ function fetchHolds(cat_username) {
 
 function updateHolds(response) {
     var data = response.data, status = response.status;
-    if (typeof data.dg !== 'undefined') {
-        fillDebug(data.dg);
-    }
 
     var cat_username = data.cat_username, html = data.html;
 

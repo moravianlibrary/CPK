@@ -68,7 +68,7 @@
    # cpk-front.mzk.cz is a config used to develop PerunShibboleth
    SetEnv VUFIND_LOCAL_DIR /home/kravec/git/VuFind-2.x/local/cpk-front.mzk.cz
 
-   SetEnv VUFIND_LOCAL_MODULES VuFindConsole,CPK,Debug
+   SetEnv VUFIND_LOCAL_MODULES VuFindConsole,CPK
    SetEnv VUFIND_ENV development
    
    # What to show in browser output. Comment the line to hide the errors.

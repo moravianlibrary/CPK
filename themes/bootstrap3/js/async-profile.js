@@ -35,9 +35,6 @@ function fetchProfile(cat_username) {
 function updateProfileTable(response) {
     
     var patron = response.data, status = response.status;
-    if (typeof patron.dg !== 'undefined') {
-        fillDebug(patron.dg);
-    }
 
     var cat_username = patron.cat_username, parentTable = {};
 

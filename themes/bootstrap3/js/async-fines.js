@@ -35,9 +35,6 @@ function fetchFines(cat_username) {
 function updateFinesTable(response) {
     
     var data = response.data, status = response.status;
-    if (typeof data.dg !== 'undefined') {
-        fillDebug(data.dg);
-    }
 
     var cat_username = data.cat_username, parentTable = {};
 

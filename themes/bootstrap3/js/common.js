@@ -422,11 +422,6 @@ function keyboardShortcuts() {
     }
 }
 
-function fillDebug(dg) {
-    $('#modal_dg .modal-body').append(dg);
-    $('#modal_dg .modal-body').append('<br><br>');
-}
-
 jQuery( document ).ready( function( $ ) {
   // Setup search autocomplete
   setupAutocomplete();
@@ -615,8 +610,6 @@ jQuery( document ).ready( function( $ ) {
 
   /* Initialize questionmark helps when available */
   $( '.questionmark-help + .modal' ).appendTo( 'body' );
-
-  $( '#modal_dg' ).appendTo( 'body' );
 
   // Feedback modal window
   var feedbackModal = document.getElementById( 'feedback-open' );

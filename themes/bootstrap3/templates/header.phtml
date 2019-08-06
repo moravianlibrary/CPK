@@ -192,26 +192,6 @@
                 <? endif; ?>
               <? endforeach; ?>
             <? endif; ?>
-
-            <? if (($this->layout()->userLang == 'dg')): ?>
-              <div class="questionmark-help" data-target="#modal_dg" data-toggle="modal">
-                <span class="icon">DG</span>
-
-                <!-- Modal -->
-                <div class="modal fade" id="modal_dg" tabindex="-1" role="dialog" aria-labelledby="label_dg">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-body"></div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">
-                          <?=$this->translate('Close')?>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <? endif; ?>
           <? endif; ?>
       </ul>
     </nav>
