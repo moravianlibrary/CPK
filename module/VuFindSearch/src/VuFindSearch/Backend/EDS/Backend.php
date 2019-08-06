@@ -489,10 +489,7 @@ class Backend extends AbstractBackend
             return $this->session->sessionID;
         }
 
-        // When creating a new session, also call the INFO method to pull the
-        // available search criteria for this profile
         $sessionToken = $this->createEBSCOSession();
-        $this->session->info = $this->getInfo($sessionToken);
 
         return $sessionToken;
     }
@@ -575,32 +572,42 @@ class Backend extends AbstractBackend
      */
     public function getInfo($sessionToken = null)
     {
+        $response = $this->cache->getItem("edsInfo");
+        if (isset($response)) {
+            return $response;
+        }
         $authenticationToken = $this->getAuthenticationToken();
         if (null == $sessionToken) {
             $sessionToken = $this->getSessionToken();
         }
         try {
             $response = $this->client->info($authenticationToken, $sessionToken);
+            $this->cache->setItem("edsInfo", $response);
         } catch (\EbscoEdsApiException $e) {
-            if ($e->getApiErrorCode() == 104) {
-                try {
-                    $authenticationToken = $this->getAuthenticationToken(true);
-                    $response = $this->client
-                        ->info($authenticationToken, $sessionToken);
-                } catch(Exception $e) {
-                    throw new BackendException(
-                        $e->getMessage(),
-                        $e->getCode(),
-                        $e
-                    );
-
-                }
-            } else {
-                $response = [];
+            // if the auth or session token was invalid, try once more
+            switch ($e->getApiErrorCode()) {
+                case 104:
+                case 108:
+                case 109:
+                    try {
+                        // For error 104, retry auth token; for 108/9, retry sess token:
+                        if ($e->getApiErrorCode() == 104) {
+                            $authenticationToken = $this->getAuthenticationToken(true);
+                        } else {
+                            $sessionToken = $this->getSessionToken(true);
+                        }
+                        $response = $this->client
+                            ->info($authenticationToken, $sessionToken);
+                        $this->cache->setItem("edsInfo", $response);
+                    } catch(Exception $e) {
+                        throw new BackendException($e->getMessage(), $e->getCode(), $e);
+                    }
+                    break;
+                default:
+                    $response = [];
             }
         }
         return $response;
-
     }
 
     /**
