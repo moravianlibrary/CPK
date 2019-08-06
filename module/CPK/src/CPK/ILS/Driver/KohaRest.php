@@ -932,23 +932,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             if ('GET' === $method || 'DELETE' === $method) {
                 $client->setParameterGet($params);
             } else {
-                $body = '';
-                if (is_string($params)) {
-                    $body = $params;
-                } else {
-                    if (isset($params['##body##'])) {
-                        $body = $params['##body##'];
-                        unset($params['##body##']);
-                        $client->setParameterGet($params);
-                    } else {
-                        $client->setParameterPost($params);
-                    }
-                }
-                if ('' !== $body) {
-                    $client->getRequest()->setContent($body);
-                    $client->getRequest()->getHeaders()
-                        ->addHeaderLine('Content-Type', 'application/json');
-                }
+                $client->setParameterPost($params);
             }
         }
 
@@ -959,7 +943,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         try {
             $response = $client->send();
         } catch (\Exception $e) {
-
             $this->logError(
                 "$method request for '$apiUrl' failed: " . $e->getMessage()
             );
@@ -969,7 +952,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         // If we get a 401, we need to renew the access token and try again
         if ($response->getStatusCode() == 401) {
             $this->kohaRestService->invalidateToken();
-
             $client = $this->kohaRestService->createOAUTH2Client($apiUrl);
 
             try {
