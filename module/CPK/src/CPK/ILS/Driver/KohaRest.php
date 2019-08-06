@@ -63,6 +63,13 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected $kohaRestService;
 
     /**
+     * Normalizer
+     *
+     * @var KohaRestNormalizer
+     */
+    protected $normalizer;
+
+    /**
      * Item status rankings. The lower the value, the more important the status.
      *
      * @var array
@@ -139,6 +146,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
 
         $this->kohaRestService->setConfig($this->config);
         $this->kohaRestService->setSource($this->source);
+
+        $this->normalizer = new KohaRestNormalizer($this->dateConverter);
     }
 
 
@@ -986,7 +995,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             throw new ILSException('Problem with Koha REST API.');
         }
 
-        $decodedResult = $this->normalizeResponse($action)->normalize($decodedResult);
+        $decodedResult = $this->normalizer->normalize($decodedResult, $action);
 
         return $returnCode ? [$response->getStatusCode(), $decodedResult]
             : $decodedResult;
@@ -1430,16 +1439,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
         }
         return 'hold_error_blocked';
-    }
-
-    /**
-     * Normalizes response from API to needed format
-     *
-     * @param $method
-     * @return KohaRestNormalizer
-     */
-    public function normalizeResponse($method) {
-        return new KohaRestNormalizer($method, $this->dateConverter);
     }
 
     /**
