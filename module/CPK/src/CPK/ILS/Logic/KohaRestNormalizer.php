@@ -3,7 +3,6 @@
 namespace CPK\ILS\Logic;
 
 use \VuFind\Date\Converter as DateConverter;
-use Zend\I18n\Translator\TranslatorInterface;
 use Zend\Log\LoggerInterface;
 
 class KohaRestNormalizer
@@ -16,19 +15,16 @@ class KohaRestNormalizer
     protected $methodName;
 
     protected $dateConverter;
-    protected $translator;
     protected $logger;
 
     public function __construct(
         $method,
         DateConverter $converter,
-        TranslatorInterface $translator,
         LoggerInterface $logger
     )
     {
         $this->methodName = $method;
         $this->dateConverter = $converter;
-        $this->translator = $translator;
         $this->logger = $logger;
     }
 
@@ -73,8 +69,6 @@ class KohaRestNormalizer
             $entry['date'] = !empty($entry['date'])
                 ? $this->dateConverter->convertToDisplayDate('Y-m-d', $entry['date'])
                 : '';
-
-            $entry['account_type'] = $this->translator->translate('KohaFine_' . $entry['account_type']);
 
             $entry['amount'] *= 100;
             $entry['amount_outstanding'] *= 100;

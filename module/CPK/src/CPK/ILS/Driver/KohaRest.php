@@ -61,7 +61,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected $dateConverter;
     protected $defaultPickUpLocation;
     protected $kohaRestService;
-    protected $translator;
 
     /**
      * Item status rankings. The lower the value, the more important the status.
@@ -142,14 +141,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $this->kohaRestService->setSource($this->source);
     }
 
-/* FIXME remove this function    public function setTranslator(TranslatorInterface $translator)
-    {
-        if (method_exists($translator, "getTranslator")) {
-            $this->translator = $translator->getTranslator();
-        } else {
-            $this->logError("Error getting translator.");
-        }
-    }*/
 
     /**
      * Get Status
@@ -884,7 +875,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $fines[] = [
                 'amount' => $entry['amount'],
                 'checkout' => $entry['date'],
-                'fine' => $entry['account_type'],
+                'fine' =>  $this->translate("KohaFine_" . $entry['account_type']),
                 'balance' => $entry['amount_outstanding'],
                 'createdate' => '',
                 'duedate' => '',
@@ -1448,7 +1439,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @return KohaRestNormalizer
      */
     public function normalizeResponse($method) {
-        return new KohaRestNormalizer($method, $this->dateConverter, $this->translator, $this->logger);
+        return new KohaRestNormalizer($method, $this->dateConverter, $this->logger);
     }
 
     /**
