@@ -6,26 +6,15 @@ use \VuFind\Date\Converter as DateConverter;
 
 class KohaRestNormalizer
 {
-    /**
-     * An action driver is doing now
-     *
-     * @var string
-     */
-    protected $methodName;
+        protected $dateConverter;
 
-    protected $dateConverter;
-
-    public function __construct(
-        $method,
-        DateConverter $converter,
-    )
+    public function __construct(DateConverter $converter)
     {
-        $this->methodName = $method;
         $this->dateConverter = $converter;
     }
 
-    public function normalize($response) {
-        switch ($this->methodName) {
+    public function normalize($response, $methodName) {
+        switch ($methodName) {
             case 'getMyProfile':
                 $this->normalizeUserProfileResponse($response);
                 break;
