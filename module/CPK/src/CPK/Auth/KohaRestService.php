@@ -24,7 +24,6 @@
  */
 namespace CPK\Auth;
 
-use CPK\Db\Table\KohaTokens;
 use VuFind\Exception\ILS as ILSException;
 
 class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,

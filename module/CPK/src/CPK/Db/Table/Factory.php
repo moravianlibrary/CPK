@@ -119,18 +119,6 @@ class Factory
     }
 
     /**
-     * Construct the koha_tokens table.
-     *
-     * @param ServiceManager $sm
-     * @return KohaTokens
-     */
-    public static function getKohaTokens(ServiceManager $sm) {
-        return new KohaTokens($sm->getServiceLocator()
-            ->get('VuFind\Config')
-            ->get('config'));
-    }
-
-    /**
      * Construct the inst_configs table.
      *
      * @param ServiceManager $sm
