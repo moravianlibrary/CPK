@@ -81,7 +81,6 @@ $config = array(
                     'portalpages' => 'CPK\Db\Table\Factory::getPortalPages',
                     'notification_types' => 'CPK\Db\Table\Factory::getNotificationTypes',
                     'inst_configs' => 'CPK\Db\Table\Factory::getInstitutionsConfigs',
-                    'koha_tokens' => 'CPK\Db\Table\Factory::getKohaTokens',
                     'librariesgeolocations' => 'CPK\Db\Table\Factory::getLibrariesGeolocations',
                     'frontend' => 'CPK\Db\Table\Factory::getFrontend',
                     'widget' => 'CPK\Db\Table\Factory::getWidget',

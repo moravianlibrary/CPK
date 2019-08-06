@@ -1051,13 +1051,4 @@ UPDATE `widget` SET `title_cs` = "Technika" WHERE `name` = "tech_technica";
 UPDATE `widget` SET `title_cs` = "Knihovnictví" WHERE `name` = "kiv_library_science";
 UPDATE `widget` SET `title_cs` = "Horolezectví a alpinismus" WHERE `name` = "mountain_climbing";
 
-/* feature-1107 */
-CREATE TABLE `vufind`.`koha_tokens` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `source` VARCHAR(45) NOT NULL,
-  `access_token` TEXT NOT NULL,
-  `timestamp_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `timestamp_expiration` TIMESTAMP NULL,
-  `token_type` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id`));
 UPDATE `system` SET `value` = '65' WHERE `key`='DB_VERSION';
