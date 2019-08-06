@@ -3,7 +3,6 @@
 namespace CPK\ILS\Logic;
 
 use \VuFind\Date\Converter as DateConverter;
-use Zend\Log\LoggerInterface;
 
 class KohaRestNormalizer
 {
@@ -15,17 +14,14 @@ class KohaRestNormalizer
     protected $methodName;
 
     protected $dateConverter;
-    protected $logger;
 
     public function __construct(
         $method,
         DateConverter $converter,
-        LoggerInterface $logger
     )
     {
         $this->methodName = $method;
         $this->dateConverter = $converter;
-        $this->logger = $logger;
     }
 
     public function normalize($response) {
