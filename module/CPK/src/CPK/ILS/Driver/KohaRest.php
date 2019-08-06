@@ -1439,7 +1439,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @return KohaRestNormalizer
      */
     public function normalizeResponse($method) {
-        return new KohaRestNormalizer($method, $this->dateConverter, $this->logger);
+        return new KohaRestNormalizer($method, $this->dateConverter);
     }
 
     /**
