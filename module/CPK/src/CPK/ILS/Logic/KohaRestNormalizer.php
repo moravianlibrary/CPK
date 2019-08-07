@@ -52,7 +52,7 @@ class KohaRestNormalizer
             }
 
             $entry['date'] = !empty($entry['date'])
-                ? $this->dateConverter->convertToDisplayDate('Y-m-d', $entry['date'])
+                ? $this->normalizeDate($entry['date'])
                 : '';
 
             $entry['amount'] *= 100;
@@ -67,10 +67,10 @@ class KohaRestNormalizer
         foreach ($response as $key => $entry) {
             $entry['biblionumber'] = isset($entry['biblionumber']) ? $entry['biblionumber'] : null; //TODO deal with 'KOHA-OAI-TEST:'
             $entry['reservedate'] = !empty($entry['reservedate'])
-                ? $this->dateConverter->convertToDisplayDate('Y-m-d', $entry['reservedate'])
+                ? $this->normalizeDate($entry['reservedate'])
                 : '';
             $entry['expirationdate'] = !empty($entry['expirationdate'])
-                ? $this->dateConverter->convertToDisplayDate('Y-m-d', $entry['expirationdate'])
+                ? $this->normalizeDate($entry['expirationdate'])
                 : '';
 
             $response[$key] = $entry;
@@ -81,7 +81,7 @@ class KohaRestNormalizer
         foreach ($response as $key => $entry) {
             $entry['item_id'] = isset($entry['item_id']) ? $entry['item_id'] : null;
             $entry['due_date'] = !empty($entry['due_date'])
-                ? $this->dateConverter->convertToDisplayDate('Y-m-d', $entry['due_date'])
+                ? $this->normalizeDate($entry['due_date'])
                 : '';
 
             //check if overdue
@@ -95,7 +95,12 @@ class KohaRestNormalizer
 
     public function normalizeRenewItem(&$response) {
         $response['due_date'] = !empty($response['due_date'])
-            ? $this->dateConverter->convertToDisplayDate('Y-m-d', $response['due_date'])
+            ? $this->normalizeDate($response['due_date'])
             : '';
+    }
+
+    public function normalizeDate($date, $with_time = false) {
+        $create_format = $with_time ? 'Y-m-d' : 'Y-m-d H:i:s';
+        return $this->dateConverter->convertToDisplayDate($create_format, $date);
     }
 }
