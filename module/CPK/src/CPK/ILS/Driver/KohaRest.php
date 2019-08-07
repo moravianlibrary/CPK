@@ -70,13 +70,14 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected $normalizer;
 
     /**
-     * Item status rankings. The lower the value, the more important the status.
+     * Item statuses mapping
      *
      * @var array
      */
-    protected $statusRankings = [
-        'Charged' => 1,
-        'On Hold' => 2
+    protected $statuses = [
+        'checked_out' => 'On Loan',
+        'in_transit' => 'In Transit Between Library Locations',
+        'waiting_hold' => 'On Order',
     ];
 
     /**
@@ -133,12 +134,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             : '';
         if ($this->defaultPickUpLocation === 'user-selected') {
             $this->defaultPickUpLocation = false;
-        }
-
-        if (!empty($this->config['StatusRankings'])) {
-            $this->statusRankings = array_merge(
-                $this->statusRankings, $this->config['StatusRankings']
-            );
         }
 
         if (isset($this->config['Availability']['source']))
@@ -1024,9 +1019,22 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             false,
             false
         );
-        /*if (empty($result[0]['item_availabilities'])) {
-            return [];
-        }*/
+
+        $holdable = 'Y';
+        if ($patron) {
+            $holdability = $this->makeRequest(
+                ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'allows_hold'],
+                __FUNCTION__,
+                ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron) ],
+                'GET',
+                $patron,
+                false,
+                false
+            );
+            if ($holdability && $holdability['allows_hold'] == false) {
+                $holdable = 'N';
+            }
+        }
 
         $items = $this->makeRequest(
             ['v1', 'contrib', 'bibliocommons', 'biblios', $id, 'items'],
@@ -1038,219 +1046,47 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             true
         );
 
-        $statuses = [];
+        $holds = $this->makeRequest(
+            ['v1', 'holds'],
+            __FUNCTION__,
+            ['biblio_id' => $id],
+            'GET',
+            $patron,
+            false,
+            true
+        );
+
         foreach ($items as $item) {
             $available = $availabilities[$item['item_id']]['allows_checkout'] ??  false;
-            $statusCodes = $this->getItemStatusCodes($availabilities[$item['item_id']]);
-            $status = $this->pickStatus($statusCodes);
-
-            // FIXME not implemented yet
-            /* if (isset($avail['unavailabilities']['Item::CheckedOut']['date_due'])) {
-                $duedate = $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP',
-                 $avail['unavailabilities']['Item::CheckedOut']['date_due']
-                );
-            } else {
-                $duedate = null;
-            }*/
-
-            $duedate = null;
+            $status = $this->statuses[$availabilities[$item['item_id']]['allows_checkout_status']] ?? 'available';
+            $duedate = $availabilities[$item['item_id']]['date_due'] ?? null;
             $entry = [
                 'id' => $id,
-                'item_id' => $item_id,
+                'item_id' => $item['item_id'],
                 'department' => $this->getItemLocationName($item),
                 'location' => $item['location'],
-                'availability' => $available ? 'A' : '',
-                'status' => $available ? 'available' : 'unavailable', //$status
-                'status_array' => $statusCodes,
-                'reserve' => 'N',
+                'availability' => $item['notforloan'] ? 'P' : 'A',
+                'status' => $status,
+                'reserve' => count($holds) >= 1 ? 'Y' : 'N',
                 'callnumber' => $item['callnumber'],
                 'duedate' => $duedate,
                 'number' => $item['serial_enum_chron'],
                 'barcode' => $item['barcode'],
-                //'sort' => $i,
-                //'requests_placed' => max(
-                //    [$item['hold_queue_length'], $result[0]['hold_queue_length']]
-                //)
             ];
             if (!empty($item['public_notes'])) {
                 $entry['item_notes'] = [$item['public_notes']];
             }
 
-            if ($patron && $this->itemHoldAllowed($item)) {
+            if ($holdable) {
                 $entry['is_holdable'] = true;
                 $entry['level'] = 'copy';
                 $entry['addLink'] = 'check';
             } else {
                 $entry['is_holdable'] = false;
             }
-
             $statuses[] = $entry;
         }
-
-        usort($statuses, [$this, 'statusSortFunction']);
         return $statuses;
-    }
-
-    /**
-     * Get statuses for an item
-     *
-     * @param array $item Item from Koha
-     *
-     * @return array Status array and possible due date
-     */
-    protected function getItemStatusCodes($item)
-    {
-        $statuses = [];
-        if ($item['allows_checkout']) {
-            $statuses[] = 'On Shelf';
-        } elseif (isset($item['availability']['unavailabilities'])) {
-            foreach ($item['availability']['unavailabilities'] as $key => $reason) {
-                if (isset($this->config['ItemStatusMappings'][$key])) {
-                    $statuses[] = $this->config['ItemStatusMappings'][$key];
-                } elseif (strncmp($key, 'Item::', 6) == 0) {
-                    $status = substr($key, 6);
-                    switch ($status) {
-                    case 'CheckedOut':
-                        $overdue = false;
-                        if (!empty($reason['date_due'])) {
-                            $duedate = $this->dateConverter->convert(
-                                'Y-m-d',
-                                'U',
-                                $reason['date_due']
-                            );
-                            $overdue = $duedate < time();
-                        }
-                        $statuses[] = $overdue ? 'Overdue' : 'Charged';
-                        break;
-                    case 'Lost':
-                        $statuses[] = 'Lost--Library Applied';
-                        break;
-                    case 'NotForLoan':
-                    case 'NotForLoanForcing':
-                        if (isset($reason['code'])) {
-                            switch ($reason['code']) {
-                            case 'Not For Loan':
-                                $statuses[] = 'On Reference Desk';
-                                break;
-                            default:
-                                $statuses[] = $reason['code'];
-                                break;
-                            }
-                        } else {
-                            $statuses[] = 'On Reference Desk';
-                        }
-                        break;
-                    case 'Transfer':
-                        $onHold = false;
-                        if (!empty($item['availability']['notes'])) {
-                            foreach ($item['availability']['notes'] as $noteKey
-                                => $note
-                            ) {
-                                if ('Item::Held' === $noteKey) {
-                                    $onHold = true;
-                                    break;
-                                }
-                            }
-                        }
-                        $statuses[] = $onHold ? 'In Transit On Hold' : 'In Transit';
-                        break;
-                    case 'Held':
-                        $statuses[] = 'On Hold';
-                        break;
-                    case 'Waiting':
-                        $statuses[] = 'On Holdshelf';
-                        break;
-                    default:
-                        $statuses[] = !empty($reason['code'])
-                            ? $reason['code'] : $status;
-                    }
-                }
-            }
-            if (empty($statuses)) {
-                $statuses[] = 'Not Available';
-            }
-        } else {
-            $this->logError(
-                "Unable to determine status for item: " . print_r($item, true)
-            );
-        }
-
-        if (empty($statuses)) {
-            $statuses[] = 'No information available';
-        }
-        return array_unique($statuses);
-    }
-
-    /**
-     * Status item sort function
-     *
-     * @param array $a First status record to compare
-     * @param array $b Second status record to compare
-     *
-     * @return int
-     */
-    protected function statusSortFunction($a, $b)
-    {
-        $result = strcmp($a['location'], $b['location']);
-        if ($result == 0) {
-            $result = $a['sort'] - $b['sort'];
-        }
-        return $result;
-    }
-
-    /**
-     * Check if an item is holdable
-     *
-     * @param array $item Item from Koha
-     *
-     * @return bool
-     */
-    protected function itemHoldAllowed($item)
-    {
-        $unavail = isset($item['availability']['unavailabilities'])
-            ? $item['availability']['unavailabilities'] : [];
-        if (!isset($unavail['Hold::NotHoldable'])) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Protected support method to pick which status message to display when multiple
-     * options are present.
-     *
-     * @param array $statusArray Array of status messages to choose from.
-     *
-     * @throws ILSException
-     * @return string            The best status message to display.
-     */
-    protected function pickStatus($statusArray)
-    {
-        // Pick the first entry by default, then see if we can find a better match:
-        $status = $statusArray[0];
-        $rank = $this->getStatusRanking($status);
-        for ($x = 1; $x < count($statusArray); $x++) {
-            if ($this->getStatusRanking($statusArray[$x]) < $rank) {
-                $status = $statusArray[$x];
-            }
-        }
-
-        return $status;
-    }
-
-    /**
-     * Support method for pickStatus() -- get the ranking value of the specified
-     * status message.
-     *
-     * @param string $status Status message to look up
-     *
-     * @return int
-     */
-    protected function getStatusRanking($status)
-    {
-        return isset($this->statusRankings[$status])
-            ? $this->statusRankings[$status] : 32000;
     }
 
     /**
