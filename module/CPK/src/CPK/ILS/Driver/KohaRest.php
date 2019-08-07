@@ -491,16 +491,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'item_id' => $entry['item_id'],
                 'title' => $title,
                 'volume' => $volume,
-                'checkoutdate' => $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP', $entry['checkout_date']
-                ),
-                'duedate' => $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP', $entry['date_due']
-                ),
+                'checkoutdate' => $this->normalizer->normalizeDate($entry['checkout_date'], true),
+                'duedate' => $this->normalizer->normalizeDate($entry['date_due'], true),
                 'dueStatus' => $dueStatus,
-                'returndate' => $this->dateConverter->convertToDisplayDate(
-                    'Y-m-d\TH:i:sP', $entry['checkin_date']
-                ),
+                'returndate' => $this->normalizer->normalizeDate($entry['checkin_date'], true),
                 'renew' => $entry['renewals']
             ];
 
