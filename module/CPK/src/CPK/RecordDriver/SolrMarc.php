@@ -285,6 +285,10 @@ class SolrMarc extends ParentSolrMarc
     public function getRealTimeHoldings($filters = array())
     {
         return $this->parseHoldingsFrom996field($filters);
+        /* This was original code:
+        return $this->hasILS() ? $this->holdLogic->getHoldings(
+            $this->getUniqueID(), $this->getConsortialIDs()
+        ) : [];*/
     }
 
     public function getHoldingFilters()
