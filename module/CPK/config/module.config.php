@@ -248,6 +248,7 @@ $config = array(
 );
 
 $staticRoutes = array(
+    'AJAX/JSON',
     'MyResearch/UserConnect',
     'MyResearch/UserDelete',
     'MyResearch/Settings',
@@ -262,7 +263,7 @@ $staticRoutes = array(
 	'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
 	'MyResearch/ProfileChange',
-    'MyResearch/ChangeTitle'
+    'MyResearch/ChangeTitle',
 );
 
 foreach ($staticRoutes as $route) {
