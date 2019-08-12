@@ -1,15 +1,34 @@
-<meta property="og:url"
-      content="https://knihovny.cz/" />
-<meta property="og:title"
-      content="Knihovny.cz" />
-<meta property="og:description"
-      content="Knihovny pod jednou střechou. Využijte komfort a jednoduchost prohledávání fondů desítek českých knihoven současně. Využijte služeb knihoven, objednávejte, stahujte - kdykoliv a kdekoliv." />
-<meta property="og:image"
-      content="https://www.knihovny.cz/themes/bootstrap3/images/screenshot_20171130.png" />
-<meta property="og:image:secure_url"
-      content="https://www.knihovny.cz/themes/bootstrap3/images/screenshot_20171130.png" />
-<meta property="og:image:type"
-      content="image/png" />
-<meta name="referrer"
-      content="unsafe-url" />
+<?
+    /**
+     * Default metadata, represented as <meta name/property="xyz"
+     */
+    $metadata = [
+        'description'   => 'Knihovny pod jednou střechou. Využijte komfort a jednoduchost prohledávání fondů desítek českých knihoven současně. Využijte služeb knihoven, objednávejte, stahujte - kdykoliv a kdekoliv.',
+        'referrer'      => 'unsafe-url',
+        'og:title'      => 'Knihovny.cz',
+        'og:image'      => 'https://www.knihovny.cz/themes/bootstrap3/images/screenshot_20190620.png',
+        'og:image:type' => 'image/png',
+    ];
+    //if is record view page, get another data
+    if ( $this->recordView ) {
+        //add new, but preserve previous data
+        if ( $this->layout()->recordMetaTags ) {
+            $metadata = array_merge($metadata, $this->layout()->recordMetaTags);
+        }
+    }
+    //duplicate some data eg. image secure url
+    $metadata = array_merge($metadata, [
+        'og:description'      => $metadata[ 'description' ],
+        'og:image:secure_url' => $metadata[ 'og:image' ],
+    ]);
+    //print all metadata
+    foreach ( $metadata as $key => $content ) {
+        //if it's opengraph metadata, use property instead of name
+        $propName = ( strpos($key, 'og') === 0 ) ? 'property' : 'name'
+        ?>
+      <meta <?= $this->escapeHtml($propName) ?>="<?= $this->escapeHtml($key) ?>" content="<?= $this->escapeHtml($content) ?>"/>
+        <?
+    }
+    //in the end add some static info
+?>
 <link href="/themes/bootstrap3/images/icon-knihovny.png" rel="icon" type="image/png">

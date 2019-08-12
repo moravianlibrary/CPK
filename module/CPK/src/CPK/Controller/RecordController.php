@@ -65,6 +65,32 @@ class RecordController extends RecordControllerBase
     }
 
     /**
+     * Returns data for facebook meta tags
+     *
+     * @return array
+     */
+    protected function getDataForMetaTags()
+    {
+        $obalkyUrl = 'https://cache.obalkyknih.cz/api/cover';
+        $sigla = '';
+        if ( isset($this->config->ObalkyKnih->sigla) ) {
+            $sigla = $this->config->ObalkyKnih->sigla;
+        }
+        $bibinfo = rawurlencode(json_encode($this->driver->getBibinfoForObalkyKnihV3(), JSON_HEX_QUOT | JSON_HEX_TAG));
+        $keyword = rawurlencode(sprintf('advert%s record', $sigla));
+        $ImgSrc = sprintf('%s?multi=%s&type=medium&keywords=%s', $obalkyUrl, $bibinfo, $keyword);
+        $Title = $this->driver->getTitle();
+        $Author = $this->driver->getDeduplicatedAuthors()[ 'main' ];
+        //metadata passed to the view
+        $metadata = [
+            'og:image' => $ImgSrc,
+            'og:title' => $Title,
+        ];
+        return $metadata;
+    }
+
+
+    /**
      * Display a particular tab.
      *
      * @param string $tab
@@ -247,6 +273,8 @@ class RecordController extends RecordControllerBase
 
         $view->setVariable('isZiskej', $this->driver->getZiskejBoolean());
         $view->setVariable('ziskejMinUrl', $config->Ziskej_minimal->url ?? '');
+        //add data for meta tags
+        $this->layout()->recordMetaTags = $this->getDataForMetaTags() ?: [];
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
