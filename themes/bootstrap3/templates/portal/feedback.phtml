@@ -77,7 +77,7 @@ $this->feedback()->hideFeedbackModalButton = true;
 
     <div id='RecaptchaField'></div>
 
-    <input type="hidden" name="page_path" value="<?= $this->feedback()->actualLink ?>">
+    <input type="hidden" name="page_path" value="<?= $this->escapeHtml($this->previous_page_path); ?>">
 
     <fieldset class="form-group">
       <input id="captcha_submit"

@@ -372,31 +372,19 @@ h3.contains-pull-elem {
   opacity: 0.4;
   transition: 0.3s;
   z-index: 100;
-}
 
-.feedback-link:hover {
-  opacity: 1;
-}
-
-.feedback-link span {
-  cursor: pointer;
-  display: block;
-  color: @brand-primary;
-}
-
-.feedback-link span.pr-communication-bubblehelpquestionsupport2:before {
-  font-size: 50px;
-}
-
-//Styling rendered feedback page into modal window (common styling in portal.less)
-#feedback-modal .feedback-form {
-  input[type=text],
-  input[type=email] {
-    width: 100%;
+  &:hover {
+    opacity: 1;
   }
 
-  textarea {
-    height: 100px;
+  a {
+    cursor: pointer;
+    display: block;
+    color: @brand-primary;
+
+    &.pr-communication-bubblehelpquestionsupport2:before {
+      font-size: 50px;
+    }
   }
 }
 
@@ -408,8 +396,4 @@ h3.contains-pull-elem {
   .modal {
     z-index: 1234;
   }
-}
-
-.cursor-help {
-  cursor: help;
 }
