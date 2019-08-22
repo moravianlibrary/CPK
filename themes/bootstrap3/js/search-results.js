@@ -586,6 +586,7 @@ jQuery( document ).ready( function( $ ) {
                         } else {
                             console.error(response.data);
                             console.error(response);
+                            window.location.href = '/error.php';
                         }
                         $('#submit-edited-advanced-search', '.ajax-update-limit', '.ajax-update-sort').removeAttr('selected');
 
@@ -664,6 +665,7 @@ jQuery( document ).ready( function( $ ) {
                         console.error(xmlHttpRequest.responseText);
                         console.error(status);
                         console.error(error);
+                        window.location.href = '/error.php';
                     },
                 });
             }
