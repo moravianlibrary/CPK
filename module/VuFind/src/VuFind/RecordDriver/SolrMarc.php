@@ -73,42 +73,6 @@ class SolrMarc extends SolrDefault
     protected $titleHoldLogic;
 
     /**
-     * Set raw data to initialize the object.
-     *
-     * @param mixed $data Raw data representing the record; Record Model
-     * objects are normally constructed by Record Driver objects using data
-     * passed in from a Search Results object.  In this case, $data is a Solr record
-     * array containing MARC data in the 'fullrecord' field.
-     *
-     * @return void
-     */
-    public function setRawData($data)
-    {
-        // Call the parent's set method...
-        parent::setRawData($data);
-
-        // Also process the MARC record:
-        $marc = trim($data['fullrecord']);
-
-        // check if we are dealing with MARCXML
-        if (substr($marc, 0, 1) == '<') {
-            $marc = new \File_MARCXML($marc, \File_MARCXML::SOURCE_STRING);
-        } else {
-            // When indexing over HTTP, SolrMarc may use entities instead of certain
-            // control characters; we should normalize these:
-            $marc = str_replace(
-                ['#29;', '#30;', '#31;'], ["\x1D", "\x1E", "\x1F"], $marc
-            );
-            $marc = new \File_MARC($marc, \File_MARC::SOURCE_STRING);
-        }
-
-        $this->marcRecord = $marc->next();
-        if (!$this->marcRecord) {
-            throw new \File_MARC_Exception('Cannot Process MARC Record with unique id:' . $this->getUniqueID());
-        }
-    }
-
-    /**
      * Get access restriction notes for the record.
      *
      * @return array
