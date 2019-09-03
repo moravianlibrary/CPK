@@ -335,7 +335,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'barcode' => $item['barcode'] ?? null,
                 'renewable' => $renewability['allows_renewal'] ?? false,
                 'renewLimit' => $renewability['max_renewals'] ?? null,
-                'message' => $this->rerenewalBlockMappings[$renewability['error']] ?? $renewability['error'] ?? null,
+                'message' => $this->renewalBlockMappings[$renewability['error']] ?? $renewability['error'] ?? null,
                 'borrowingLocation' => $entry['library_id'],
                 // publication_year => $biblio[''],
                 // title => $biblio[''],
@@ -476,10 +476,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'item_id' => $entry['item_id'],
                 //'title' => $title,
                 'volume' => $volume,
-                'checkoutdate' => $this->normalizer->normalizeDate($entry['checkout_date'], true),
-                'duedate' => $this->normalizer->normalizeDate($entry['date_due'], true),
+                'checkoutdate' => $this->normalizer->normalizeDate($entry['checkout_date']),
+                'duedate' => $this->normalizer->normalizeDate($entry['date_due']),
                 'dueStatus' => $dueStatus,
-                'returndate' => $this->normalizer->normalizeDate($entry['checkin_date'], true),
+                'returndate' => $this->normalizer->normalizeDate($entry['checkin_date']),
                 'renew' => $entry['renewals']
             ];
 
@@ -511,9 +511,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         );
 
         $holds = [];
-        if (!isset($result)) {
-            return $holds;
-        }
         foreach ($result as $entry) {
             $holds[] = [
                 'id' => $entry['biblio_id'],
