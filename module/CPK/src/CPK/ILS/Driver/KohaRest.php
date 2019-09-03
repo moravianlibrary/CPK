@@ -1065,7 +1065,16 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected function getPatronBlocks($patron)
     {
         $result = $this->makeRequest(
-            ['v1', 'patrons', $patron['id'], 'status'], //FIXME need endpoint
+            ['v1', 'patrons', $patron['id']], __FUNCTION__,false, 'GET'
+        );
+        if ($result['restricted']) {
+            return ['patron_account_restricted'];
+        }
+        return false;
+
+        /* FIXME need endpoint /patrons/{id}/restrictions
+        $result = $this->makeRequest(
+            ['v1', 'patrons', $patron['id'], 'restrictions'], //
             __FUNCTION__,
             [],
             'GET'
@@ -1095,6 +1104,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
         }
         return empty($blockReason) ? false : $blockReason;
+        */
     }
 
     /**
