@@ -271,8 +271,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         );
 
         return [
-            'cat_username' => $patron['userid'],
-            'id' => $patron['patron_id'],
+            'cat_username' => $patron['cat_username'],
+            'id' => $patron['id'],
             'firstname' => $result['firstname'],
             'lastname' => $result['surname'],
             'address1' => $result['address'],
