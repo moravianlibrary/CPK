@@ -101,8 +101,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     /**
      * Constructor
      *
-     * @param \VuFind\Date\Converter $dateConverter Date converter
-     * @param \CPK\Auth\KohaRestService $kohaRestService Koha API authentication service
+     * @param DateConverter   $dateConverter   Date converter
+     * @param KohaRestService $kohaRestService Koha API authentication service
      */
     public function __construct(DateConverter $dateConverter, KohaRestService $kohaRestService) {
         $this->dateConverter = $dateConverter;
@@ -190,10 +190,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param string $id The record id to retrieve the holdings for
      * @param array $patron Patron data
      *
-     * @throws \VuFind\Exception\ILS
      * @return array         On success, an associative array with the following
      * keys: id, availability (boolean), status, location, reserve, callnumber,
      * duedate, number, barcode.
+     *@throws ILSException
      */
     public function getHolding($id, array $patron = null)
     {
@@ -208,8 +208,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param string $id The record id to retrieve the info for
      *
-     * @throws \VuFind\Exception\ILS
      * @return array     An array with the acquisitions data on success.
+     * @throws ILSException
      */
     public function getPurchaseHistory($id)
     {
@@ -297,7 +297,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param array $patron The patron array from patronLogin
      *
-     * @throws DateException
      * @throws ILSException
      * @return array        Array of the patron's transactions on success.
      */
@@ -349,7 +348,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * Checks if item is renewable
      *
      * @param $checkoutId
+     *
      * @return bool
+     * @throws ILSException
      */
     public function getCheckoutRenewability($checkoutId) {
         $result = $this->makeRequest(
@@ -368,9 +369,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * $renewDetails['details'] is determined by getRenewDetails().
      *
      * @param array $renewDetails An array of data required for renewing items
-     * including the Patron ID and an array of renewal IDS
+     *                            including the Patron ID and an array of renewal IDS
      *
      * @return array              An array of renewal information keyed by item ID
+     * @throws ILSException
      */
     public function renewMyItems($renewDetails)
     {
@@ -411,9 +413,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * by a specific patron.
      *
      * @param array $patron The patron array from patronLogin
-     * @param array $params Parameters
+     * @param integer $page page number
+     * @param integer $perPage items per page
      *
-     * @throws DateException
      * @throws ILSException
      * @return array        Array of the patron's transactions on success.
      */
@@ -478,7 +480,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'volume' => $volume,
                 'checkoutdate' => $this->normalizer->normalizeDate($entry['checkout_date']),
                 'duedate' => $this->normalizer->normalizeDate($entry['date_due']),
-                'dueStatus' => $dueStatus,
+                //'dueStatus' => $dueStatus,
                 'returndate' => $this->normalizer->normalizeDate($entry['checkin_date']),
                 'renew' => $entry['renewals']
             ];
@@ -496,7 +498,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param array $patron The patron array from patronLogin
      *
-     * @throws DateException
      * @throws ILSException
      * @return array        Array of the patron's holds on success.
      */
@@ -538,6 +539,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return array               An array of data on each request including
      * whether or not it was successful and a system message (if available)
+     * @throws ILSException
      */
     public function cancelHolds($cancelDetails)
     {
@@ -575,9 +577,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * This is responsible for gettting a list of valid library locations for
      * holds / recall retrieval
      *
-     * @param array $patron      Patron information returned by the patronLogin
+     * @param array|false $patron      Patron information returned by the patronLogin
      * method.
-     * @param array $holdDetails Optional array, only passed in when getting a list
+     * @param array|null $holdDetails Optional array, only passed in when getting a list
      * in the context of placing a hold; contains most of the same values passed to
      * placeHold, minus the patron data.  May be used to limit the pickup options
      * or may be ignored.  The driver must not add new options to the return array
@@ -649,9 +651,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * Returns the default pick up location
      *
-     * @param array $patron      Patron information returned by the patronLogin
+     * @param array|false $patron      Patron information returned by the patronLogin
      * method.
-     * @param array $holdDetails Optional array, only passed in when getting a list
+     * @param array|null $holdDetails Optional array, only passed in when getting a list
      * in the context of placing a hold; contains most of the same values passed to
      * placeHold, minus the patron data.  May be used to limit the pickup options
      * or may be ignored.
@@ -689,19 +691,20 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param string $id     The Bib ID
      * @param array  $data   An Array of item data
-     * @param patron $patron An array of patron data
+     * @param array  $patron An array of patron data
      *
      * @return mixed An array of data on the request including
      * whether or not it is valid and a status message. Alternatively a boolean
      * true if request is valid, false if not.
+     * @throws ILSException
      */
     public function checkRequestIsValid($id, $data, $patron)
     {
         if ($this->getPatronBlocks($patron)) {
             return false;
         }
-        $level = isset($data['level']) ? $data['level'] : 'copy';
-        if ('title' == $data['level']) {
+        $level = $data['level'] ?? 'copy';
+        if ('title' == $level) {
             $result = $this->makeRequest(
                 ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'alows_hold'],
                 __FUNCTION__,
@@ -748,9 +751,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param array $holdDetails An array of item and patron data
      *
-     * @throws ILSException
      * @return mixed An array of data on the request including
      * whether or not it was successful and a system message (if available)
+     * @throws DateException
+     * @throws ILSException
      */
     public function placeHold($holdDetails)
     {
@@ -820,7 +824,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         );
 
         if ($code >= 300) {
-            return $this->holdError($code, $result);
+            return $this->holdError($result['error']);
         }
         return ['success' => true];
     }
@@ -832,7 +836,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param array $patron The patron array from patronLogin
      *
-     * @throws DateException
      * @throws ILSException
      * @return array        Array of the patron's fines on success.
      */
@@ -867,17 +870,18 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * Makes a request to the Koha REST API
      *
-     * @param array $hierarchy Array of values to embed in the URL path of
-     * the request
-     * @param $action string An action driver is doing now
-     * @param array|bool $params A keyed array of query data
-     * @param string $method The http request method to use (Default is GET)
-     * @param array $patron Patron information when using patron APIs
-     * @param bool $returnCode If true, returns HTTP status code in addition to
-     * the result
-     * @param bool $oauth2Needed
+     * @param array      $hierarchy  Array of values to embed in the URL path of
+     *                               the request
+     * @param            $action     string An action driver is doing now
+     * @param array|bool $params     A keyed array of query data
+     * @param string     $method     The http request method to use (Default is GET)
+     * @param array      $patron     Patron information when using patron APIs
+     * @param bool       $returnCode If true, returns HTTP status code in addition to
+     *                               the result
+     * @param bool       $oauth2Needed
+     *
      * @return mixed
-     * @throws ILSException
+     * @throws ILSException*@throws \Exception
      * @internal param bool $authNeeded
      */
     protected function makeRequest($hierarchy, $action, $params = false, $method = 'GET',
@@ -980,6 +984,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return array An associative array with the following keys:
      * id, availability (boolean), status, location, reserve, callnumber.
+     * @throws ILSException
      */
     protected function getItemStatusesForBiblio($id, $patron = null)
     {
@@ -1029,8 +1034,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             true
         );
 
+        $statuses = [];
         foreach ($items as $item) {
-            $available = $availabilities[$item['item_id']]['allows_checkout'] ??  false;
             $status = $this->statuses[$availabilities[$item['item_id']]['allows_checkout_status']] ?? 'available';
             $duedate = $availabilities[$item['item_id']]['date_due'] ?? null;
             $entry = [
@@ -1069,6 +1074,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return mixed        A boolean false if no blocks are in place and an array
      * of block reasons if blocks are in place
+     * @throws ILSException
      */
     protected function getPatronBlocks($patron)
     {
@@ -1112,6 +1118,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param int $id Item id
      *
      * @return array|null
+     * @throws ILSException
      */
     protected function getItem($id) //TODO do it or not
     {
@@ -1128,6 +1135,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param int $id Bib record id
      *
      * @return array|null
+     * @throws ILSException
      */
     protected function getBiblioRecord($id)
     {
@@ -1143,10 +1151,11 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param string $pickUpLocation Selected pickup location
      * @param array  $patron         Patron information returned by the patronLogin
-     * method.
+     *                               method.
      * @param array  $holdDetails    Details of hold being placed
      *
      * @return bool
+     * @throws ILSException
      */
     protected function pickUpLocationIsValid($pickUpLocation, $patron, $holdDetails)
     {
@@ -1162,14 +1171,12 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     /**
      * Return a hold error message
      *
-     * @param int   $code   HTTP Result Code
-     * @param array $result API Response
+     * @param string $message error message
      *
      * @return array
      */
-    protected function holdError($code, $result)
+    protected function holdError($message)
     {
-        $message = isset($result['error']) ? $result['error'] : 'hold_error_fail';
         return [
             'success' => false,
             'sysMessage' => $message
@@ -1195,6 +1202,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param array $item Item
      *
      * @return string
+     * @throws ILSException
      */
     protected function getItemLocationName($item)
     {
