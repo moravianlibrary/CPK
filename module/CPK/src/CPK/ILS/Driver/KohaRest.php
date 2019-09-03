@@ -335,7 +335,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'barcode' => $item['barcode'] ?? null,
                 'renewable' => $renewability['allows_renewal'] ?? false,
                 'renewLimit' => $renewability['max_renewals'] ?? null,
-                'message' => $renewability['error'] ?? null,
+                'message' => $this->rerenewalBlockMappings[$renewability['error']] ?? $renewability['error'] ?? null,
                 'borrowingLocation' => $entry['library_id'],
                 // publication_year => $biblio[''],
                 // title => $biblio[''],
@@ -417,50 +417,35 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException
      * @return array        Array of the patron's transactions on success.
      */
-    public function getMyTransactionHistory($patron, $params)
+    public function getMyHistoryPage($patron, $page, $perPage)
     {
-        $sort = explode(
-            ' ', !empty($params['sort']) ? $params['sort'] : 'checkout desc', 2
-        );
-        if ($sort[0] == 'checkout') {
-            $sortKey = 'checkout_date';
-        } elseif ($sort[0] == 'return') {
-            $sortKey = 'returndate';
-        } else {
-            $sortKey = 'checkin_date';
-        }
-        $direction = (isset($sort[1]) && 'desc' === $sort[1]) ? 'desc' : 'asc';
-
-        $pageSize = isset($params['limit']) ? $params['limit'] : 50;
         $queryParams = [
-            'sort' => $sortKey,
-            'order' => $direction,
-            'offset' => isset($params['page'])
-                ? ($params['page'] - 1) * $pageSize : 0,
-            'limit' => $pageSize
+            'patron_id' => $patron['id'],
+            'checked_in' => true,
+            '_page' => $page,
+            '_per_page' => $perPage,
         ];
 
         $transactions = $this->makeRequest(
-            ['v1', 'patrons', $patron['id'], 'checkouts'],
+            ['v1', 'checkouts'],
             __FUNCTION__,
             $queryParams,
-            'GET',
-            $patron
+            'GET'
         );
 
         $result = [
-            'count' => $transactions['total'],
-            'transactions' => []
+            'totalPages' => 0, // TODO: need to proccess header 'x-total-count' / $perPage,
+            'historyPage' => [],
         ];
 
-        foreach ($transactions['records'] as $entry) {
+        foreach ($transactions as $entry) {
             try {
                 $item = $this->getItem($entry['item_id']);
             } catch (\Exception $e) {
                 $item = [];
             }
-            $volume = isset($item['serial_enum_chron'])
-                ? $item['serial_enum_chron'] : '';
+            $volume = $item['serial_enum_chron'] ?? '';
+            /* TODO: not implemented yet
             $title = '';
             if (!empty($item['biblio_id'])) {
                 $bib = $this->getBiblioRecord($item['biblio_id']);
@@ -471,8 +456,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                     $title .= ' ' . $bib['title_remainder'];
                     $title = trim($title);
                 }
-            }
+            }*/
 
+            /* TODO: not implemented yet
             $dueStatus = false;
             $now = time();
             $dueTimeStamp = strtotime($entry['date_due']);
@@ -482,13 +468,13 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 } elseif ($now > $dueTimeStamp - (1 * 24 * 60 * 60)) {
                     $dueStatus = 'due';
                 }
-            }
+            }*/
 
             $transaction = [
                 'id' => $item['biblio_id'] ?? '',
                 'checkout_id' => $entry['checkout_id'],
                 'item_id' => $entry['item_id'],
-                'title' => $title,
+                //'title' => $title,
                 'volume' => $volume,
                 'checkoutdate' => $this->normalizer->normalizeDate($entry['checkout_date'], true),
                 'duedate' => $this->normalizer->normalizeDate($entry['date_due'], true),
@@ -497,7 +483,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'renew' => $entry['renewals']
             ];
 
-            $result['transactions'][] = $transaction;
+            $result['historyPage'][] = $transaction;
         }
 
         return $result;
@@ -864,9 +850,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         );
 
         $fines = [];
-        if (empty($result['outstanding_debits']['lines'])) {
-            return $fines;
-        }
 
         foreach ($result['outstanding_debits']['lines'] as $entry) {
             $fines[] = [
@@ -874,7 +857,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'checkout' => $entry['date'],
                 'fine' =>  $this->translate("KohaFine_" . $entry['account_type']),
                 'balance' => $entry['amount_outstanding'],
-                'createdate' => '',
+                'createdate' => $entry['date'],
                 'duedate' => '',
                 'item_id' => $entry['item_id']
             ];
@@ -1135,9 +1118,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function getItem($id) //TODO do it or not
     {
-        static $cachedRecord = [];
+        static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
-            $cachedRecords[$id] = $this->makeRequest(['v1', 'items', $id]);
+            $cachedRecords[$id] = $this->makeRequest(['v1', 'contrib', 'bibliocommons','items', $id], __FUNCTION__);
         }
         return $cachedRecords[$id];
     }
@@ -1153,7 +1136,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
-            $cachedRecords[$id] = $this->makeRequest(['v1', 'biblios', $id]);
+            $cachedRecords[$id] = $this->makeRequest(['v1', 'contrib', 'bibliocommons', 'biblios', $id], __FUNCTION__);
         }
         return $cachedRecords[$id];
     }

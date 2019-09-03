@@ -100,7 +100,7 @@ class KohaRestNormalizer
     }
 
     public function normalizeDate($date, $with_time = false) {
-        $create_format = $with_time ? 'Y-m-d' : 'Y-m-d H:i:s';
+        $create_format = $with_time ? 'c': 'Y-m-d';
         return $this->dateConverter->convertToDisplayDate($create_format, $date);
     }
 }
