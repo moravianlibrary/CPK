@@ -282,7 +282,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'zip' => $result['postal_code'],
             'phone' => $result['phone'],
             'group' => $result['category_id'],
-            'blocks' => '',
+            'blocks' => $result['restricted'],
             'email' => $result['email'],
             'expire' => $result['expiry_date'],
             'expiration_date' => $result['expiry_date'], // For future compatibility with VuFind 6+
@@ -321,7 +321,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             //$biblio = null;
             if (isset($entry['item_id'])) {
                 $item = $this->getItem($entry['item_id']);
-                /* FIXME need biblio administartive data endpoint if (isset($item['biblio_id'])) {
+                /* FIXME need biblio administrative data endpoint if (isset($item['biblio_id'])) {
                     $biblio = $this->getBiblioRecord($item['biblio_id']);
                 }*/
             }
@@ -350,7 +350,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @param $checkoutId
      * @return bool
-     * @internal param $checkout_id
      */
     public function getCheckoutRenewability($checkoutId) {
         $result = $this->makeRequest(
