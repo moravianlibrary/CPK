@@ -267,7 +267,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     public function getMyProfile($patron)
     {
         $result = $this->makeRequest(
-            ['v1', 'patrons', $patron['id']], __FUNCTION__,false, 'GET', $patron
+            ['v1', 'patrons', $patron['id']], __FUNCTION__,false, 'GET'
         );
 
         return [
@@ -306,8 +306,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'checkouts'],
             __FUNCTION__,
             ['patron_id' => $patron['id']],
-            'GET',
-            $patron
+            'GET'
         );
 
         $transactions = [];
@@ -376,7 +375,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function renewMyItems($renewDetails)
     {
-        $patron = $renewDetails['patron'];
         $finalResult = ['details' => []];
 
         foreach ($renewDetails['details'] as $details) {
@@ -386,7 +384,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 __FUNCTION__,
                 false,
                 'POST',
-                $patron,
                 true
             );
             if ($code == 403) {
@@ -507,8 +504,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'holds'],
             __FUNCTION__,
             ['patron_id' => $patron['id']],
-            'GET',
-            $patron
+            'GET'
         );
 
         $holds = [];
@@ -544,14 +540,13 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     public function cancelHolds($cancelDetails)
     {
         $details = $cancelDetails['details'];
-        $patron = $cancelDetails['patron'];
         $count = 0;
         $response = [];
 
         foreach ($details as $detail) {
             list($holdId, $itemId) = explode('|', $detail, 2);
             list($resultCode) = $this->makeRequest(
-                ['v1', 'holds', $holdId], __FUNCTION__, [], 'DELETE', $patron, true
+                ['v1', 'holds', $holdId], __FUNCTION__, [], 'DELETE', true
             );
 
             if ($resultCode != 200) {
@@ -597,8 +592,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'libraries'],
             __FUNCTION__,
             false,
-            'GET',
-            $patron
+            'GET'
         );
         if (empty($result)) {
             return [];
@@ -709,8 +703,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'alows_hold'],
                 __FUNCTION__,
                 ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron)],
-                'GET',
-                $patron
+                'GET'
             );
             if (!empty($result['allows_hold']) && $result['allows_hold'] == true) {
                 return [
@@ -727,8 +720,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'contrib', 'knihovny_cz', 'items', $data['item_id'], 'allows_hold'],
             __FUNCTION__,
             ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron)],
-            'GET',
-            $patron
+            'GET'
         );
         if (!empty($result['allows_hold']) && $result['allows_hold'] == true) {
             return [
@@ -819,7 +811,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             __FUNCTION__,
             json_encode($request),
             'POST',
-            $patron,
             true
         );
 
@@ -845,8 +836,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'patrons', $patron['id'], 'account'],
             __FUNCTION__,
             false,
-            'GET',
-            $patron
+            'GET'
         );
 
         $fines = [];
@@ -885,7 +875,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @internal param bool $authNeeded
      */
     protected function makeRequest($hierarchy, $action, $params = false, $method = 'GET',
-        $patron = null, $returnCode = false, $oauth2Needed = true
+        $returnCode = false, $oauth2Needed = true
     ) {
         // Set up the request
         $apiUrl = $this->config['Catalog']['host'];
@@ -993,7 +983,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             __FUNCTION__,
             [],
             'GET',
-            $patron,
             false,
             false
         );
@@ -1005,7 +994,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 __FUNCTION__,
                 ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron) ],
                 'GET',
-                $patron,
                 false,
                 false
             );
@@ -1019,7 +1007,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             __FUNCTION__,
             [],
             'GET',
-            $patron,
             false,
             true
         );
@@ -1029,7 +1016,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             __FUNCTION__,
             ['biblio_id' => $id],
             'GET',
-            $patron,
             false,
             true
         );
@@ -1082,8 +1068,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'patrons', $patron['id'], 'status'], //FIXME need endpoint
             __FUNCTION__,
             [],
-            'GET',
-            $patron
+            'GET'
         );
         $blockReason = [];
         if (!empty($result['blocks'])) {
