@@ -756,7 +756,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $pickUpLocation = !empty($holdDetails['pickUpLocation'])
             ? $holdDetails['pickUpLocation'] : $this->defaultPickUpLocation;
         $itemId = isset($holdDetails['item_id']) ? $holdDetails['item_id'] : false;
-        $comment = isset($holdDetails['comment']) ? $holdDetails['comment'] : '';
+        $comment = isset($holdDetails['comments']) ? $holdDetails['comments'] : '';
         $bibId = $holdDetails['id'];
 
         // Convert last interest date from Display Format to Koha's required format
@@ -978,8 +978,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function getItemStatusesForBiblio($id, $patron = null)
     {
-        $availabilities = $this->makeRequest(
-            ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'allows_checkout'],
+        $availability = $this->makeRequest(
+            ['v1', 'contrib', 'knihovny_cz', 'ites', $id, 'allows_checkout'], //Should be biblio for original vufind
             __FUNCTION__,
             [],
             'GET',
@@ -990,7 +990,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $holdable = 'Y';
         if ($patron) {
             $holdability = $this->makeRequest(
-                ['v1', 'contrib', 'knihovny_cz', 'biblios', $id, 'allows_hold'],
+                ['v1', 'contrib', 'knihovny_cz', 'items', $id, 'allows_hold'], //Should be biblio for original vufind
                 __FUNCTION__,
                 ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron) ],
                 'GET',
@@ -1002,8 +1002,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
         }
 
-        $items = $this->makeRequest(
-            ['v1', 'contrib', 'bibliocommons', 'biblios', $id, 'items'],
+        $item = $this->makeRequest(
+            ['v1', 'contrib', 'bibliocommons', 'items', $id], //Should be biblios/$id/itemms
             __FUNCTION__,
             [],
             'GET',
@@ -1014,16 +1014,18 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $holds = $this->makeRequest(
             ['v1', 'holds'],
             __FUNCTION__,
-            ['biblio_id' => $id],
+            ['item_id' => $id],
             'GET',
             false,
             true
         );
 
-        $statuses = [];
-        foreach ($items as $item) {
-            $status = $this->statuses[$availabilities[$item['item_id']]['allows_checkout_status']] ?? 'available';
-            $duedate = $availabilities[$item['item_id']]['date_due'] ?? null;
+        $itemStatus = [];
+        if ($item) {
+            $status = $this->statuses[$availability['allows_checkout_status']]
+                ?? 'available';
+            $duedate = isset($availability['date_due'])
+                ? $this->normalizer->normalizeDate($availability['date_due']) : null;
             $entry = [
                 'id' => $id,
                 'item_id' => $item['item_id'],
@@ -1048,9 +1050,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             } else {
                 $entry['is_holdable'] = false;
             }
-            $statuses[] = $entry;
+            $itemStatus = $entry;
         }
-        return $statuses;
+        return $itemStatus;
     }
 
     /**
@@ -1134,6 +1136,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     protected function getBiblioRecord($id)
     {
+        //FIXME not working yet, we are missing endpoint for biblio administrative data
         static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
             $cachedRecords[$id] = $this->makeRequest(['v1', 'contrib', 'bibliocommons', 'biblios', $id], __FUNCTION__);
@@ -1261,5 +1264,23 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     public function getAdministratorEmail()
     {
         return $this->config['Catalog']['contactPerson'] ?? null;
+    }
+
+    public function getConfig($func)
+    {
+        $config = [];
+        switch ($func) {
+            case 'Holds':
+                    $config = [
+                        "HMACKeys" => "id:item_id",
+                        "extraHoldFields" => "comments:requiredByDate:pickUpLocation",
+                        "defaultRequiredDate" => "0:0:1",
+                    ];
+                break;
+            case 'IllRequests':
+                $config = [ "HMACKeys" => "id:item_id" ];
+                break;
+        }
+        return $config;
     }
 }
