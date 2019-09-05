@@ -63,6 +63,11 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected $kohaRestService;
 
     /**
+     * @var array|null cached libraries
+     */
+    protected static $libraries;
+
+    /**
      * Normalizer
      *
      * @var KohaRestNormalizer
@@ -356,7 +361,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'checkouts', $checkoutId, 'allows_renewal'],
             __FUNCTION__,
             [],
-            'GET'
+            '/GET'
         );
         return $result;
     }
@@ -588,15 +593,11 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      */
     public function getPickUpLocations($patron = false, $holdDetails = null)
     {
-        $result = $this->makeRequest(
-            ['v1', 'libraries'],
-            __FUNCTION__,
-            false,
-            'GET'
-        );
-        if (empty($result)) {
-            return [];
+        if (!isset(self::$libraries)) {
+            $this->requestLibraries();
         }
+        $result = self::$libraries;
+
         $locations = [];
         $excluded = isset($this->config['Holds']['excludePickupLocations'])
             ? explode(':', $this->config['Holds']['excludePickupLocations']) : [];
@@ -610,31 +611,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'locationID' => $location['library_id'],
                 'locationDisplay' => $location['name']
             ];
-        }
-
-        // Do we need to sort pickup locations? If the setting is false, don't
-        // bother doing any more work. If it's not set at all, default to
-        // alphabetical order.
-        $orderSetting = isset($this->config['Holds']['pickUpLocationOrder'])
-            ? $this->config['Holds']['pickUpLocationOrder'] : 'default';
-        if (count($locations) > 1 && !empty($orderSetting)) {
-            $locationOrder = $orderSetting === 'default'
-                ? [] : array_flip(explode(':', $orderSetting));
-            $sortFunction = function ($a, $b) use ($locationOrder) {
-                $aLoc = $a['locationID'];
-                $bLoc = $b['locationID'];
-                if (isset($locationOrder[$aLoc])) {
-                    if (isset($locationOrder[$bLoc])) {
-                        return $locationOrder[$aLoc] - $locationOrder[$bLoc];
-                    }
-                    return -1;
-                }
-                if (isset($locationOrder[$bLoc])) {
-                    return 1;
-                }
-                return strcasecmp($a['locationDisplay'], $b['locationDisplay']);
-            };
-            usort($locations, $sortFunction);
         }
 
         return $locations;
@@ -713,7 +689,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             }
             return [
                 'valid' => false,
-                'status' => $this->getHoldBlockReason($result) //FIXME
+                'status' => 'hold_error_blocked' //FIXME translation
             ];
         }
         $result = $this->makeRequest(
@@ -730,7 +706,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
         return [
             'valid' => false,
-            'status' => $this->getHoldBlockReason($result)
+            'status' => 'hold_error_blocked' //FIXME translation
         ];
     }
 
@@ -798,9 +774,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'biblio_id' => (int)$bibId,
             'patron_id' => (int)$patron['id'],
             'pickup_library_id' => $pickUpLocation,
-            'expiration_date' => $this->dateConverter->convertFromDisplayDate(
-                'Y-m-d', $holdDetails['requiredBy']
-            )
+            'notes' => $comment,
+            'expiration_date' => $lastInterestDate,
         ];
         if ($level == 'copy') {
             $request['item_id'] = (int)$itemId;
@@ -979,7 +954,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected function getItemStatusesForBiblio($id, $patron = null)
     {
         $availability = $this->makeRequest(
-            ['v1', 'contrib', 'knihovny_cz', 'ites', $id, 'allows_checkout'], //Should be biblio for original vufind
+            ['v1', 'contrib', 'knihovny_cz', 'items', $id, 'allows_checkout'], //Should be biblio for original vufind
             __FUNCTION__,
             [],
             'GET',
@@ -1003,7 +978,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
 
         $item = $this->makeRequest(
-            ['v1', 'contrib', 'bibliocommons', 'items', $id], //Should be biblios/$id/itemms
+            ['v1', 'contrib', 'bibliocommons', 'items', $id], //Should be biblios/$id/items
             __FUNCTION__,
             [],
             'GET',
@@ -1181,17 +1156,25 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         ];
     }
 
-    /**
-     * Map a Koha renewal block reason code to a VuFind translation string
-     *
-     * @param string $reason Koha block code
-     *
-     * @return string
-     */
-    protected function mapRenewalBlockReason($reason)
+    protected function requestLibraries()
     {
-        return isset($this->renewalBlockMappings[$reason])
-            ? $this->renewalBlockMappings[$reason] : 'renew_denied';
+        $result = $this->makeRequest(
+            ['v1', 'libraries'], __FUNCTION__, false, 'GET'
+        );
+        foreach ($result as $library) {
+            self::$libraries[$library['library_id']] = $library;
+        }
+    }
+    /**
+     * Get library by id
+     *
+     * @return array|null library data
+    */
+    protected function getLibrary(string $libraryId) {
+        if (!isset(self::$libraries)) {
+            $this->requestLibraries();
+        }
+        return self::$libraries[$libraryId] ?? null;
     }
 
     /**
@@ -1207,53 +1190,12 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $library_id = $item['holding_library'] ?? $item['home_library'];
         $name = $this->translate("location_$library_id");
         if ($name === "location_$library_id") {
-            $result = $this->makeRequest(
-                ['v1', 'libraries'], __FUNCTION__,false, 'GET'
-            );
-            $libraries = [];
-            foreach ($result as $library) {
-                $libraries[$library['library_id']] = $library['name'];
+            $library = $this->getLibrary($library_id);
+            if ($library) {
+                $name = $library['name'];
             }
-            $name = $libraries[$library_id] ?? $library_id;
         }
         return $name;
-    }
-
-    /**
-     * Get a reason for why a hold cannot be placed
-     *
-     * @param array $result Hold check result
-     *
-     * @return string
-     */
-    protected function getHoldBlockReason($result)
-    {
-        if (!empty($result[0]['availability']['unavailabilities'])) {
-            foreach ($result[0]['availability']['unavailabilities']
-                as $key => $reason
-            ) {
-                switch ($key) {
-                case 'Biblio::NoAvailableItems':
-                    return 'hold_error_not_holdable';
-                case 'Item::NotForLoan':
-                case 'Hold::NotAllowedInOPAC':
-                case 'Hold::ZeroHoldsAllowed':
-                case 'Hold::NotAllowedByLibrary':
-                case 'Hold::NotAllowedFromOtherLibraries':
-                case 'Item::Restricted':
-                case 'Hold::ItemLevelHoldNotAllowed':
-                    return 'hold_error_item_not_holdable';
-                case 'Hold::MaximumHoldsForRecordReached':
-                case 'Hold::MaximumHoldsReached':
-                    return 'hold_error_too_many_holds';
-                case 'Item::AlreadyHeldForThisPatron':
-                    return 'hold_error_already_held';
-                case 'Hold::OnShelfNotAllowed':
-                    return 'hold_error_on_shelf_blocked';
-                }
-            }
-        }
-        return 'hold_error_blocked';
     }
 
     /**
