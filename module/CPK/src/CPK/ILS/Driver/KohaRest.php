@@ -198,6 +198,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @return array         On success, an associative array with the following
      * keys: id, availability (boolean), status, location, reserve, callnumber,
      * duedate, number, barcode.
+     *
+     *
      *@throws ILSException
      */
     public function getHolding($id, array $patron = null)
@@ -1028,6 +1030,17 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $itemStatus = $entry;
         }
         return $itemStatus;
+    }
+
+    /**
+     * @param $id
+     * @param $bibId
+     * @param $patron
+     * @return mixed
+     */
+    public function getItemStatus($id, $bibId, $patron)
+    {
+        return $this->getItemStatusesForBiblio($id, $patron);
     }
 
     /**
