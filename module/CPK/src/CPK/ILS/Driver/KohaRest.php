@@ -363,7 +363,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'checkouts', $checkoutId, 'allows_renewal'],
             __FUNCTION__,
             [],
-            '/GET'
+            'GET'
         );
         return $result;
     }
@@ -734,7 +734,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $pickUpLocation = !empty($holdDetails['pickUpLocation'])
             ? $holdDetails['pickUpLocation'] : $this->defaultPickUpLocation;
         $itemId = isset($holdDetails['item_id']) ? $holdDetails['item_id'] : false;
-        $comment = isset($holdDetails['comments']) ? $holdDetails['comments'] : '';
+        $comment = isset($holdDetails['comment']) ? $holdDetails['comment'] : '';
         $bibId = $holdDetails['id'];
 
         // Convert last interest date from Display Format to Koha's required format
@@ -871,7 +871,24 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             if ('GET' === $method || 'DELETE' === $method) {
                 $client->setParameterGet($params);
             } else {
-                $client->setParameterPost($params);
+                $body = '';
+                if (is_string($params)) {
+                    $body = $params;
+                } else {
+                    if (isset($params['__body__'])) {
+                        $body = $params['__body__'];
+                        unset($params['__body__']);
+                        $client->setParameterGet($params);
+                    } else {
+                        $client->setParameterPost($params);
+                    }
+                }
+                if ('' !== $body) {
+                    $client->getRequest()->setContent($body);
+                    $client->getRequest()->getHeaders()->addHeaderLine(
+                            'Content-Type', 'application/json'
+                        );
+                }
             }
         }
 
