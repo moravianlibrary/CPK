@@ -252,7 +252,7 @@ class ResultFeed extends AbstractHelper implements TranslatorAwareInterface
         //Get annotations for items
         $annotation = $record->tryMethod('getAnnotation');
         if ($annotation) {
-            $entry->setAnnotation($annotation);
+            $entry->setDescription($annotation);
         }
 
         $formats = $record->tryMethod('getFormats');
