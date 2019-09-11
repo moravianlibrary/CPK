@@ -1,58 +1,74 @@
-<div style='padding: 0px !important;'>
-<?$dedupedRecords = array();
-$internalMultiplicity = array();
-if (isset($this->tabs['DedupedRecords'])) {
-  $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $this->tabs['DedupedRecords']->getRecordsInGroup())));
+<?
+$dedupedRecords = $internalMultiplicity = [];
+//if doesn't exist, it's null
+$dedupedRecords = $this->tabs['DedupedRecords']->getRecordsInGroup() ?? null;
+
+if ($dedupedRecords != null) {
+  //array_unique compares strings, each member must be mapped as string first
+  $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $dedupedRecords)));
+  $dedupedRecords = \CPK\RecordDriver\Groups::getSortRecords($dedupedRecords);
   $currentInstitution = $this->driver->getUniqueId();
-  $groups = new \CPK\RecordDriver\Groups();
-  $dedupedRecords = $groups->getSortRecords($dedupedRecords);
-  $internalMultiplicity = $groups->getInternalMultiplicity($dedupedRecords, $currentInstitution);
+  $internalMultiplicity = \CPK\RecordDriver\Groups::getInternalMultiplicity($dedupedRecords, $currentInstitution);
+  //explode and get source - e.g. 'mzk.MZK01-000699920' => 'mzk'
   $recordSource = explode(".", $currentInstitution)[0];
-  $currentInstitutionName = "source_".$recordSource;
-  $logosPostfix = '_small';
-}?>
-  <? if (count($dedupedRecords) !== 1):?>
-  <div class="dropdown">
-    <div class='btn btn-default dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='true' style='width: 100%;' id='records-in-groups-nav'>
-      <h3 style="margin-top: 5px; margin-bottom: 5px; padding: 0px 0px 20px 0px">
-  <? else:?>
-  <div>
-    <div class='single-institution' style='width: 100%;'>
-      <h3 style="margin-top: 5px; margin-bottom: 5px; padding: 10px 10px 30px 10px;">
-  <? endif;?>
-      <? if (file_exists(__DIR__.'/../../../images/institutions/logos/'.$recordSource.'/'.$recordSource.$logosPostfix.'.png')) : ?>
-        <img class='hidden-xs' height='20' src='/themes/bootstrap3/images/institutions/logos/<?=$recordSource?>/<?=$recordSource?><?=$logosPostfix?>.png' align='left' style='margin-right: 8px;'>
-      <? endif;?>
-        <span>
-          <span class='pull-left' style='padding-bottom: 6px;'><?=$this->translate($currentInstitutionName)?></span>
-          <? if (count($dedupedRecords) !== 1):?>
-            <i class='pr-interface-arrowbottom4 pull-right' align='right' style='display: block;'></i>
-          <? endif;?>
+  $currentInstitutionName = "source_" . $recordSource;
+} else {
+  //if nothing found
+  return;
+}
+
+function get_logo_uri($source){
+  $logosPath =  '/themes/bootstrap3/images/institutions/logos/';
+  $logosPostfix =  '_small';
+  $sourceWithoutPrefix = str_replace('source_', '', $source);
+  $uri = $logosPath . $sourceWithoutPrefix . '/' . $sourceWithoutPrefix . $logosPostfix . '.png';
+  return file_exists(APPLICATION_PATH . $uri) ?
+    $uri : null;
+}
+
+/**
+ * @var int $resultCount  Number of records found, to further use in conditionals
+ */
+$resultCount = count($dedupedRecords);
+?>
+
+<div<?= ($resultCount > 1)?' class="dropdown"' : ''?>>
+  <div class="<?= ($resultCount > 1) ? 'btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="records-in-groups-nav' :
+    'single-institution' ?>" style="width:100%;">
+    <h3 style="margin-top: 5px; margin-bottom: 5px; padding: <?= ($resultCount > 1) ? '0px 0px 20px 0px' : '10px 10px 30px 10px'; ?>;">
+      <? if ($logoUri = get_logo_uri($recordSource)) { ?>
+        <img class="hidden-xs" height="20" src="<?= $logoUri; ?>" align="left" style="margin-right: 8px;">
+      <? } ?>
+      <span>
+          <span class="pull-left" style="padding-bottom: 6px;"><?= $this->translate($currentInstitutionName) ?></span>
+          <? if (count($dedupedRecords) !== 1) { ?>
+            <i class="pr-interface-arrowbottom4 pull-right" align="right" style="display: block;"></i>
+          <? } ?>
         </span>
-      </h3>
-    </div>
-    <ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
-    <? foreach ($dedupedRecords as $record):
-      $link = $record['id'];
-      $source = $record['source'];
-      $sourceWithoutPrefix = substr($source, 7);?>
-      <li>
-        <a href='<?=$this->url('record', array('id' => $link))?>?referer=<?=$this->referer?>#records-in-groups' title='><?=$this->translate($source)?>'>
-          <div class='record-group-list-item'>
-          <? $logoUrl = '/themes/bootstrap3/images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.$logosPostfix.'.png';
-          $logoPath = __DIR__.'/../../../images/institutions/logos/'.$sourceWithoutPrefix.'/'.$sourceWithoutPrefix.$logosPostfix.'.png';
-          $logoIsAvailable = file_exists($logoPath);?>
-          <? if ($logoIsAvailable):?>
-            <img class='hidden-xs pull-right' height='16' src='<?=$logoUrl?>'>
-          <? endif;?>
-            <span style="<?=($currentInstitution == $link)? 'font-weight: bold !important;' : ''?>"><?=$this->translate($source)?></span>
-          </div>
-        </a>
-      </li>
-    <? endforeach;?>
-    </ul>
+    </h3>
   </div>
+
+  <? if ($resultCount > 1){ ?>
+    <ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
+      <? foreach ($dedupedRecords as $record){
+        $institutionTitle = $this->translate($record['source']);?>
+        <li data-search="<?= strtolower($institutionTitle); ?>">
+          <a href="<?=$this->url('record', array('id' => $record['id']))?>?referer=<?=$this->referer?>#records-in-groups" title="<?=$institutionTitle?>">
+            <div class='record-group-list-item'>
+
+              <? if ($logoUri = get_logo_uri($record['source'])) { ?>
+                <img class="hidden-xs pull-right" height="16" src="<?= $logoUri; ?>">
+              <? } ?>
+
+              <span class="institution-name"<?=($currentInstitution == $record['id'])? ' style="font-weight: bold !important;"' : ''?>><?=$institutionTitle?></span>
+            </div>
+          </a>
+        </li>
+      <? } ?>
+    </ul>
+  <? } ?>
 </div>
+
 <div>
 <? if (count($internalMultiplicity) > 0):?>
   <span>
