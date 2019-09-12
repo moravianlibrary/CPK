@@ -30,9 +30,17 @@ function get_logo_uri($source){
  * @var int $resultCount  Number of records found, to further use in conditionals
  */
 $resultCount = count($dedupedRecords);
+if ($resultCount > 1){
+  ?>
+<script>
+    $(document).ready(function () {
+        $('.dropdown.search-enabled').dropFinder();
+    });
+</script>
+<?
+}
 ?>
-
-<div<?= ($resultCount > 1)?' class="dropdown"' : ''?>>
+<div<?= ($resultCount > 1)?' class="dropdown search-enabled"' : ''?>>
   <div class="<?= ($resultCount > 1) ? 'btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="records-in-groups-nav' :
     'single-institution' ?>" style="width:100%;">
     <h3 style="margin-top: 5px; margin-bottom: 5px; padding: <?= ($resultCount > 1) ? '0px 0px 20px 0px' : '10px 10px 30px 10px'; ?>;">
