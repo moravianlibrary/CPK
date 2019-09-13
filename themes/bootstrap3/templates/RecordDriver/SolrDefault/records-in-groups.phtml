@@ -1,35 +1,22 @@
 <?
-$dedupedRecords = $internalMultiplicity = [];
-//if doesn't exist, it's null
-$dedupedRecords = $this->tabs['DedupedRecords']->getRecordsInGroup() ?? null;
+/**
+ * @var \VuFind\RecordTab\DedupedRecords
+ */
+$dedupedRecords = $this->tabs['DedupedRecords'];
+$currentInstitution = $dedupedRecords->get_institution_data($this->driver->getUniqueId());
+$institutionList = $dedupedRecords->get_sorted_records_groups();
 
-if ($dedupedRecords != null) {
-  //array_unique compares strings, each member must be mapped as string first
-  $dedupedRecords = array_map("unserialize", array_unique(array_map("serialize", $dedupedRecords)));
-  $dedupedRecords = \CPK\RecordDriver\Groups::getSortRecords($dedupedRecords);
-  $currentInstitution = $this->driver->getUniqueId();
-  $internalMultiplicity = \CPK\RecordDriver\Groups::getInternalMultiplicity($dedupedRecords, $currentInstitution);
-  //explode and get source - e.g. 'mzk.MZK01-000699920' => 'mzk'
-  $recordSource = explode(".", $currentInstitution)[0];
-  $currentInstitutionName = "source_" . $recordSource;
-} else {
-  //if nothing found
+//if the list is empty
+if (!$institutionList){
   return;
 }
 
-function get_logo_uri($source){
-  $logosPath =  '/themes/bootstrap3/images/institutions/logos/';
-  $logosPostfix =  '_small';
-  $sourceWithoutPrefix = str_replace('source_', '', $source);
-  $uri = $logosPath . $sourceWithoutPrefix . '/' . $sourceWithoutPrefix . $logosPostfix . '.png';
-  return file_exists(APPLICATION_PATH . $uri) ?
-    $uri : null;
-}
+$internalMultiplicity = $dedupedRecords->get_internal_multiplicity($institutionList, $currentInstitution['id']);
 
 /**
  * @var int $resultCount  Number of records found, to further use in conditionals
  */
-$resultCount = count($dedupedRecords);
+$resultCount = count($institutionList);
 if ($resultCount > 1){
   ?>
 <script>
@@ -44,12 +31,12 @@ if ($resultCount > 1){
   <div class="<?= ($resultCount > 1) ? 'btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="records-in-groups-nav' :
     'single-institution' ?>" style="width:100%;">
     <h3 style="margin-top: 5px; margin-bottom: 5px; padding: <?= ($resultCount > 1) ? '0px 0px 20px 0px' : '10px 10px 30px 10px'; ?>;">
-      <? if ($logoUri = get_logo_uri($recordSource)) { ?>
-        <img class="hidden-xs" height="20" src="<?= $logoUri; ?>" align="left" style="margin-right: 8px;">
+      <? if ($currentInstitution['logo']) { ?>
+        <img class="hidden-xs" height="20" src="<?= $currentInstitution['logo']; ?>" align="left" style="margin-right: 8px;">
       <? } ?>
       <span>
-          <span class="pull-left" style="padding-bottom: 6px;"><?= $this->translate($currentInstitutionName) ?></span>
-          <? if (count($dedupedRecords) !== 1) { ?>
+          <span class="pull-left" style="padding-bottom: 6px;"><?= $this->translate($currentInstitution['source']) ?></span>
+          <? if ($resultCount > 1) { ?>
             <i class="pr-interface-arrowbottom4 pull-right" align="right" style="display: block;"></i>
           <? } ?>
         </span>
@@ -58,17 +45,17 @@ if ($resultCount > 1){
 
   <? if ($resultCount > 1){ ?>
     <ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
-      <? foreach ($dedupedRecords as $record){
+      <? foreach ($institutionList as $record){
         $institutionTitle = $this->translate($record['source']);?>
         <li data-search="<?= strtolower($institutionTitle); ?>">
           <a href="<?=$this->url('record', array('id' => $record['id']))?>?referer=<?=$this->referer?>#records-in-groups" title="<?=$institutionTitle?>">
             <div class='record-group-list-item'>
 
-              <? if ($logoUri = get_logo_uri($record['source'])) { ?>
-                <img class="hidden-xs pull-right" height="16" src="<?= $logoUri; ?>">
+              <? if ($record['logo']) { ?>
+                <img class="hidden-xs pull-right" height="16" src="<?= $record['logo']; ?>">
               <? } ?>
 
-              <span class="institution-name"<?=($currentInstitution == $record['id'])? ' style="font-weight: bold !important;"' : ''?>><?=$institutionTitle?></span>
+              <span class="institution-name"<?=($currentInstitution['id'] == $record['id'])? ' style="font-weight: bold !important;"' : ''?>><?=$institutionTitle?></span>
             </div>
           </a>
         </li>
@@ -84,7 +71,7 @@ if ($resultCount > 1){
   <? foreach ($internalMultiplicity as $key => $recordMultiplicity): ?>
     <?= ($key > 0) ? $this->translate('conjunction_or') : '' ?>
     <a href='/Record/<?= $recordMultiplicity ?>?referer=<?= $this->referer ?>#records-in-groups'
-       title='<?= $this->translate($currentInstitutionName) ?>'>
+       title='<?= $this->translate($currentInstitution['source']) ?>'>
         <?= $this->translate('here_link') ?>
     </a>
   <? endforeach;?>

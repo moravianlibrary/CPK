@@ -66,16 +66,85 @@ class DedupedRecords extends AbstractBase
         return 'Records in group';
     }
 
+    /**
+     * Check existence of image in logos and returns it's URI
+     * @param $source
+     * @return string|null  URI of the institution logo
+     */
+    function get_logo_uri($source){
+        $logosPath =  '/themes/bootstrap3/images/institutions/logos/';
+        $logosPostfix =  '_small';
+        $sourceWithoutPrefix = str_replace('source_', '', $source);
+        $uri = $logosPath . $sourceWithoutPrefix . '/' . $sourceWithoutPrefix . $logosPostfix . '.png';
+        return file_exists(APPLICATION_PATH . $uri) ?
+            $uri : null;
+    }
+
+    /**
+     * Gets institution's id, source and logo
+     * @param $localID
+     * @return array
+     */
+    public function get_institution_data($localID)
+    {
+        $source = 'source_' . substr($localID, 0, strpos($localID, '.'));
+        return [
+            'id' => $localID,
+            'source' => $source,
+            'logo' => $this->get_logo_uri($source)
+        ];
+    }
+
+    /**
+     * Get institutions data
+     * @return array    Array of institution data ['source', 'id', 'logo']
+     */
     public function getRecordsInGroup()
     {
         $records = [];
         $localIds = $this->driver->getParentRecordDriver()->getChildrenIds();
         foreach ($localIds as $id) {
-            $source = substr($id, 0, strpos($id, '.'));
-            $records[] = [
-                'source' => 'source_' . $source,
-                'id'     => $id,
-            ];
+            $records[] = $this->get_institution_data($id);
+        }
+        return $records;
+    }
+
+    /**
+     * Sorts deduped records and excludes CNB and Caslins at the end
+     * @param $dedupedRecords   array   Array of deduped records
+     * @return array    Sorted deduped records
+     */
+    public function get_sorted_records_groups(){
+        //unique array
+        $records = array_map("unserialize", array_unique(array_map("serialize", $this->getRecordsInGroup())));
+
+        $temp['source_cnb'] = $temp['source_caslin'] = [];
+        foreach ($records as &$record) {
+            //if source is one of these, exclude it and save temporary elsewhere
+            if (in_array($record['source'], ['source_cnb','source_caslin'])){
+                $temp[ $record['source'] ][] = $record;
+                unset($record);
+            }
+        }
+        sort($records);
+        //add CNBs and Caslins at the end of array, both are numeric indexed arrays
+        return array_merge($records, $temp['source_cnb'], $temp['source_caslin']);
+    }
+
+    /**
+     * Get same institution from deduplicated list
+     * @param $dedupedRecords   Array of deduplicated results
+     * @param $institution
+     * @return array
+     */
+    public static function get_internal_multiplicity($dedupedRecords, $institution){
+        $records = [];
+        //get institution - e.g. 'source_mzk' => 'mzk'
+        $compare = substr($institution,0, strpos($institution, '.'));
+        foreach ($dedupedRecords as $key => $record) {
+            if ($compare === substr($record['source'], 7) && $institution !== $record['id']) {
+                array_push($records, $record['id']);
+            }
         }
         return $records;
     }
