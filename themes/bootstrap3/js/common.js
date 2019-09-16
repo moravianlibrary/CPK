@@ -702,3 +702,47 @@ function escapeHTML(unsafeStr) {
         .replace(/\'/g, '&#39;'); // '&apos;' is not valid HTML 4
 }
 
+/**
+ *
+ * @param param
+ * @returns {$}
+ */
+$.fn.listSearch = function (param) {
+  param = {
+    itemType: param.itemType !== undefined ? param.itemType : 'li.item',
+    inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
+    placeholder: param.placeholder !== undefined ? param.placeholder : 'Zadejte dotaz'
+  };
+  let that = $(this),
+      input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        that.find(param.itemType).filter(function () {
+          $(this).toggle($(this).data('search').toLowerCase().indexOf(value) > -1)
+        });
+      });
+  $(this).prepend(input);
+
+  this.focus = function () {
+    input.focus().val("");
+    $(this).find(param.itemType).each(function () {
+      $(this).show();
+    });
+  };
+
+  return this;
+};
+/**
+ * JQuery plugin for bootstrap dropdown search filter.
+ * Creates input[text].dropdown-search
+ * @param e
+ */
+$.fn.dropFinder = function (placeholder) {
+  let dropdownList = $(this).find('.dropdown-menu').listSearch({
+    itemType: 'li',
+    inputClass: 'dropdown-search',
+    placeholder: placeholder
+  });
+  $(this).on('shown.bs.dropdown', function () {
+    dropdownList.focus();
+  });
+};

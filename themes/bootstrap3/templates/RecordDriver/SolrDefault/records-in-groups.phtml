@@ -21,7 +21,7 @@ if ($resultCount > 1){
   ?>
 <script>
     $(document).ready(function () {
-        $('.dropdown.search-enabled').dropFinder();
+        $('.dropdown.search-enabled').dropFinder(<?= json_encode($this->translate('Search institution')); ?>);
     });
 </script>
 <?
