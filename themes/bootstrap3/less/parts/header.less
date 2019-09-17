@@ -139,6 +139,39 @@ tr.link {
     margin-top: 11.5px;
 }
 
+.idp-list{
+  position: relative;
+  list-style-type: none;
+  padding:0;
+  li{
+    width:100%;
+    padding:10px 0;
+    margin:5px auto;
+    &:hover{
+      background:rgb(222,222,222);
+      cursor:pointer;
+      a{
+        color: red;
+      }
+    }
+    .logo{
+      text-align: right;
+      img{
+        display:inline-block;
+        margin:-5px 10px 0;
+        height:30px;
+      }
+    }
+  }
+  input.search-term{
+    display:block;
+    margin:0 auto 5px;
+    width:75%;
+    min-width:350px;
+    padding:.25em;
+  }
+}
+
 .header-panel {
   background: #ffffff;
   margin-top: -18px;

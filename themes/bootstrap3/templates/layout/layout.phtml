@@ -433,7 +433,7 @@
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title"><?=$this->translate('login_last_used')?></h4>
           </div>
-          <div class="modal-body last-idps" data-ng-last-used data-ng-show='fedLoginCtrl.hasLastIdps()'>
+          <div class="modal-body last-idps idp-list" data-ng-last-used data-ng-show='fedLoginCtrl.hasLastIdps()'>
 		  </div>
 		  <div class="modal-header link" data-ng-click="fedLoginCtrl.showHelpContent()" style="cursor: pointer">
 		    <? $portalPage = $this->portalPages()->getPage('moznosti-prihlaseni-a-registrace', explode("-", $this->layout()->userLang)[0]); ?>
@@ -464,8 +464,18 @@
           </div>
           <div class="modal-body">
           	<?=$this->render('login/identity-providers.phtml', [
-          	    'idps' => $this->identityProviders()->getLibraries()
+          	    'idps' => $this->identityProviders()->getLibraries(),
+                'class' => 'idp-libs'
           	]) ?>
+            <script>
+                $(document).ready(function () {
+                    let idp_search=$('ul.idp-libs').listSearch({
+                        itemType: 'li.link',
+                        inputClass: 'search-term',
+                        placeholder: 'Najděte svou knihovnu'
+                    });
+                });
+            </script>
 		  </div>
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

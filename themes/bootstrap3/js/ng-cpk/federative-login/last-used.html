@@ -1,12 +1,11 @@
-<table>
-<tbody>
-  <tr class="link" data-ng-repeat="idp in fedLoginCtrl.getLastIdps() track by $index" data-ng-click="fedLoginCtrl.login(idp)">
-    <td class="col-sm-4">
-      <img height='30' data-ng-src="{{ idp.logo }}">
-    </td>
-    <td>
+<ul class="idp-list">
+  <li class="row link" data-ng-repeat="idp in fedLoginCtrl.getLastIdps() track by $index" data-ng-click="fedLoginCtrl.login(idp)">
+    <div class="col-sm-3 logo">
+      <img data-ng-src="{{ idp.logo }}">
+    </div>
+    <div class="col-sm-9">
       <a href="#">{{ idp.name }}</a>
-    </td>
-  </tr>
-</tbody>
-</table>
+    </div>
+  </li>
+  <? endforeach; ?>
+</ul>

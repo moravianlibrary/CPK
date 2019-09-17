@@ -1,18 +1,16 @@
-<table>
-  <tbody>
+<ul class="idp-list<?= $class ? ' ' . $class : '' ?>">
   <? foreach($idps as $idp):
     $json = json_encode($idp);
     ?>
-    <tr class="link idp-record" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
-      <td class="col-sm-3">
+    <li class="row link idp-record" data-search="<?=strtolower($idp['name'])?>" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
+      <div class="col-sm-3 logo">
         <? if($idp['logo']):?>
-          <img height='30' src="<?=$idp['logo']?>">
+          <img src="<?=$idp['logo']?>">
         <? endif; ?>
-      </td>
-      <td>
+      </div>
+      <div class="col-sm-9">
         <a href="<?=$idp['href']?>"><?=$idp['name']?></a>
-      </td>
-    </tr>
+      </div>
+    </li>
   <? endforeach; ?>
-  </tbody>
-</table>
+</ul>
