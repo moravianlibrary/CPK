@@ -3,10 +3,10 @@
     <? if ($this->widget->getShowAllRecordsLink()):
         $filter = $this->compressUrlParam('inspiration:"'.$this->widget->getName().'"'); ?>
       <a href='<?= $this->searchWidgetBaseUrl ?>&filter=<?= $filter ?>' title='<?= $this->translate('Show all') ?>'>
-        <h2><?= $this->translate($this->widget->getName()) ?></h2>
+        <h2><?= ($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn() ?></h2>
       </a>
     <? else: ?>
-      <h2><?= $this->translate($this->widget->getName()) ?></h2>
+      <h2><?= ($this->language == 'cs') ? $this->widget->getTitleCs() : $this->widget->getTitleEn() ?></h2>
     <? endif; ?>
 
   </div>

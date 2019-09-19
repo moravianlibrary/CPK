@@ -88,14 +88,14 @@
                 <? foreach($widgets as $widget): ?>
                   <option value='<?=$widget->getId()?>'
                           <?=($widget->getName()==$inspirationsWidget->getName() ? ' selected' : '')?>>
-                    <?=$this->transEsc($widget->getTitleCs())?>
+                    <?= ($this->language == 'cs') ? $widget->getTitleCs() : $widget->getTitleEn() ?>
                   </option>
                 <? endforeach; ?>
               <? else: ?>
                 <option value='' selected> </option>
                 <? foreach($widgets as $widget): ?>
                   <option value='<?=$widget->getId()?>'>
-                    <?=$this->tranEsc($widget->getTitleCs())?>
+                    <?= ($this->language == 'cs') ? $widget->getTitleCs() : $widget->getTitleEn() ?>
                   </option>
                 <? endforeach; ?>
               <? endif; ?>
@@ -133,7 +133,7 @@
             <tbody>
               <? foreach($widgets as $widget): ?>
                 <tr>
-                  <td><?= $widget->getTitleCs() ?></td>
+                  <td><?= ($this->language == 'cs') ? $widget->getTitleCs() : $widget->getTitleEn() ?></td>
                   <td>
                     <div class='dropdown pull-right'>
                       <span id='actions'
@@ -187,7 +187,7 @@
    <option value=''> </option>
    <? foreach($widgets as $widget): ?>
      <option value='<?=$widget->getId()?>'>
-       <?=$this->translate($widget->getTitleCs())?>
+       <?= ($this->language == 'cs') ? $widget->getTitleCs() : $widget->getTitleEn() ?>
      </option>
    <? endforeach; ?>
  </select>
