@@ -1027,10 +1027,10 @@ class SolrMarc extends ParentSolrMarc
         /**
          * @var array   summary
          */
-        $summary = isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : false;
+        $summary = isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : null;
         //nothing found and allowed to search in parent
         if ($searchAlsoInParentRecord && !$summary){
-            $summary = $this->getParentRecordDriver()->fields['summary_display_mv'];
+            $summary = ($parent = $this->getParentRecordDriver()) ? $parent->getSummary(false) : null;
         }
         //return the summary
         return $summary;
