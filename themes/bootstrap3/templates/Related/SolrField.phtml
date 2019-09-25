@@ -1,0 +1,51 @@
+<?php $similarRecords = $this->related->getResults(); ?>
+<?php if (!empty($similarRecords)): ?>
+    <h4 class='similar-items-header'><?=$this->transEsc('Similar Items')?></h4>
+    <div class='similar-items-container list-group'>
+        <?php foreach ($similarRecords as $data): ?>
+            <?php
+                $format = $data->format ?? null;
+                $url = "/Record/" . $data->id;
+                $recordId = str_replace(['.', ':'], '', $data->id);
+                $isbn = $data->isbn[0] ?? $data->ean[0] ?? $data->issn[0] ?? $data->ismn[0] ?? null;
+                $nbn = $data->cnb ?? null;
+                $bibinfo = [];
+                if (isset($isbn)) {
+                    $bibinfo['isbn'] = $isbn;
+                }
+                if (isset($nbn)) {
+                    $bibinfo['nbn'] = $nbn;
+                }
+                $bibinfo = !empty($bibinfo) ? json_encode($bibinfo, JSON_HEX_QUOT | JSON_HEX_TAG) : null;
+            ?>
+            <div class="row list-group-item clearfix">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-3 similar-item">
+                    <a href="<?=$url?>" title='<?=$this->escapeHtml($data->title)?> (<?=$this->translate($format)?>)' class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
+                        <?php if (isset($bibinfo)): ?>
+                            <script type="text/javascript">
+                                obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($recordId)?>);
+                            </script>
+                        <?php endif; ?>
+                        <?php if (isset($format)): ?>
+                            <div class="iconlabel"><i class="pr-format-<?=preg_replace('/[^a-z]/', '', strtolower($format));?>"></i></div>
+                        <?php else: ?>
+                            <img class="recordcover" src="<?=$this->url('cover-unavailable')?>" alt="<?=$this->transEsc('No Cover Image')?>"/>
+                        <?php endif; ?>
+                    </a>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-9 similar-item content">
+                    <h5 class="list-group-item-heading">
+                        <a href='<?=$url?>' title='<?=$this->escapeHtml($data->title)?> (<?=$this->translate($format)?>)'>
+                            <strong><?=$this->escapeHtml($data->title)?></strong>
+                        </a>
+                    </h5>
+                    <p class="list-group-item-text">
+                        <?php $author = $data->author ?? null; if (isset($author)): ?>
+                            <?=$this->escapeHtml($author);?>
+                        <?php endif; ?>
+                    </p>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
