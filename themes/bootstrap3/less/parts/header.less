@@ -145,30 +145,48 @@ tr.link {
   padding:0;
   li{
     width:100%;
-    padding:10px 0;
-    margin:5px auto;
+    padding:5px 0;
+    margin:2px auto;
     &:hover{
-      background:rgb(222,222,222);
+      background:whitesmoke;
       cursor:pointer;
       a{
         color: red;
       }
     }
     .logo{
-      text-align: right;
-      img{
-        display:inline-block;
-        margin:-5px 10px 0;
-        height:30px;
+      text-align: center;
+
+      img {
+        display: inline-block;
+        margin: 2px 5px;
+        height: 30px;
       }
+    }
+    .col-sm-9{
+      padding-top: .5em;
     }
   }
   input.search-term{
     display:block;
-    margin:0 auto 5px;
-    width:75%;
+    margin:0 auto 1em;
+    width:90%;
     min-width:350px;
     padding:.25em;
+  }
+
+  @media screen and (max-width: @screen-sm) {
+    li{
+      .logo {
+        float: left;
+        width: 75px;
+      }
+
+      a {
+        display: block;
+        margin: -3px 15%;
+      }
+    }
   }
 }
 

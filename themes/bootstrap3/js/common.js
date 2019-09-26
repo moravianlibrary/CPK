@@ -713,21 +713,27 @@ $.fn.listSearch = function (param) {
     inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
     placeholder: param.placeholder !== undefined ? param.placeholder : 'Zadejte dotaz'
   };
-  let that = $(this),
-      input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function () {
+  let that = $(this);
+  this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function () {
         var value = $(this).val().toLowerCase();
         that.find(param.itemType).filter(function () {
           $(this).toggle($(this).data('search').toLowerCase().indexOf(value) > -1)
         });
       });
-  $(this).prepend(input);
+  $(this).prepend(this.input);
 
-  this.focus = function () {
-    input.focus().val("");
-    $(this).find(param.itemType).each(function () {
-      $(this).show();
-    });
-  };
+    this.focus = function () {
+        this.input.focus();
+        return this;
+    };
+
+    this.clear = function () {
+        this.input.val("");
+        $(this).find(param.itemType).each(function () {
+            $(this).show();
+        });
+        return this;
+    };
 
   return this;
 };

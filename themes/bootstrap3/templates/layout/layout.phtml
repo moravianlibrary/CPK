@@ -92,7 +92,8 @@
             'Select widget' => 'Select widget',
             'Do you really want to delete this page?' => 'Do you really want to delete this page?',
             'Do you really want to remove permissions to this user?' =>
-                'Do you really want to remove permissions to this user?'
+                'Do you really want to remove permissions to this user?',
+            'findTheLib' => 'Find yours library'
           )
         );
         // Add libphonenumber.js strings
@@ -463,16 +464,16 @@
             <h4 class="modal-title"><?=$this->translate('login_with')?></h4>
           </div>
           <div class="modal-body">
-          	<?=$this->render('login/identity-providers.phtml', [
-          	    'idps' => $this->identityProviders()->getLibraries(),
-                'class' => 'idp-libs'
-          	]) ?>
+            <?= $this->render('login/identity-providers.phtml', [
+              'idps' => $this->identityProviders()->getLibraries(),
+              'class' => 'idp-libs'
+            ]);?>
             <script>
                 $(document).ready(function () {
                     let idp_search=$('ul.idp-libs').listSearch({
                         itemType: 'li.link',
                         inputClass: 'search-term',
-                        placeholder: 'Najděte svou knihovnu'
+                        placeholder: VuFind.translate('findTheLib')
                     });
                 });
             </script>
