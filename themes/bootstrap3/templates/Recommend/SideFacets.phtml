@@ -400,11 +400,7 @@ JS;
               <? if($thisFacet['operator'] == 'OR'): ?>
                 <i class="fa fa-square-o"></i>
               <? endif; ?>
-              <? if (($cluster['label'] == 'language') OR ($cluster['label'] == 'country_str_mv')): ?>
-                <?=$this->escapeHtml($thisFacet['value'])?>
-              <? else: ?>
-                <?=$this->transEsc($thisFacet['displayText'])?>
-              <? endif; ?>
+              <?=$this->escapeHtml($thisFacet['displayText'])?>
               <? if ($allowExclude): ?>
                   </a>
                 </div>
