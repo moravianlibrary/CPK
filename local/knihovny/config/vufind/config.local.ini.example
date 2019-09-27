@@ -140,3 +140,17 @@ list_item[] = 'doctypes_widget_authorities;doctypes_widget_authorities_descripti
 
 ; List is rendered in given order, otherwise can be sorted randomly
 list_sorting = random
+
+[Ziskej]
+disabled = ''
+prod = 'https://ziskej.techlib.cz:9080/api/v1'
+test = 'https://ziskej-test.techlib.cz:9080/api/v1'
+demo = 'https://ziskej-demo.techlib.cz:9080/api/v1'
+dev  = 'https://ziskej-dev.techlib.cz:9080/api/v1'
+
+[Ziskej_minimal]
+url = 'https://ziskej.techlib.cz'
+
+[SensitiveZiskej]
+username = "ziskej_api_username"
+password = "ziskej_api_password"
