@@ -7,14 +7,14 @@
                 $format = $data->format ?? null;
                 $url = "/Record/" . $data->id;
                 $recordId = str_replace(['.', ':'], '', $data->id);
-                $isbn = $data->isbn[0] ?? $data->ean[0] ?? $data->issn[0] ?? $data->ismn[0] ?? null;
+                $isbn = $data->isbn[0] ?? $data->ean[0] ?? $data->issn[0] ?? null;
+                $ismn = $data->ismn[0] ?? null;
                 $nbn = $data->cnb ?? null;
                 $bibinfo = [];
-                if (isset($isbn)) {
-                    $bibinfo['isbn'] = $isbn;
-                }
-                if (isset($nbn)) {
-                    $bibinfo['nbn'] = $nbn;
+                foreach (['isbn', 'ismn', 'nbn'] as $item) {
+                  if (isset($$item)) {
+                    $bibinfo[$item] = $$item;
+                  }
                 }
                 $bibinfo = !empty($bibinfo) ? json_encode($bibinfo, JSON_HEX_QUOT | JSON_HEX_TAG) : null;
             ?>
