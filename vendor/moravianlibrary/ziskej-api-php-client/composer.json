@@ -1,0 +1,34 @@
+{
+    "name": "moravianlibrary/ziskej-api-php-client",
+    "description": "Ziskej API PHP client",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^7.1",
+        "ext-json": "*",
+        "php-http/client-common": "^2.0",
+        "php-http/client-implementation": "^1.0",
+        "php-http/httplug": "^2.0",
+        "php-http/message-factory": "^1.0",
+        "php-http/discovery": "^1.0",
+        "php-http/logger-plugin": "^1.1",
+        "php-http/multipart-stream-builder": "^1.0",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Mzk\\ZiskejApi\\": [
+                "src"
+            ]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mzk\\ZiskejApi\\": [
+                "tests"
+            ]
+        }
+    }
+}
