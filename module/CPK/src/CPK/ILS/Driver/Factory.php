@@ -79,4 +79,11 @@ class Factory
         );
     }
 
+    public static function getZiskej(ServiceManager $sm)
+    {
+        $sl = $sm->getServiceLocator();
+
+        return new Ziskej($sl->get('VuFind\Config')->get('config'));
+    }
+
 }

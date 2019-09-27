@@ -583,6 +583,13 @@ class MultiBackend extends MultiBackendBase
         return null;
     }
 
+    /**
+     * Takes sigla and return library source for it
+     *
+     * @param $sigla
+     *
+     * @return int|string|null
+     */
     public function siglaToSource($sigla)
     {
         $source = null;
@@ -592,6 +599,34 @@ class MultiBackend extends MultiBackendBase
         }
 
         return $source;
+    }
+
+    public function sourceToSigla($source)
+    {
+        $tmpSigla = null;
+        foreach ($this->config['SiglaMapping'] as $paired_source => $sigla) {
+            if ($source === $paired_source)
+                $tmpSigla = $sigla;
+        }
+
+        return $tmpSigla;
+    }
+
+    /**
+     * Takes source and return library id for it
+     *
+     * @param $source
+     *
+     * @return integer|null
+     */
+    public function sourceToLibraryId($source)
+    {
+        $pairedId = null;
+        foreach ($this->config['LibraryIDMapping'] as $pairedSource => $pairedId) {
+            if ($source === $pairedSource)
+                return $pairedId;
+        }
+        return $pairedId;
     }
 
     protected function getDetailsFromCurrentSource($source, $details)
@@ -767,6 +802,25 @@ class MultiBackend extends MultiBackendBase
                     $this->stripIdPrefixes($checkoutDetails, $source)
             );
             return $this->addIdPrefixes($details, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function createZiskejMessage($patron)
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            $resp = $driver->createMessage($patron['id'], $patron['eppn'], $patron['message']);
+            return $resp;
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function getZiskejDriver()
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            return $driver;
         }
         throw new ILSException('No suitable backend driver found');
     }
