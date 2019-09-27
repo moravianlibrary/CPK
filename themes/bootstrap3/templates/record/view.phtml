@@ -212,6 +212,7 @@
                   <ul class="recordTabs nav nav-tabs">
 
                     <? foreach ($this->tabs as $tab => $obj): ?>
+                    <? if($tab == 'Ziskej' && $this->ziskejCookie == 'disabled') continue; ?>
                     <? // add current tab to breadcrumbs if applicable:
                       $desc = $obj->getDescription();
                       $tab_classes = array();
@@ -227,6 +228,7 @@
                     <? if ($desc !== 'Buy'): /* temporary hide Buy tab */ ?>
                     <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
                       <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav">
+                          <? ?>
                           <? $titleHtml = ($desc=='Holdings') ? $this->transEsc('Borrow') : $this->transEsc($desc) ?>
                           <?= $this->help()->getElementHelp('element_help_record_tab_'.$desc, $titleHtml) ?>
 
