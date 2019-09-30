@@ -107,7 +107,7 @@ final class Api
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) || is_array($array['items'])
+                $return = isset($array['items']) && is_array($array['items'])
                     ? $array['items']
                     : [];
                 break;
@@ -255,7 +255,7 @@ final class Api
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) || is_array($array['items'])
+                $return = isset($array['items']) && is_array($array['items'])
                     ? $array['items']
                     : [];
                 break;
@@ -296,7 +296,7 @@ final class Api
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) || is_array($array['items'])
+                $return = isset($array['items']) && is_array($array['items'])
                     ? $array['items']
                     : [];
                 break;
@@ -425,7 +425,7 @@ final class Api
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) || is_array($array['items'])
+                $return = isset($array['items']) && is_array($array['items'])
                     ? $array['items']
                     : [];
                 break;

@@ -44,7 +44,7 @@ class Reader
      *
      * @var bool|null
      */
-    private $notificationEnabled = null;
+    private $isNotificationEnabled = null;
 
     /**
      * sigla mateřské knihovny
@@ -124,7 +124,7 @@ class Reader
         $model->firstName = !empty($input['first_name']) ? (string)$input['first_name'] : null;
         $model->lastName = !empty($input['last_name']) ? (string)$input['last_name'] : null;
         $model->email = !empty($input['email']) ? (string)$input['email'] : null;
-        $model->notificationEnabled = !empty($input['notification_enabled'])
+        $model->isNotificationEnabled = !empty($input['notification_enabled'])
             ? (bool)$input['notification_enabled'] : null;
         $model->sigla = !empty($input['sigla']) ? (string)$input['sigla'] : null;
         $model->countTickets = !empty($input['count_tickets']) ? (int)$input['count_tickets'] : null;
@@ -141,9 +141,19 @@ class Reader
         return $this->readerId;
     }
 
+    public function setReaderId(string $readerId): void
+    {
+        $this->readerId = $readerId;
+    }
+
     public function isActive(): bool
     {
         return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): void
+    {
+        $this->isActive = $isActive;
     }
 
     public function getFirstName(): ?string
@@ -151,9 +161,19 @@ class Reader
         return $this->firstName;
     }
 
+    public function setFirstName(?string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
     public function getLastName(): ?string
     {
         return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): void
+    {
+        $this->lastName = $lastName;
     }
 
     public function getEmail(): ?string
@@ -161,9 +181,19 @@ class Reader
         return $this->email;
     }
 
+    public function setEmail(?string $email): void
+    {
+        $this->email = $email;
+    }
+
     public function isNotificationEnabled(): ?bool
     {
-        return $this->notificationEnabled;
+        return $this->isNotificationEnabled;
+    }
+
+    public function setIsNotificationEnabled(?bool $isNotificationEnabled): void
+    {
+        $this->isNotificationEnabled = $isNotificationEnabled;
     }
 
     public function getSigla(): ?string
@@ -171,9 +201,19 @@ class Reader
         return $this->sigla;
     }
 
+    public function setSigla(?string $sigla): void
+    {
+        $this->sigla = $sigla;
+    }
+
     public function isGdprReg(): ?bool
     {
         return $this->isGdprReg;
+    }
+
+    public function setIsGdprReg(?bool $isGdprReg): void
+    {
+        $this->isGdprReg = $isGdprReg;
     }
 
     public function isGdprData(): ?bool
@@ -181,9 +221,19 @@ class Reader
         return $this->isGdprData;
     }
 
+    public function setIsGdprData(?bool $isGdprData): void
+    {
+        $this->isGdprData = $isGdprData;
+    }
+
     public function getCountTickets(): ?int
     {
         return $this->countTickets;
+    }
+
+    public function setCountTickets(?int $countTickets): void
+    {
+        $this->countTickets = $countTickets;
     }
 
     public function getCountTicketsOpen(): ?int
@@ -191,14 +241,29 @@ class Reader
         return $this->countTicketsOpen;
     }
 
+    public function setCountTicketsOpen(?int $countTicketsOpen): void
+    {
+        $this->countTicketsOpen = $countTicketsOpen;
+    }
+
     public function getCountMessages(): ?int
     {
         return $this->countMessages;
     }
 
+    public function setCountMessages(?int $countMessages): void
+    {
+        $this->countMessages = $countMessages;
+    }
+
     public function getCountMessagesUnread(): ?int
     {
         return $this->countMessagesUnread;
+    }
+
+    public function setCountMessagesUnread(?int $countMessagesUnread): void
+    {
+        $this->countMessagesUnread = $countMessagesUnread;
     }
 
 }

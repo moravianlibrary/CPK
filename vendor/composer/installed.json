@@ -575,17 +575,17 @@
     },
     {
         "name": "instaclick/php-webdriver",
-        "version": "1.4.5",
-        "version_normalized": "1.4.5.0",
+        "version": "1.4.6",
+        "version_normalized": "1.4.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/instaclick/php-webdriver.git",
-            "reference": "6fa959452e774dcaed543faad3a9d1a37d803327"
+            "reference": "bd9405077ca04129a73059a06873bedb5e138402"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/instaclick/php-webdriver/zipball/6fa959452e774dcaed543faad3a9d1a37d803327",
-            "reference": "6fa959452e774dcaed543faad3a9d1a37d803327",
+            "url": "https://api.github.com/repos/instaclick/php-webdriver/zipball/bd9405077ca04129a73059a06873bedb5e138402",
+            "reference": "bd9405077ca04129a73059a06873bedb5e138402",
             "shasum": ""
         },
         "require": {
@@ -596,7 +596,7 @@
             "phpunit/phpunit": "^4.8",
             "satooshi/php-coveralls": "^1.0||^2.0"
         },
-        "time": "2017-06-30T04:02:48+00:00",
+        "time": "2019-09-23T15:50:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -616,13 +616,13 @@
         "authors": [
             {
                 "name": "Justin Bishop",
-                "role": "Developer",
-                "email": "jubishop@gmail.com"
+                "email": "jubishop@gmail.com",
+                "role": "Developer"
             },
             {
                 "name": "Anthon Pang",
-                "role": "Fork Maintainer",
-                "email": "apang@softwaredevelopment.ca"
+                "email": "apang@softwaredevelopment.ca",
+                "role": "Fork Maintainer"
             }
         ],
         "description": "PHP WebDriver for Selenium 2",
@@ -753,17 +753,17 @@
     },
     {
         "name": "monolog/monolog",
-        "version": "1.24.0",
-        "version_normalized": "1.24.0.0",
+        "version": "1.25.1",
+        "version_normalized": "1.25.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Seldaek/monolog.git",
-            "reference": "bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266"
+            "reference": "70e65a5470a42cfec1a7da00d30edb6e617e8dcf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Seldaek/monolog/zipball/bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266",
-            "reference": "bfc9ebb28f97e7a24c45bdc3f0ff482e47bb0266",
+            "url": "https://api.github.com/repos/Seldaek/monolog/zipball/70e65a5470a42cfec1a7da00d30edb6e617e8dcf",
+            "reference": "70e65a5470a42cfec1a7da00d30edb6e617e8dcf",
             "shasum": ""
         },
         "require": {
@@ -799,7 +799,7 @@
             "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
             "sentry/sentry": "Allow sending log messages to a Sentry server"
         },
-        "time": "2018-11-05T09:00:11+00:00",
+        "time": "2019-09-06T13:49:17+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -833,12 +833,12 @@
     },
     {
         "name": "moravianlibrary/ziskej-api-php-client",
-        "version": "dev-dev-cpk",
-        "version_normalized": "dev-dev-cpk",
+        "version": "1.0.1",
+        "version_normalized": "1.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/moravianlibrary/ziskej-api-php-client",
-            "reference": "da9596125dd1fd23c13039b1ac75f34996dff365"
+            "reference": "69fc26c9a89b64132a5e59ddf0f5f5819c5fb8a6"
         },
         "require": {
             "ext-json": "*",
@@ -852,7 +852,19 @@
             "php-http/multipart-stream-builder": "^1.0",
             "psr/http-message": "^1.0"
         },
-        "time": "2019-09-25T08:49:19+00:00",
+        "require-dev": {
+            "guzzlehttp/psr7": "^1.0",
+            "monolog/monolog": "^1.24",
+            "opendevel/coding-standard": "^1.0",
+            "php-http/guzzle6-adapter": "^2.0",
+            "php-http/message": "^1.0",
+            "php-http/mock-client": "^1.0",
+            "phpstan/phpstan": "^0.11.5",
+            "phpunit/phpunit": "^8.1",
+            "squizlabs/php_codesniffer": "^3.4",
+            "symfony/dotenv": "^4.3"
+        },
+        "time": "2019-09-30T11:37:46+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -868,6 +880,26 @@
                     "tests"
                 ]
             }
+        },
+        "scripts": {
+            "phpcbf": [
+                "phpcbf --standard=phpcs.xml --extensions=php --encoding=utf-8 --tab-width=4 -s -p -v"
+            ],
+            "phpcs": [
+                "phpcs --standard=phpcs.xml --extensions=php  --encoding=utf-8 --tab-width=4 -s -p -v"
+            ],
+            "phpstan": [
+                "phpstan analyse -l 7 --memory-limit=500M --debug -c phpstan.neon"
+            ],
+            "phpunit": [
+                "phpunit --colors=always -c phpunit.xml"
+            ],
+            "test": [
+                "@phpcbf",
+                "@phpcs",
+                "@phpstan",
+                "@phpunit"
+            ]
         },
         "license": [
             "MIT"
