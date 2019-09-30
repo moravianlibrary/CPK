@@ -583,6 +583,13 @@ class MultiBackend extends MultiBackendBase
         return null;
     }
 
+    /**
+     * Takes sigla and return library source for it
+     *
+     * @param $sigla
+     *
+     * @return int|string|null
+     */
     public function siglaToSource($sigla)
     {
         $source = null;
