@@ -9,6 +9,8 @@
       $recordId = str_replace(['.', ':'], '', $data->id);
       $isbn = $data->isbn[0] ?? $data->ean[0] ?? $data->issn[0] ?? null;
       $ismn = $data->ismn[0] ?? null;
+      // See API manual for ObalyKnih: When ismn starts with "979" insert it into isbn field
+      $isbn = (empty($isbn) && substr((string)$ismn, 0, 3) === "979") ? $ismn : $isbn;
       $nbn = $data->cnb ?? null;
       $bibinfo = [];
       foreach (['isbn', 'ismn', 'nbn'] as $item) {
