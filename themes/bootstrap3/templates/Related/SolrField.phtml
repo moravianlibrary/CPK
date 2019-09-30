@@ -23,7 +23,7 @@
           <a href="<?=$url?>" title='<?=$this->escapeHtml($data->title)?> (<?=$this->translate($format)?>)' class="coverThumbnail cover_<?=$recordId?>" tabindex='-1'>
             <?php if (isset($bibinfo)):?>
               <script type="text/javascript">
-                  obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($recordId)?>);
+                  obalky.display_thumbnail_cover_without_links(".cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($lookfor)?>);
               </script>
             <?php endif;?>
             <?php if (isset($format)):?>
