@@ -594,6 +594,18 @@ class MultiBackend extends MultiBackendBase
         return $source;
     }
 
+    /**
+     * Library source to sigla
+     *
+     * @param string $source
+     * @return string|null
+     */
+    public function sourceToSigla(string $source): ?string
+    {
+        $siglaMapping = $this->config['SiglaMapping'];
+        return isset($siglaMapping[$source]) ? $siglaMapping[$source] : null;
+    }
+
     protected function getDetailsFromCurrentSource($source, $details)
     {
         $detailsForCurrentSource = [];
@@ -767,6 +779,25 @@ class MultiBackend extends MultiBackendBase
                     $this->stripIdPrefixes($checkoutDetails, $source)
             );
             return $this->addIdPrefixes($details, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function createZiskejMessage($patron)
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            $resp = $driver->createMessage($patron['id'], $patron['eppn'], $patron['message']);
+            return $resp;
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function getZiskejDriver()
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            return $driver;
         }
         throw new ILSException('No suitable backend driver found');
     }

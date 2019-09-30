@@ -98,6 +98,7 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
         return $this->produceListForTemplate($this->others, $isConsolidation);
     }
 
+
     /**
      * Adds a href to redirect user to in order to authenticate him with Shibboleth
      *

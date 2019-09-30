@@ -472,11 +472,12 @@ class AjaxController extends AjaxControllerBase
     {
         // Get the cat_username being requested
         $cat_username = $this->params()->fromPost('cat_username');
+        $type = $this->params()->fromPost('type');
 
         $hasPermissions = $this->hasPermissions($cat_username);
-
-        if ($hasPermissions instanceof \Zend\Http\Response)
+        if ($hasPermissions instanceof \Zend\Http\Response) {
             return $hasPermissions;
+        }
 
         $renderer = $this->getViewRenderer();
 
@@ -486,6 +487,10 @@ class AjaxController extends AjaxControllerBase
 
         if ($ilsDriver instanceof \CPK\ILS\Driver\MultiBackend) {
 
+            if ($cat_username == 'ziskejAjaxLoad') {
+                $toRet = $this->getZiskejTickets($type);
+                return $this->output($toRet, self::STATUS_OK);
+            }
             $patron = [
                 'cat_username' => $cat_username,
                 'id' => $cat_username
@@ -564,13 +569,14 @@ class AjaxController extends AjaxControllerBase
             ];
 
             return $this->output($toRet, self::STATUS_OK);
-        } else
+        } else {
             return $this->output(
                 [
                     'cat_username' => str_replace('.', '\.', $cat_username),
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+        }
     }
 
     public function getMyFinesAjax()
@@ -624,6 +630,108 @@ class AjaxController extends AjaxControllerBase
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+    }
+
+    /**
+     * @param string $type
+     * @return array
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     */
+    protected function getZiskejTickets(string $type): array
+    {
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        /** @var \Zend\View\Renderer\PhpRenderer $zendRenderer */
+        $zendRenderer = $this->getViewRenderer();
+
+        /** @var \CPK\ILS\Driver\MultiBackend $cpkMultibackend */
+        $cpkMultibackend = $this->getILS()->getDriver();
+
+        $ziskejLibs = $ziskejApi->getLibraries();
+        $libraryIds = [];
+        foreach ($ziskejLibs as $sigla) {
+            $libraryIds[] = $cpkMultibackend->siglaToSource($sigla);
+        }
+
+        /** @var \VuFind\Db\Row\User $user */
+        $user = $this->getAuthManager()->isLoggedIn();
+
+        if (!$user) {
+            //@todo
+        }
+
+        $userSources = $user->getNonDummyInstitutions();
+        $userLibCards = $user->getAllUserLibraryCards();
+        $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+            return in_array($userLib, $libraryIds);
+        });
+
+        $sourceEppn = [];
+        foreach ($userLibCards as $userLibCard) {
+            if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
+                $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+            }
+        }
+
+        $i = 0;
+        $obalky = [];
+        $items = [];
+        foreach ($sourceEppn as $key => $eppn) {
+            $items[$key] = [];
+            $reader = $ziskejApi->getReader($eppn);
+            if ($reader && $reader->isActive()) {
+                $source = $ziskejApi->getTicketsDetails($eppn);
+                foreach ($source as $current) {
+                    if (in_array($current['status_reader'], [
+                        'created',
+                        'accepted',
+                        'prepared',
+                        'cancelled',
+                        'rejected',
+                    ])) {
+                        $i++;
+                        $resource = $this->getDriverForILSRecordZiskej($current);
+
+                        // obalky
+                        $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
+                        $bibInfo = $zendRenderer->record($resource)->getObalkyKnihJSONV3();
+                        if ($bibInfo) {
+                            $recordId = "#cover_$recordId";
+                            $bibInfo = json_decode($bibInfo);
+                            $recordId = preg_replace("/[\.:]/", "", $recordId);
+                            $obalky[$recordId] = [
+                                'bibInfo' => $bibInfo,
+                                'advert' => $zendRenderer->record($resource)->getObalkyKnihAdvert('checkedout')
+                            ];
+                        }
+                        $items[$key][] = $resource;
+                        $transactions[] = $resource;
+                    }
+
+                }
+            }
+        }
+
+        $html = [];
+
+        if ($type == 'holds') {
+            $html = $zendRenderer->render('myresearch/holds-from-ziskej.phtml',
+                [
+                    'items' => $items,
+                    'AJAX' => true,
+                    'config' => $this->getConfig(),
+                ]);
+        }
+
+        return [
+            'html' => $html,
+            'obalky' => $obalky,
+            'cat_username' => 'ziskejAjaxLoad',
+            'source' => 'ziskej'
+        ];
+
     }
 
     public function getMyTransactionsAjax()
@@ -1067,6 +1175,17 @@ class AjaxController extends AjaxControllerBase
         return $record;
     }
 
+    protected function getDriverForILSRecordZiskej($current)
+    {
+        $id = isset($current['doc_id']) ? $current['doc_id'] : null;
+        $source = isset($current['source']) ? $current['source'] : 'VuFind';
+        $record = $this->getServiceLocator()
+            ->get('VuFind\RecordLoader')
+            ->load($id, $source, true);
+        $record->setExtraDetail('ils_details', $current);
+        return $record;
+    }
+
     /**
      * Get list of comments for a record as HTML.
      *
@@ -1139,7 +1258,7 @@ class AjaxController extends AjaxControllerBase
             }
         }
 
-        if (! $isOwner) {
+        if (!$isOwner && $cat_username != 'ziskejAjaxLoad') {
             // TODO: Implement incident reporting.
             return $this->output(
                 'You are not authorized to query data about this identity. This incident will be reported.',
@@ -2405,7 +2524,7 @@ class AjaxController extends AjaxControllerBase
                         } else {
                             $anchor = $this->translate(strtoupper($sfxSource));
                         }
-                        
+
 
                         $link = sprintf(
                             '<a href="%s" target="_blank" title="%s">%s</a>',
@@ -2537,4 +2656,27 @@ class AjaxController extends AjaxControllerBase
 
         return (! empty($intersection)) ? $intersection : $htmlLinks;
     }
+
+    public function createZiskejMessageAjax()
+    {
+
+
+        $postParams = $this->params()->fromPost();
+        $message = $postParams['message'];
+        $id = $postParams['ticketId'];
+
+        $request = $this->getRequest();
+        $eppn = $request->getServer()->eduPersonPrincipalName;
+
+        $ilsDriver = $this->getILS()->getDriver();
+        $patron = [
+            'eppn' => $eppn,
+            'id' => $id,
+            'message' => $message
+        ];
+
+        $resp = $ilsDriver->createZiskejMessage($patron);
+        return $resp;
+    }
+
 }

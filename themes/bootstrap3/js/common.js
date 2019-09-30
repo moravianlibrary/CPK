@@ -618,6 +618,72 @@ jQuery( document ).ready( function( $ ) {
       $( '#feedback-modal' ).modal( 'show' );
     }
   }
+
+  var $mvsSubmit = $('#mvs-submit');
+  var $ziskejOrderButton = $('button.ziskej-order-btn');
+  
+  var renderMVSModal = function () {
+    $( '#mvs-modal' ).modal( 'show' );
+    // get container where we will render our page
+    var $container = $('div.record-mvs-description');
+
+    var $recordInformation = $('div.record-information');
+    var $table = $recordInformation.find('table.table');
+    $table.find('tr#subjects-tr').remove();
+    // console.log(renderTable);
+    var renderObject = {
+      cover: $('#cover .cover_thumbnail img').attr('src'),
+      title: $recordInformation.find('h2.record-title').text(),
+      tableInformation: $table
+    };
+  
+    let htmlCov = '';
+    htmlCov += '<div class="row table-core">';
+    htmlCov += '<h3>' + VuFind.translate('Informace o dokumentu') + '</h3>';
+    htmlCov += '<div class="col-md-3">';
+    if(renderObject.cover){
+      htmlCov += '<img src="' + renderObject.cover + '" alt="cover">';
+    }else{
+      htmlCov += '<div class="text-center">';
+      htmlCov +=  '<i style="font-size: 70px; color: #cccccc;" class="pr-format-books"></i>';
+      htmlCov += '</div>';
+    }
+    htmlCov += '</div>';
+    htmlCov += '<div class="col-md-9">';
+    htmlCov += '<h4>' + renderObject.title + '</h4>';
+    htmlCov += '<table class="table">' + renderObject.tableInformation.html() + '</table>';
+    htmlCov += '</div>';
+    htmlCov += '</div>';
+    $container.html(htmlCov);
+  };
+
+  $mvsSubmit.one('click', function (e) {
+    e.preventDefault();
+    // renderMVSModal();
+  });
+
+  $mvsSubmit.on('click', function (e) {
+    e.preventDefault();
+    // $( '#mvs-modal' ).modal( 'show' );
+  });
+
+  $ziskejOrderButton.one('click', function (e) {
+    e.preventDefault();
+    renderMVSModal();
+  });
+
+  $ziskejOrderButton.on('click', function (e) {
+    e.preventDefault();
+    let library_eppn = $(this).data('eppn');
+    $('#mvs-modal #eppn').val(library_eppn);
+    $('#mvs-modal').modal('show');
+  });
+
+  $('.ziskej-lib-title').on('click', function (e) {
+    var id = this.id;
+    $('#content_'+id).toggleClass('hidden');
+  })
+
 });
 
 /**
