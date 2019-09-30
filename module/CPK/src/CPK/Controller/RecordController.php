@@ -266,7 +266,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
 
         /* @var $request Request */
         $request = $this->getRequest();
-        $ziskejCookie = $request->getCookie()->ziskej;
+        $ziskejCookie = $request->getCookie()->ziskej ?? 'disabled';
 
         if (isset($config->Ziskej, $config->Ziskej->$ziskejCookie) && $ziskejCookie != 'disabled') {
             $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
