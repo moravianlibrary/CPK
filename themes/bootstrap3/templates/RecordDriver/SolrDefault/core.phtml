@@ -49,9 +49,9 @@
       <? if ($preview): ?><?=$preview?><? endif; ?>
     </div>
 
-    <div class="col-sm-9">
+          <div class="col-sm-9 record-information">
   <? else: ?>
-      <div class="col-sm-12">
+          <div class="col-sm-12 record-information">
   <? endif; ?>
         <h2 class='record-title' property='name'>
         <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>

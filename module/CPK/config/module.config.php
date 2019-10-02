@@ -231,7 +231,8 @@ $config = array(
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
-			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds'
+			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
+            'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory'
         ), // Exceptions throwing system
 
         'invokables' => array(
@@ -281,7 +282,7 @@ foreach ($staticRoutes as $route) {
     );
 }
 
-$nonTabRecordActions = array('ShortLoan');
+$nonTabRecordActions = array('ShortLoan', 'mvsForm');
 
 foreach ($nonTabRecordActions as $action) {
     $config['router']['routes']['record' . '-' . strtolower($action)] = array(
@@ -311,6 +312,21 @@ $config['router']['routes']['inspiration-show'] = array(
         'defaults' => array(
             'controller' => 'Inspiration',
             'action'     => 'show',
+        )
+    )
+);
+
+$config['router']['routes']['ziskej'] = array(
+    'type'    => 'Zend\Mvc\Router\Http\Segment',
+    'options' => array(
+        'route'    => '/' . 'ziskej' . '/',
+        'constraints' => array(
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'tag'        => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ),
+        'defaults' => array(
+            'controller' => 'Ziskej',
+            'action'     => 'home',
         )
     )
 );

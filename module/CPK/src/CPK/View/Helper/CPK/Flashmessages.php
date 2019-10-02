@@ -49,7 +49,7 @@ class Flashmessages extends \VuFind\View\Helper\Bootstrap3\Flashmessages
     public function __invoke()
     {
         $html = '';
-        $namespaces = ['error', 'info', 'success'];
+        $namespaces = ['error', 'warning', 'info', 'success'];
         foreach ($namespaces as $ns) {
             $this->fm->setNamespace($ns);
             $messages = array_merge(
