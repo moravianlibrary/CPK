@@ -1056,18 +1056,7 @@ class SolrMarc extends ParentSolrMarc
 
     public function getSimilarFromSolrField(): array
     {
-        $testData = [
-            "{\"author\":\"Bohumil Hrabal, 1914-1997 \",\"cnb\":\"cnb002899130\",\"format\":\"0/VISUAL_DOCUMENTS/\",\"id\":\"caslin.SKC01-007852336\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"author\":\"author\",\"cnb\":\"cnb002899130\",\"format\":\"VISUAL_DOCUMENTS\",\"id\":\"caslin.SKC01-007852337\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"ean\":[\"8595082723418\"],\"issn\":[\"2636-0780\"],\"author\":\"author\",\"cnb\":\"cnb002899130\",\"isbn\":[\"9788085763942\"],\"format\":\"VISUAL_DOCUMENTS\",\"ismn\":[\"9790260107649\"],\"id\":\"caslin.SKC01-007852338\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"author\":\"author\",\"cnb\":\"cnb002899130\",\"format\":\"VISUAL_DOCUMENTS\",\"id\":\"caslin.SKC01-007852339\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"author\":\"author\",\"format\":\"0/ARTICLES/\",\"id\":\"caslin.SKC01-007852340\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"author\":\"author\",\"cnb\":\"cnb002899130\",\"format\":\"VISUAL_DOCUMENTS\",\"id\":\"caslin.SKC01-007852341\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"ean\":[\"8595082723418\"],\"issn\":[\"2636-0780\"],\"author\":\"author\",\"cnb\":\"cnb002899130\",\"isbn\":[\"9788085763942\"],\"format\":\"VISUAL_DOCUMENTS\",\"ismn\":[\"9790260107649\"],\"id\":\"caslin.SKC01-007852342\",\"title\":\"Ostře sledované vlaky\"}",
-            "{\"author\":\"author\",\"format\":\"0/BOOKS/\",\"id\":\"caslin.SKC01-007852343\",\"title\":\"Ostře sledované vlaky\"}"
-        ];
         $field = $this->fields['similar_str_mv'] ?? [];
-        $field = $testData;
         return array_map('json_decode', $field);
     }
 }
