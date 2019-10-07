@@ -943,6 +943,7 @@ UPDATE `widget` SET `title_en` = "Events" WHERE `name` = "events";
 UPDATE `widget` SET `title_en` = "Favorite authors" WHERE `name` = "favorite_authors";
 UPDATE `widget` SET `title_en` = "Conspectus" WHERE `name` = "conspectus";
 UPDATE `widget` SET `title_en` = "K. H. Mácha " WHERE `name` = "khmacha";
+UPDATE `widget` SET `title_en` = "Mountain climbing and alpinism" WHERE `name` = "mountain_climbing";
 UPDATE `widget` SET `title_cs` = "Víte, že ..." WHERE `name` = "Infobox";
 UPDATE `widget` SET `title_cs` = "Populární" WHERE `name` = "nejpujcovanejsi_2015";
 UPDATE `widget` SET `title_cs` = "Akce" WHERE `name` = "Akce";
@@ -1048,4 +1049,6 @@ UPDATE `widget` SET `title_cs` = "Mezinárodní vztahy" WHERE `name` = "irel_int
 UPDATE `widget` SET `title_cs` = "Musica" WHERE `name` = "mus_musica";
 UPDATE `widget` SET `title_cs` = "Technika" WHERE `name` = "tech_technica";
 UPDATE `widget` SET `title_cs` = "Knihovnictví" WHERE `name` = "kiv_library_science";
+UPDATE `widget` SET `title_cs` = "Horolezectví a alpinismus" WHERE `name` = "mountain_climbing";
+
 UPDATE `system` SET `value` = '65' WHERE `key`='DB_VERSION';
