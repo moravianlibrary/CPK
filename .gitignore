@@ -14,7 +14,7 @@ vendor/.git
 messages.log
 messages-front.log
 cache
-log
+/log
 .settings
 git-3way-merge.local.cfg
 compileMyCss.sh

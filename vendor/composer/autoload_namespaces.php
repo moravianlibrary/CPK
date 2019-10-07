@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'ZfcRbac\\' => array($vendorDir . '/zf-commons/zfc-rbac/src'),
-    'ZendXml\\' => array($vendorDir . '/zendframework/zendxml/library'),
     'ZendService\\Amazon\\' => array($vendorDir . '/zendframework/zendservice-amazon/library'),
     'ZendRest' => array($vendorDir . '/zendframework/zendrest/library'),
     'WebDriver' => array($vendorDir . '/instaclick/php-webdriver/lib'),

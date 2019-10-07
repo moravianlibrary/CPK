@@ -1,0 +1,145 @@
+<?
+$isAJAX = isset($AJAX) && $AJAX === true;
+$i = 0;
+?>
+<? if (!empty($this->items)): ?>
+  <? foreach ($this->items as $libraryId => $resources): ?>
+    <h3 class="well row blickable" style="margin-bottom: 3px;">
+      <?= $this->transEsc("source_$libraryId", null, $libraryId) ?>
+      <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($libraryId) ?>"/>
+    </h3>
+    <? if (count($resources)): ?>
+      <ul class="media-list">
+        <?
+        /** @var \CPK\RecordDriver\SolrMarcLocal $resource */
+        foreach ($resources as $resource): ?>
+          <? $ilsDetails = $resource->getExtraDetail('ils_details'); ?>
+          <? ++$i; ?>
+
+          <li class="media well" id="record<?= $this->escapeHtml($resource->getUniqueId()) ?>">
+            <div class="media-left text-center" style="min-width: 100px;">
+              <?
+              $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
+              $backLink = $this->serverUrl($this->recordLink()->getUrl($resource));
+              $formats = $resource->getFormats();
+              $recordId = preg_replace("/[\.:]/", "", $recordId);
+              ?>
+              <div id="cover_<?= $recordId ?>" class="coverThumbnail">
+                <? $bibinfo = $this->record($resource)->getObalkyKnihJSONV3(); ?>
+                <? if (!$isAJAX && $bibinfo): ?>
+                  <script type="text/javascript">
+                      $(document).ready(function () {
+                          obalky.display_thumbnail("#cover_<?=$recordId?>", <?=$bibinfo?>, <?=json_encode($this->record($resource)->getObalkyKnihAdvert('checkedout'))?>);
+                      });
+                  </script>
+                <? endif; ?>
+              </div>
+            </div>
+            <div class="media-body">
+              <h4 class="media-heading">
+                <?
+                // If this is a non-missing Solr record, we should display a link:
+                if (is_a($resource, 'VuFind\\RecordDriver\\SolrDefault')
+                  && !is_a($resource, 'VuFind\\RecordDriver\\Missing')): ?>
+                  <?
+                  $title = $resource->getTitle();
+                  $title = empty($title) ? $this->transEsc('Title not available') : $this->escapeHtml($title);
+                  ?>
+                  <a href="<?= $this->recordLink()->getUrl($resource) ?>" class="title"><?= $title ?></a>
+                <? elseif (isset($ilsDetails['title']) && !empty($ilsDetails['title'])): ?>
+                  <? // If the record is not available in Solr, perhaps the ILS driver sent us a title we can show... ?>
+                  <?= $this->escapeHtml($ilsDetails['title']) ?>
+                <? else: ?>
+                  <? // Last resort -- indicate that no title could be found. ?>
+                  <?= $this->transEsc('Title not available') ?>
+                <? endif ?>
+              </h4>
+              <div>
+                <dl class="dl-horizontal dl-left">
+                  <? $listAuthor = $resource->getPrimaryAuthor(); ?>
+                  <? if (!empty($listAuthor)): ?>
+                    <dt><?= $this->transEsc('by') ?>:</dt>
+                    <dd>
+                      <a href="<?= $this->record($resource)->getLink('author', $listAuthor) ?>">
+                        <?= $this->escapeHtml($listAuthor) ?>
+                      </a>
+                    </dd>
+                  <? endif; ?>
+
+                  <? if (count($resource->getFormats()) > 0): ?>
+                    <dt><?= $this->transEsc('ziskej_label_document_type') ?>:</dt>
+                    <dd><?= $this->record($resource)->getFormatList() ?></dd>
+                  <? endif; ?>
+
+                  <? if (isset($ilsDetails['date_created'])): ?>
+                    <dt><?= $this->transEsc('ziskej_label_date_order') ?>:</dt>
+                    <dd><?= date($this->config->Site->displayDateFormat,
+                        strtotime($ilsDetails['date_created'])); ?></dd>
+                  <? endif; ?>
+
+                  <? if (isset($ilsDetails['date_requested'])): ?>
+                    <dt><?= $this->transEsc('ziskej_label_date_deliver') ?>:</dt>
+                    <dd><?= date($this->config->Site->displayDateFormat,
+                        strtotime($ilsDetails['date_requested'])); ?></dd>
+                  <? endif; ?>
+
+                  <? if (isset($ilsDetails['date_return'])): ?>
+                    <dt><?= $this->transEsc('ziskej_label_date_return') ?>:</dt>
+                    <dd><?= date($this->config->Site->displayDateFormat, strtotime($ilsDetails['date_return'])); ?></dd>
+                  <? endif; ?>
+
+                  <? if (isset($ilsDetails['status_reader'])): ?>
+                    <dt><?= $this->transEsc('ziskej_label_order_status') ?>:</dt>
+                    <dd>
+                      <?
+                      $labelStatuses = [
+                        'created' => 'info',
+                        'accepted' => 'success',
+                        'prepared' => 'success',
+                        'lent' => 'success',
+                        'closed' => 'default',
+                        'cancelled' => 'warning',
+                        'rejected' => 'danger',
+                      ];
+                      ?>
+                      <? if (isset($labelStatuses[$ilsDetails['status_reader']])): ?>
+                        <span class="label label-<?= $labelStatuses[$ilsDetails['status_reader']] ?>">
+                      <?= $this->translate('ziskej_order_status_' . $ilsDetails['status_reader']) ?>
+                    </span>
+                      <? else: ?>
+                        <span class="label label-default">
+                      <?= $this->translate('ziskej_order_status_' . $ilsDetails['status_reader']) ?>
+                    </span>
+                      <? endif; ?>
+                      <? if (!$ilsDetails['is_open']): ?>
+                        (<?= $this->transEsc('ziskej_order_status_not_open') ?>)
+                      <? endif; ?>
+                    </dd>
+                  <? endif; ?>
+
+                </dl>
+
+              </div>
+            </div>
+          </li>
+        <? endforeach; ?>
+      </ul>
+    <? else: ?>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="alert alert-info">
+            <?= $this->transEsc('ziskej_info_no_items') ?>
+          </div>
+        </div>
+      </div>
+    <? endif; ?>
+  <? endforeach; ?>
+<? else: ?>
+  <div class="panel">
+    <div class="panel-body">
+      <div class="alert alert-info">
+        <?= $this->transEsc('ziskej_info_no_libraries') ?>
+      </div>
+    </div>
+  </div>
+<? endif; ?>

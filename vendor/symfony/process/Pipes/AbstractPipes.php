@@ -18,21 +18,21 @@ namespace Symfony\Component\Process\Pipes;
  */
 abstract class AbstractPipes implements PipesInterface
 {
-    /** @var array */
     public $pipes = array();
 
-    /** @var string */
     private $inputBuffer = '';
-    /** @var resource|null */
     private $input;
-    /** @var bool */
     private $blocked = true;
+    private $lastError;
 
+    /**
+     * @param resource|null $input
+     */
     public function __construct($input)
     {
-        if (is_resource($input)) {
+        if (\is_resource($input)) {
             $this->input = $input;
-        } elseif (is_string($input)) {
+        } elseif (\is_string($input)) {
             $this->inputBuffer = $input;
         } else {
             $this->inputBuffer = (string) $input;
@@ -57,10 +57,11 @@ abstract class AbstractPipes implements PipesInterface
      */
     protected function hasSystemCallBeenInterrupted()
     {
-        $lastError = error_get_last();
+        $lastError = $this->lastError;
+        $this->lastError = null;
 
         // stream_select returns false when the `select` system call is interrupted by an incoming signal
-        return isset($lastError['message']) && false !== stripos($lastError['message'], 'interrupted system call');
+        return null !== $lastError && false !== stripos($lastError, 'interrupted system call');
     }
 
     /**
@@ -95,7 +96,7 @@ abstract class AbstractPipes implements PipesInterface
         $w = array($this->pipes[0]);
 
         // let's have a look if something changed in streams
-        if (false === $n = @stream_select($r, $w, $e, 0, 0)) {
+        if (false === @stream_select($r, $w, $e, 0, 0)) {
             return;
         }
 
@@ -137,5 +138,13 @@ abstract class AbstractPipes implements PipesInterface
         } elseif (!$w) {
             return array($this->pipes[0]);
         }
+    }
+
+    /**
+     * @internal
+     */
+    public function handleError($type, $msg)
+    {
+        $this->lastError = $msg;
     }
 }
