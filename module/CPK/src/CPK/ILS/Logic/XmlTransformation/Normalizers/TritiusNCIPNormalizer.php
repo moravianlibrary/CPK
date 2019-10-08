@@ -105,6 +105,38 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
                 $namespace . (count($loanedItems) > 1) ? "LoanedItem[$i]" : 'LoanedItem',
                 $namespace . 'DateDue'
             );
+
+            $renewalNotPermitted = $response->getRelative(
+                $loanedItem,
+                'Ext',
+                'RenewalNotPermitted'
+            );
+
+            if(count($loanedItems) > 1) {
+                $response->unsetDataValue(
+                    $namespace . 'LookupUserResponse',
+                    $namespace . 'LoanedItem',
+                    $i,
+                    $namespace . 'Ext',
+                    $namespace . 'RenewalNotPermitted'
+                );
+            } else {
+                $response->unsetDataValue(
+                    $namespace . 'LookupUserResponse',
+                    $namespace . 'LoanedItem',
+                    $namespace . 'Ext',
+                    $namespace . 'RenewalNotPermitted'
+                );
+            }
+            if($renewalNotPermitted == "true") {
+                $response->setDataValue(
+                    '',
+                    $namespace . 'LookupUserResponse',
+                    $namespace . (count($loanedItems) > 1) ? "LoanedItem[$i]" : 'LoanedItem',
+                    $namespace . 'Ext',
+                    $namespace . 'RenewalNotPermitted'
+                );
+            }
         }
     }
 
