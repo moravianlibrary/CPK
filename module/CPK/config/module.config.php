@@ -229,7 +229,6 @@ $config = array(
             'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager',
             'CPK\SolrEdgeFaceted' => 'CPK\Service\Factory::getSolrEdgeFaceted',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
-            'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
 			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
             'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory'

@@ -7,10 +7,23 @@
       <?= $this->translate('ziskej_desc') ?>
     </div>
     <div class="col-md-2">
-      <? if (!empty($this->ziskejMinUrl)): ?>
-        <a href="<?= $this->ziskejMinUrl ?>" class="btn" target="_blank">
-          <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
-        </a>
+      <? if (!empty($this->ZiskejTechlibFrontUrl)): ?>
+        <form action="<?= $this->ZiskejTechlibFrontUrl ?>/ticket_create" id="mvs" method="post" target="_blank">
+          <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
+          <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
+          <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($this->driver->getUniqueID()) ?>">
+          <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
+          <? foreach ($this->tabs['DedupedRecords']->getRecordsInGroup() as $record): ?>
+            <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
+          <? endforeach; ?>
+          <input type="image" src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+        </form>
+      <? else: ?>
+        <? if (!empty($this->ziskejMinUrl)): ?>
+          <a href="<?= $this->ziskejMinUrl ?>" target="_blank">
+            <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+          </a>
+        <? endif; ?>
       <? endif; ?>
     </div>
   </div>
@@ -79,7 +92,7 @@
           <? foreach ($this->records as $record): ?>
             <input type="hidden" name="doc_alt_ids[]" value="<?= $record['id'] ?>">
           <? endforeach; ?>
-<div class="row">
+          <div class="row">
             <div class="col-xs-12 record-mvs-description"></div>
             <div class="col-xs-12">
               <h3><?= $this->transEsc("ziskej_order_section_document_title") ?></h3>
@@ -97,8 +110,8 @@
               </div>
 
             </div>
-</div>
-<div class="row">
+          </div>
+          <div class="row">
             <div class="checkbox">
               <label>
                 <input type="checkbox" name="is_conditions" required>
@@ -122,18 +135,17 @@
 
             <div class="text-center">
               <p><?= $this->translate("ziskej_price") ?></p>
-              <input id="submit" type="submit" name="submit" class="btn btn-primary" v
-                     alue="<?= $this->transEsc("btn_order") ?>">
-  </div>
+              <input id="submit" type="submit" name="submit" class="btn btn-primary" value="<?= $this->transEsc("btn_order") ?>">
+            </div>
           </div>
-      </form>
+        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">
           <?= $this->translate('Close') ?>
         </button>
-  </div>
-</div>
+      </div>
+    </div>
   </div>
 </div>
 <!-- /mvs-modal -->

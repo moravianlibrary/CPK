@@ -24,7 +24,6 @@
  */
 namespace CPK\Controller;
 
-use CPK\Libraries\Entities\SearchResults;
 use VuFind\Controller\AbstractBase;
 use Zend\View\Model\JsonModel;
 
