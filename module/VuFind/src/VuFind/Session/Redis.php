@@ -101,11 +101,12 @@ class Redis extends AbstractBase
      *
      * @param string $sess_id The session ID to read
      *
-     * @return string or FALSE
+     * @return string
      */
     public function read($sess_id)
     {
-        return $this->getConnection()->get("vufind_sessions/{$sess_id}");
+        $session = $this->getConnection()->get("vufind_sessions/{$sess_id}");
+        return $session !== false ? $session : '';
     }
 
     /**
@@ -138,9 +139,9 @@ class Redis extends AbstractBase
 
         // Perform Redis-specific cleanup
         if ($this->redisVersion >= 4) {
-		return $this->getConnection()->unlink("vufind_sessions/{$sess_id}");
+		    $this->getConnection()->unlink("vufind_sessions/{$sess_id}");
         } else {
-		return $this->getConnection()->del("vufind_sessions/{$sess_id}");
+		    $this->getConnection()->del("vufind_sessions/{$sess_id}");
         }
     }
 }
