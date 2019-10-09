@@ -36,6 +36,7 @@ namespace VuFind\Session;
  * @category VuFind2
  * @package  Session_Handlers
  * @author   Veros Kaplan <cpk-dev@mzk.cz>
+ * @author   Josef Moravec <moravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:session_handlers Wiki
  */
@@ -44,7 +45,7 @@ class Redis extends AbstractBase
     /**
      * Redis connection
      *
-     * @var \Redis
+     * @var \Credis_Client
      */
     protected $connection = false;
     protected $redisVersion = 3;
@@ -53,7 +54,7 @@ class Redis extends AbstractBase
      * Get connection to Redis
      *
      * @throws \Exception
-     * @return \Redis
+     * @return \Credis_Client
      */
     public function getConnection()
     {
@@ -73,24 +74,9 @@ class Redis extends AbstractBase
                 ? int($this->config->redis_version) : 3;
 
             // Connect to Redis
-            $this->connection = new \Redis();
-            if (!$this->connection->connect($host, $port, $timeout)) {
-                throw new \Exception(
-                    "Could not connect to Redis (host = {$host}, port = {$port})."
-                );
-            }
-            if ($auth) {
-                if (!$this->connection->auth($auth)) {
-                    throw new \exception(
-                        "unable to authenticate auth to redis (host = {$host}, port = {$port})."
-                    );
-                }
-            }
-            if (!$this->connection->select($redis_db)) {
-                throw new \Exception(
-                    "Unable to change Redis database to $redis_db."
-                );
-            }
+            $this->connection = new \Credis_Client(
+                $host, $port, $timeout, '', $redis_db, $auth
+            );
         }
         return $this->connection;
     }
@@ -119,7 +105,7 @@ class Redis extends AbstractBase
      */
     public function write($sess_id, $data)
     {
-        return $this->getConnection()->setEx(
+        return $this->getConnection()->setex(
             "vufind_sessions/{$sess_id}", $this->lifetime, $data
         );
     }
