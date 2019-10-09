@@ -308,6 +308,10 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
 
             }
 
+            $view->ZiskejTechlibFrontUrl = !empty($config->ZiskejTechlibFrontUrl->$ziskejCookie)
+                ? $config->ZiskejTechlibFrontUrl->$ziskejCookie
+                : null;
+
         } catch (\Exception $ex) {
             $ziskejApiConnected = false;
         }
