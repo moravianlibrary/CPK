@@ -49,8 +49,6 @@ class JsonFacetListener
 
     const SOLR_LOCAL_PARAMS = "/(\\{[^\\}]*\\})*(\S+)/";
 
-    const UNLIMITED_FACET_LIMIT = 10000;
-
     /**
      * Backend.
      *
@@ -201,7 +199,7 @@ class JsonFacetListener
         $data = [
                 'type'  => 'terms',
                 'field' => $field,
-                'limit' => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
+                'limit' => $limit
         ];
         if ($this->isOrFacet($field)) {
             $data['excludeTags'][] = $field . '_filter';
@@ -234,7 +232,9 @@ class JsonFacetListener
             'type'     => 'terms',
             'field'    => $facetField,
             'mincount' => 0,
-            'limit'    => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
+            'method'   => 'stream',
+            'sort'     => 'index',
+            'limit'    => (int) $limit
         ];
         if ($this->parentCount) {
             $config['facet'][$facetField]['facet'] = [ 'count' => 'unique(_root_)' ];
