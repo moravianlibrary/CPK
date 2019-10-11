@@ -2,12 +2,12 @@
 /**
  * Redis session handler
  *
- * Note: This relies on Pecl Redis extension
- * (see https://github.com/phpredis/phpredis)
+ * Note: Using phpredis extension (see https://github.com/phpredis/phpredis) is
+ * optional, this class use Credis in standalone mode by default
  *
  * PHP version 7
  *
- * Copyright (C) Villanova University 2019. // ?
+ * Coypright (C) Moravian Library 2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,9 +22,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * @category VuFind2
+ * @category VuFind
  * @package  Session_Handlers
  * @author   Veros Kaplan <cpk-dev@mzk.cz>
+ * @author   Josef Moravec <moravec@mzk.cz>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:session_handlers Wiki
  */
@@ -33,7 +34,7 @@ namespace VuFind\Session;
 /**
  * Redis session handler
  *
- * @category VuFind2
+ * @category VuFind
  * @package  Session_Handlers
  * @author   Veros Kaplan <cpk-dev@mzk.cz>
  * @author   Josef Moravec <moravec@mzk.cz>
@@ -48,6 +49,12 @@ class Redis extends AbstractBase
      * @var \Credis_Client
      */
     protected $connection = false;
+
+    /**
+     * Redis version
+     *
+     * @var int
+     */
     protected $redisVersion = 3;
 
     /**
@@ -56,27 +63,25 @@ class Redis extends AbstractBase
      * @throws \Exception
      * @return \Credis_Client
      */
-    public function getConnection()
+    protected function getConnection()
     {
         if (!$this->connection) {
             // Set defaults if nothing set in config file.
-            $host = isset($this->config->redis_host)
-                ? $this->config->redis_host : 'localhost';
-            $port = isset($this->config->redis_port)
-                ? $this->config->redis_port : 6379;
-            $timeout = isset($this->config->redis_connection_timeout)
-                ? $this->config->redis_connection_timeout : 0.5;
-            $auth = isset($this->config->redis_auth)
-                ? $this->config->redis_auth : false;
-            $redis_db = isset($this->config->redis_db)
-                ? $this->config->redis_db : 0;
-            $this->redisVersion = isset($this->config->redis_version)
-                ? int($this->config->redis_version) : 3;
+            $host = $this->config->redis_host ?? 'localhost';
+            $port = $this->config->redis_port ?? 6379;
+            $timeout = $this->config->redis_connection_timeout ?? 0.5;
+            $auth = $this->config->redis_auth ?? false;
+            $redis_db = $this->config->redis_db ?? 0;
+            $this->redisVersion = int($this->config->redis_version ?? 3);
+            $standalone = bool($this->config->redis_standalone ?? true);
 
-            // Connect to Redis
+            // Create Credis client, the connection is established lazily
             $this->connection = new \Credis_Client(
                 $host, $port, $timeout, '', $redis_db, $auth
             );
+            if ($standalone) {
+                $this->connection->forceStandalone();
+            }
         }
         return $this->connection;
     }
@@ -125,9 +130,9 @@ class Redis extends AbstractBase
 
         // Perform Redis-specific cleanup
         if ($this->redisVersion >= 4) {
-		    $this->getConnection()->unlink("vufind_sessions/{$sess_id}");
+            $this->getConnection()->unlink("vufind_sessions/{$sess_id}");
         } else {
-		    $this->getConnection()->del("vufind_sessions/{$sess_id}");
+            $this->getConnection()->del("vufind_sessions/{$sess_id}");
         }
     }
 }
