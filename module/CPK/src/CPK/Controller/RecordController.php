@@ -390,12 +390,6 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 return $this->redirectToRecord('', 'Ziskej');
             }
 
-            if (!$params['is_personal']) {
-                $this->flashMessenger()->addMessage('ziskej_error_is_personal',
-                    'error');
-                return $this->redirectToRecord('', 'Ziskej');
-            }
-
             /** @var array $userData */
             $userData = $user->toArray();
 
