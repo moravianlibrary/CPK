@@ -1,151 +1,154 @@
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title"><?= $this->translate('ziskej_desc_header') ?></h3>
-  </div>
-  <div class="panel-body">
-    <div class="col-md-10">
-      <?= $this->translate('ziskej_desc') ?>
-    </div>
-    <div class="col-md-2">
-      <? if (!empty($this->ZiskejTechlibFrontUrl)): ?>
-        <form action="<?= $this->ZiskejTechlibFrontUrl ?>/ticket_create" id="mvs" method="post" target="_blank">
-          <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
-          <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
-          <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($this->driver->getUniqueID()) ?>">
-          <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
-          <? foreach ($this->tabs['DedupedRecords']->getRecordsInGroup() as $record): ?>
-            <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
-          <? endforeach; ?>
-          <input type="image" src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
-        </form>
-      <? else: ?>
-        <? if (!empty($this->ziskejMinUrl)): ?>
-          <a href="<?= $this->ziskejMinUrl ?>" target="_blank">
-            <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
-          </a>
-        <? endif; ?>
-      <? endif; ?>
-    </div>
-  </div>
-</div>
-
-<? if ($this->ziskejApiConnected): ?>
+<? if ($this->ziskejEnabled): ?>
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h4 class="panel-title"><?= $this->translate('ziskej_users_connected_libraries') ?></h4>
+      <h3 class="panel-title"><?= $this->translate('ziskej_desc_header') ?></h3>
     </div>
     <div class="panel-body">
-      <? if ($this->user): ?>
-        <? if (!empty($this->connectedLibs)): ?>
-          <ul class="list-group">
-            <? foreach ($this->connectedLibs as $libId => $data): ?>
-              <li class="list-group-item clearfix">
-                <?= $this->translate('source_' . $libId) ?>
-                <span class="pull-right">
+      <div class="col-md-10">
+        <?= $this->translate('ziskej_desc') ?>
+      </div>
+      <div class="col-md-2">
+        <? if (!empty($this->ziskejTechlibFrontUrl)): ?>
+          <form action="<?= $this->ziskejTechlibFrontUrl ?>/ticket_create" id="mvs" method="post" target="_blank">
+            <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
+            <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
+            <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($this->driver->getUniqueID()) ?>">
+            <input type="hidden" name="entity_id" value="<?= $this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
+            <? foreach ($this->tabs['DedupedRecords']->getRecordsInGroup() as $record): ?>
+              <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
+            <? endforeach; ?>
+            <input type="image" src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+          </form>
+        <? else: ?>
+          <? if (!empty($this->ziskejMinUrl)): ?>
+            <a href="<?= $this->ziskejMinUrl ?>" target="_blank">
+              <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+            </a>
+          <? endif; ?>
+        <? endif; ?>
+      </div>
+    </div>
+  </div>
+
+  <? if ($this->ziskejActive): ?>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title"><?= $this->translate('ziskej_users_connected_libraries') ?></h4>
+      </div>
+      <div class="panel-body">
+        <? if ($this->user): ?>
+          <? if (!empty($this->connectedLibs)): ?>
+            <ul class="list-group">
+              <? foreach ($this->connectedLibs as $libId => $data): ?>
+                <li class="list-group-item clearfix">
+                  <?= $this->translate('source_' . $libId) ?>
+                  <span class="pull-right">
                 <button class="btn btn-default ziskej-order-btn"
                         id="<?= $libId ?>"
                         data-eppn="<?= $data['reader']['eppn'] ?>">
                   <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("ziskej_btn_order") ?>
                 </button>
               </span>
-              </li>
-            <? endforeach; ?>
-          </ul>
+                </li>
+              <? endforeach; ?>
+            </ul>
+          <? else: ?>
+            <div class="alert alert-warning text-center">
+              <?= $this->transEsc("ziskej_alert_no_connected_libraries") ?>
+            </div>
+          <? endif; ?>
         <? else: ?>
-          <div class="alert alert-warning text-center">
-            <?= $this->transEsc("ziskej_alert_no_connected_libraries") ?>
+          <div class="text-center">
+            <div class="alert alert-info text-center">
+              <?= $this->transEsc("ziskej_alert_not_logged_in") ?>
+            </div>
+            <button class="btn btn-default" data-toggle="modal" data-target="#loginModal">
+              <i class="fa fa-sign-in"></i>
+              <?= $this->transEsc("Institutional Login") ?>
+            </button>
           </div>
         <? endif; ?>
-      <? else: ?>
-        <div class="text-center">
-          <div class="alert alert-info text-center">
-            <?= $this->transEsc("ziskej_alert_not_logged_in") ?>
-          </div>
-          <button class="btn btn-default" data-toggle="modal" data-target="#loginModal">
-            <i class="fa fa-sign-in"></i>
-            <?= $this->transEsc("Institutional Login") ?>
-          </button>
-        </div>
-      <? endif; ?>
-    </div>
-  </div>
-<? else: ?>
-  <div class="alert alert-warning text-center">
-    <?= $this->transEsc("ziskej_warning_api_disconnected") ?>
-  </div>
-<? endif; ?>
-
-<!-- mvs-modal -->
-<div id="mvs-modal" class="modal fade hidden-print" role="dialog">
-  <div class="modal-dialog modal-lg mvs-form">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h2><?= $this->transEsc("ziskej_order_title") ?></h2>
       </div>
-      <div class="modal-body">
-        <form class="form" action="/Record/<?= $this->driver->getUniqueId() ?>/mvsForm" method="post">
-          <input type="hidden" name="source_id" value="<?= $this->serverName ?>">
-          <input type="hidden" name="eppn" id="eppn">
-          <input type="hidden" name="doc_id" value="<?= $this->driver->getUniqueID() ?>">
-          <input type="hidden" name="entity_id" value="<?= $this->entityId ?>">
-          <? foreach ($this->records as $record): ?>
-            <input type="hidden" name="doc_alt_ids[]" value="<?= $record['id'] ?>">
-          <? endforeach; ?>
-          <div class="row">
-            <div class="col-xs-12 record-mvs-description"></div>
-            <div class="col-xs-12">
-              <h3><?= $this->transEsc("ziskej_order_section_document_title") ?></h3>
-              <p>
-                <strong><?= $this->transEsc("label_fullname") ?>:</strong>
-                <br>
-                <?= $this->escapeHtml($this->user['firstname']) ?>
-                <?= $this->escapeHtml($this->user['lastname']) ?>
-              </p>
+    </div>
+  <? else: ?>
+    <div class="alert alert-warning text-center">
+      <?= $this->transEsc("ziskej_warning_api_disconnected") ?>
+    </div>
+  <? endif; ?>
 
-              <div class="form-group">
-                <label for="text"><?= $this->transEsc("label_note") ?>:</label>
-                <textarea name="text" class="form-control"></textarea>
-                <span class="help-block"><?= $this->transEsc("help_note") ?></span>
+  <? if ($this->user): ?>
+    <!-- mvs-modal -->
+    <div id="mvs-modal" class="modal fade hidden-print" role="dialog">
+      <div class="modal-dialog modal-lg mvs-form">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h2><?= $this->transEsc("ziskej_order_title") ?></h2>
+          </div>
+          <div class="modal-body">
+            <form class="form" action="/Record/<?= $this->driver->getUniqueId() ?>/mvsForm" method="post">
+              <input type="hidden" name="source_id" value="<?= $this->serverName ?>">
+              <input type="hidden" name="eppn" id="eppn">
+              <input type="hidden" name="doc_id" value="<?= $this->driver->getUniqueID() ?>">
+              <input type="hidden" name="entity_id" value="<?= $this->entityId ?>">
+              <? foreach ($this->records as $record): ?>
+                <input type="hidden" name="doc_alt_ids[]" value="<?= $record['id'] ?>">
+              <? endforeach; ?>
+              <div class="row">
+                <div class="col-xs-12 record-mvs-description"></div>
+                <div class="col-xs-12">
+                  <h3><?= $this->transEsc("ziskej_order_section_document_title") ?></h3>
+                  <p>
+                    <strong><?= $this->transEsc("label_fullname") ?>:</strong>
+                    <br>
+                    <?= $this->escapeHtml($this->user['firstname']) ?>
+                    <?= $this->escapeHtml($this->user['lastname']) ?>
+                  </p>
+
+                  <div class="form-group">
+                    <label for="text"><?= $this->transEsc("label_note") ?>:</label>
+                    <textarea name="text" class="form-control"></textarea>
+                    <span class="help-block"><?= $this->transEsc("help_note") ?></span>
+                  </div>
+
+                </div>
               </div>
-
-            </div>
+              <div class="row">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="is_conditions" required>
+                    <?= $this->translate('checbox_is_conditions', [
+                      '%%url1%%' => 'https://www.techlib.cz/default/files/download/id/86400/vzor-smlouva-o-vyuzivani-sluzeb-integrovane-knihovny.pdf',
+                      '%%url2%%' => 'https://www.techlib.cz/cs/2732-knihovni-rad'
+                    ]); ?>
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="is_price" required>
+                    <?= $this->translate('checbox_is_price',
+                      ['%%url%%' => 'https://ziskej-info.techlib.cz/dokumentace/pro-ctenare/cenik-ctenar.docx/view']); ?>
+                  </label>
+                </div>
+                <p class="text-center">
+                  <?= $this->translate('ziskej_text_info_conditions'); ?>
+                </p>
+                <div class="text-center">
+                  <p><?= $this->translate("ziskej_price") ?></p>
+                  <input id="submit" type="submit" name="submit" class="btn btn-primary" value="<?= $this->transEsc("btn_order") ?>">
+                </div>
+              </div>
+            </form>
           </div>
-          <div class="row">
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" name="is_conditions" required>
-                <?= $this->translate('checbox_is_conditions',
-                  ['%%url%%' => 'https://ziskej-info.techlib.cz/dokumentace/pro-ctenare']); ?>
-              </label>
-            </div>
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" name="is_price" required>
-                <?= $this->translate('checbox_is_price',
-                  ['%%url%%' => 'https://ziskej-info.techlib.cz/dokumentace/pro-ctenare']); ?>
-              </label>
-            </div>
-            <div class="checkbox">
-              <label>
-                <input type="checkbox" name="is_personal" required>
-                <?= $this->translate('checbox_is_personal'); ?>
-              </label>
-            </div>
-
-            <div class="text-center">
-              <p><?= $this->translate("ziskej_price") ?></p>
-              <input id="submit" type="submit" name="submit" class="btn btn-primary" value="<?= $this->transEsc("btn_order") ?>">
-            </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              <?= $this->translate('Close') ?>
+            </button>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">
-          <?= $this->translate('Close') ?>
-        </button>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<!-- /mvs-modal -->
+    <!-- /mvs-modal -->
+  <? endif; ?>
+
+<? endif; ?>

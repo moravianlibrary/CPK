@@ -24,9 +24,9 @@ class SolrDictionary extends ParentSolrMarc
      *
      * @return array $field
      */
-    public function getSummary()
+    public function getSummary($searchAlsoInParentRecord = true)
     {
-        return isset ($this->fields ['explanation_display']) ? array($this->fields ['explanation_display']) : [];
+        return isset ($this->fields ['explanation_display']) ? [ $this->fields ['explanation_display'] ] : [];
     }
 
     /**

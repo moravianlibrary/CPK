@@ -227,7 +227,7 @@
 
       <div>
         <? if($this->driver->isCollection()): ?>
-          <?=implode('<br>', $this->driver->getSummary()); ?>
+          <?=implode('<br>', $this->driver->getSummary(false)); ?>
         <? else: ?>
           <? $authors = $this->driver->getDeduplicatedAuthors();
             $summAuthor = $this->driver->getPrimaryAuthor();
@@ -300,7 +300,7 @@
 
       <table><?= $this->record($this->driver)->displayField773(); ?></table>
 
-      <? $summ = $this->driver->getSummary(); ?>
+      <? $summ = $this->driver->getSummary(false); ?>
       <? if (!empty($summ)): ?>
         <? if ($this->driver instanceof CPK\RecordDriver\SolrDictionary): ?>
           <? foreach ($summ as $field): ?>
@@ -319,13 +319,6 @@
             <p><?=$this->escapeHtml(substr($field, 0, 200 + $spacePosition))?><? if (! empty($secondPart)): ?>...<? endif; ?></p>
           <? endforeach; ?>
         <? endif; ?>
-      <? else: ?>
-          <script type="text/javascript">
-              obalky.display_summary_short(".summ_<?=$recordId?>", <?=$bibinfo?>);
-          </script>
-
-          <span class="summ_<?=$recordId?>"><i class="fa fa-spinner fa-spin"></i>&nbsp;<?=$this->transEsc('loading_obalkyknih_summary')?></span><br/>
-
       <? endif; ?>
 
       <? if(!$this->driver->isCollection()): ?>

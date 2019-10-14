@@ -105,6 +105,9 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
      */
     protected function showTab($tab, $ajax = false)
     {
+        /* @var $request Request */
+        $request = $this->getRequest();
+
         if ($this->params()->fromQuery('getXml')) {
             return $this->getXml();
         }
@@ -264,67 +267,87 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $this->layout()->sort = $searchesConfig->General->default_sort;
         }
 
-        /* @var $request Request */
-        $request = $this->getRequest();
-        $ziskejCookie = $request->getCookie()->ziskej ?? 'disabled';
 
-        if (isset($config->Ziskej, $config->Ziskej->$ziskejCookie) && $ziskejCookie != 'disabled') {
-            $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
+        // ziskej
+        /** @var string|null $ziskejMode */
+        $ziskejMode = $request->getCookie()->ziskej;
+        if ($ziskejMode === 'disabled') {
+            $ziskejMode = null;
         }
-        $view->ziskejCookie = $ziskejCookie;
+        $view->ziskejMode = $ziskejMode;
 
-        /** @var \CPK\ILS\Driver\MultiBackend $ilsDriver */
-        $ilsDriver = $this->getILS()->getDriver();
+        /** @var bool $ziskejEnabled */
+        $ziskejEnabled = !empty($ziskejMode);
+        $view->ziskejEnabled = $ziskejEnabled;
 
-        // ZISKEJ
-        $connectedLibs = [];
-        $ziskejLibsIds = [];
+        // ziskej tab
+        if (strtolower($tab) === 'ziskej') {
 
-        try {
-            $ziskejApiConnected = true;
-            /** @var \Mzk\ZiskejApi\Api $ziskejApi */
-            $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
-
-            // list of ziskej libraries sigla
-            $ziskejLibsSiglas = $ziskejApi->getLibraries();
-
-            foreach ($ziskejLibsSiglas as $sigla) {
-                $id = $ilsDriver->siglaToSource($sigla);
-                if (!empty($id)) {
-                    $ziskejLibsIds[] = $id;
+            /** @var string|null $ziskejApiUrl */
+            $ziskejApiUrl = null;
+            if ($ziskejEnabled) {
+                if (isset($config->Ziskej) && isset($config->Ziskej->$ziskejMode)) {
+                    $ziskejApiUrl = $config->Ziskej->$ziskejMode;
                 }
             }
+            $view->ziskejApiUrl = $ziskejApiUrl;
 
-            if ($user) {
-                /** @var \VuFind\Db\Row\UserCard $libraryCard */
-                foreach ($user->getLibraryCards() as $libraryCard) {
-                    //@todo refactor to array_filter
-                    if (!empty($libraryCard->home_library)) {
-                        if (in_array($libraryCard->home_library, $ziskejLibsIds)) {
-                            $connectedLibs[$libraryCard->home_library]['reader'] = $libraryCard->toArray();
+            if ($ziskejEnabled) {
+                /** @var string|null ziskejMinUrl */
+                $view->ziskejMinUrl = $config->Ziskej_minimal->url ?? null;
+
+                /** @var string|null $ziskejTechlibFrontUrl */
+                $view->ziskejTechlibFrontUrl = !empty($config->ZiskejTechlibFrontUrl->$ziskejMode)
+                    ? $config->ZiskejTechlibFrontUrl->$ziskejMode
+                    : null;
+
+                if ($ziskejApiUrl) {
+                    try {
+                        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+                        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+                        $ziskejActive = true;
+
+                        /** @var \CPK\ILS\Driver\MultiBackend $ilsDriver */
+                        $ilsDriver = $this->getILS()->getDriver();
+
+                        // list of ziskej libraries sigla
+                        $ziskejLibsSiglas = $ziskejApi->getLibraries();
+
+                        /** @var array $ziskejLibsIds */
+                        $ziskejLibsIds = [];
+                        foreach ($ziskejLibsSiglas as $sigla) {
+                            $id = $ilsDriver->siglaToSource($sigla);
+                            if (!empty($id)) {
+                                $ziskejLibsIds[] = $id;
+                            }
                         }
+                        $view->ziskejLibsIds = $ziskejLibsIds;
+
+                        if ($user) {
+                            /** @var array $connectedLibs */
+                            $connectedLibs = [];
+                            /** @var \VuFind\Db\Row\UserCard $libraryCard */
+                            foreach ($user->getLibraryCards() as $libraryCard) {
+                                //@todo refactor to array_filter
+                                if (!empty($libraryCard->home_library)) {
+                                    if (in_array($libraryCard->home_library, $ziskejLibsIds)) {
+                                        $connectedLibs[$libraryCard->home_library]['reader'] = $libraryCard->toArray();
+                                    }
+                                }
+                            }
+                            $view->connectedLibs = $connectedLibs;
+                        }
+
+                    } catch (\Exception $e) {
+                        $ziskejActive = false;
                     }
+                    $view->ziskejActive = $ziskejActive;
                 }
-
             }
-
-            $view->ZiskejTechlibFrontUrl = !empty($config->ZiskejTechlibFrontUrl->$ziskejCookie)
-                ? $config->ZiskejTechlibFrontUrl->$ziskejCookie
-                : null;
-
-        } catch (\Exception $ex) {
-            $ziskejApiConnected = false;
         }
 
-        $view->ziskejApiConnected = $ziskejApiConnected;
-        $this->layout()->ziskejLibIds = $ziskejLibsIds;
-        $view->connectedLibs = $connectedLibs;
-
-            $view->serverName = $request->getServer()->SERVER_NAME;
-            $view->entityId = $request->getServer('Shib-Identity-Provider');
-
-        $view->isZiskej = $this->driver->getZiskejBoolean();
-        $view->ziskejMinUrl = $config->Ziskej_minimal->url ?? '';
+        $view->serverName = $request->getServer()->SERVER_NAME;
+        $view->entityId = $request->getServer('Shib-Identity-Provider');
 
         $defaultAskedDate = new \DateTime();
         $defaultAskedDate->add(new \DateInterval('P1M'));
@@ -364,12 +387,6 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
 
             if (!$params['is_price']) {
                 $this->flashMessenger()->addMessage('ziskej_error_is_price', 'error');
-                return $this->redirectToRecord('', 'Ziskej');
-            }
-
-            if (!$params['is_personal']) {
-                $this->flashMessenger()->addMessage('ziskej_error_is_personal',
-                    'error');
                 return $this->redirectToRecord('', 'Ziskej');
             }
 

@@ -47,7 +47,10 @@ class ZiskejController extends AbstractBase
                 ? $this->getRequest()->getPost('ziskej')
                 : 'disabled';
             setcookie('ziskej', $data, 0, '/');
-            $this->redirect()->refresh();
+            if ($this->getRequest()->getPost('ziskej')) {
+                $this->flashMessenger()->addMessage('Nastavení módu pro službu Získej bylo uloženo.', 'success');
+            }
+            return $this->redirect()->refresh();
         }
 
         $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
