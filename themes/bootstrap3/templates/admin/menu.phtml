@@ -5,12 +5,13 @@
     $templateName = strtolower($this->layout()->templateName);
 ?>
 <aside class='well list-group aside-menu admin-menu'>
-  <a href='/Admin/Configurations'
+
+  <?php if ($isPortalAdmin): ?>
+    <a href='/Admin/Configurations'
      class='list-group-item<?=$templateName == 'configurations/main' ? ' active' : ''?>'>
     <?=$this->transEsc('configurations')?>
-  </a>
+    </a>
 
-  <? if ($isPortalAdmin): ?>
     <a href='/Admin/PortalPages'
        class='list-group-item<?=$templateName == 'portalpages' ? ' active' : ''?>'>
       <?=$this->transEsc('Portal pages')?>
@@ -20,7 +21,8 @@
        class='list-group-item<?=$templateName == 'permissions-manager' ? ' active' : ''?>'>
       <?=$this->transEsc('Permissions manager')?>
     </a>
-
+  <?php endif; ?>
+  <?php if ($isPortalAdmin || $isWidgetsAdmin): ?>
     <a href='/Admin/Widgets'
        class='list-group-item<?=$templateName == 'widgets/main' ? ' active' : ''?>'>
       <?=$this->transEsc('Widgets')?>
@@ -35,5 +37,6 @@
         </option>
       <?php endforeach; ?>
     </select>
-  <? endif; ?>
+  <?php endif; ?>
+
 </aside>
