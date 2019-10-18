@@ -30,25 +30,24 @@
     </div>
   </div>
 
-  <? if ($this->ziskejActive): ?>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h4 class="panel-title"><?= $this->translate('ziskej_users_connected_libraries') ?></h4>
-      </div>
-      <div class="panel-body">
-        <? if ($this->user): ?>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title"><?= $this->translate('ziskej_users_connected_libraries') ?></h4>
+    </div>
+    <div class="panel-body">
+      <? if ($this->user): ?>
+        <? if ($this->ziskejActive): ?>
           <? if (!empty($this->connectedLibs)): ?>
             <ul class="list-group">
               <? foreach ($this->connectedLibs as $libId => $data): ?>
                 <li class="list-group-item clearfix">
                   <?= $this->translate('source_' . $libId) ?>
                   <span class="pull-right">
-                <button class="btn btn-default ziskej-order-btn"
-                        id="<?= $libId ?>"
-                        data-eppn="<?= $data['reader']['eppn'] ?>">
-                  <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("ziskej_btn_order") ?>
-                </button>
-              </span>
+                  <button class="btn btn-default ziskej-order-btn" id="<?= $libId ?>" data-eppn="<?= $data['reader']['eppn'] ?>">
+                    <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("ziskej_btn_order") ?>
+                  </button>
+                </span>
                 </li>
               <? endforeach; ?>
             </ul>
@@ -58,23 +57,24 @@
             </div>
           <? endif; ?>
         <? else: ?>
-          <div class="text-center">
-            <div class="alert alert-info text-center">
-              <?= $this->transEsc("ziskej_alert_not_logged_in") ?>
-            </div>
-            <button class="btn btn-default" data-toggle="modal" data-target="#loginModal">
-              <i class="fa fa-sign-in"></i>
-              <?= $this->transEsc("Institutional Login") ?>
-            </button>
+          <div class="alert alert-warning text-center">
+            <?= $this->transEsc("ziskej_warning_api_disconnected") ?>
           </div>
         <? endif; ?>
-      </div>
+      <? else: ?>
+        <div class="text-center">
+          <div class="alert alert-info text-center">
+            <?= $this->transEsc("ziskej_alert_not_logged_in") ?>
+          </div>
+          <button class="btn btn-default" data-toggle="modal" data-target="#loginModal">
+            <i class="fa fa-sign-in"></i>
+            <?= $this->transEsc("Institutional Login") ?>
+          </button>
+        </div>
+      <? endif; ?>
     </div>
-  <? else: ?>
-    <div class="alert alert-warning text-center">
-      <?= $this->transEsc("ziskej_warning_api_disconnected") ?>
-    </div>
-  <? endif; ?>
+  </div>
+
 
   <? if ($this->user): ?>
     <!-- mvs-modal -->

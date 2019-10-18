@@ -301,7 +301,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                     ? $config->ZiskejTechlibFrontUrl->$ziskejMode
                     : null;
 
-                if ($ziskejApiUrl) {
+                if ($ziskejApiUrl && $user) {
                     try {
                         /** @var \Mzk\ZiskejApi\Api $ziskejApi */
                         $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
