@@ -3,6 +3,7 @@
 namespace Mzk\ZiskejApi;
 
 use DateTimeImmutable;
+use Http\Adapter\Guzzle6\Client;
 use Http\Message\Authentication\Bearer;
 use Monolog\Logger;
 use Symfony\Component\Dotenv\Dotenv;
@@ -94,7 +95,7 @@ final class ApiTest extends TestCase
 
     public function testApiPostLogin(): void
     {
-        $apiClient = new ApiClient($this->baseUrl, null, $this->logger);
+        $apiClient = new ApiClient(null, $this->baseUrl, null, $this->logger);
         $api = new Api($apiClient);
 
         $dotEnv = new Dotenv();
@@ -112,7 +113,7 @@ final class ApiTest extends TestCase
 
     public function testApiGetLibrary(): void
     {
-        $apiClient = new ApiClient($this->baseUrl, null, $this->logger);
+        $apiClient = new ApiClient(null, $this->baseUrl, null, $this->logger);
         $api = new Api($apiClient);
 
         $library = $api->getLibrary('BOA001');
@@ -122,7 +123,7 @@ final class ApiTest extends TestCase
 
     public function testApiGetLibraryNull(): void
     {
-        $apiClient = new ApiClient($this->baseUrl, null, $this->logger);
+        $apiClient = new ApiClient(null, $this->baseUrl, null, $this->logger);
         $api = new Api($apiClient);
 
         $library = $api->getLibrary('XYZ001');
@@ -132,7 +133,11 @@ final class ApiTest extends TestCase
 
     public function testApiGetLibraries(): void
     {
-        $apiClient = new ApiClient($this->baseUrl, null, $this->logger);
+        $guzzleClient = Client::createWithConfig([
+            'connect_timeout' => 10,
+        ]);
+
+        $apiClient = new ApiClient($guzzleClient, $this->baseUrl, null, $this->logger);
         $api = new Api($apiClient);
 
         $output = $api->getLibraries();
@@ -212,7 +217,7 @@ final class ApiTest extends TestCase
         $this->expectException(\Mzk\ZiskejApi\Exception\ApiResponseException::class);
         $this->expectExceptionCode(401);
 
-        $api = new Api(new ApiClient($this->baseUrl, new Bearer($this->tokenWrong), $this->logger));
+        $api = new Api(new ApiClient(null, $this->baseUrl, new Bearer($this->tokenWrong), $this->logger));
 
         $reader = $api->getReader($this->eppnActive);
 
@@ -301,7 +306,7 @@ final class ApiTest extends TestCase
         $this->expectExceptionCode(401);
 
         $authentication = new Bearer($this->tokenWrong);
-        $apiClient = new ApiClient($this->baseUrl, $authentication, $this->logger);
+        $apiClient = new ApiClient(null, $this->baseUrl, $authentication, $this->logger);
         $api = new Api($apiClient);
 
         $reader = new RequestModel\Reader(
@@ -379,7 +384,7 @@ final class ApiTest extends TestCase
         $this->expectExceptionCode(401);
 
         $authentication = new Bearer($this->tokenWrong);
-        $apiClient = new ApiClient($this->baseUrl, $authentication, $this->logger);
+        $apiClient = new ApiClient(null, $this->baseUrl, $authentication, $this->logger);
         $api = new Api($apiClient);
 
         $reader = new RequestModel\Reader(

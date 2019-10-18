@@ -35,13 +35,17 @@ class ZiskejApiFactory implements FactoryInterface
         $logger = new Logger('ZiskejApi');
         $logger->pushHandler(new StreamHandler('log/ziskej-api.log', $logger::DEBUG));
 
-        $api = new Api(new ApiClient($apiBaseUrl, null, $logger));
+        $guzzleClient = \Http\Adapter\Guzzle6\Client::createWithConfig([
+            'connect_timeout' => 10,
+        ]);
+
+        $api = new Api(new ApiClient($guzzleClient, $apiBaseUrl, null, $logger));
 
         $token = $api->login($config['SensitiveZiskej']['username'], $config['SensitiveZiskej']['password']);
 
         //@todo store token
 
-        return new Api(new ApiClient($apiBaseUrl, new Bearer($token), $logger));
+        return new Api(new ApiClient($guzzleClient, $apiBaseUrl, new Bearer($token), $logger));
     }
 
 }

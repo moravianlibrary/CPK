@@ -875,12 +875,12 @@
     },
     {
         "name": "moravianlibrary/ziskej-api-php-client",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "version": "1.0.2",
+        "version_normalized": "1.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/moravianlibrary/ziskej-api-php-client",
-            "reference": "69fc26c9a89b64132a5e59ddf0f5f5819c5fb8a6"
+            "reference": "3700f5c4ad11f5dcd520d93fd6999efb026af6d6"
         },
         "require": {
             "ext-json": "*",
@@ -906,7 +906,7 @@
             "squizlabs/php_codesniffer": "^3.4",
             "symfony/dotenv": "^4.3"
         },
-        "time": "2019-09-30T11:37:46+00:00",
+        "time": "2019-10-16T08:48:34+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -2815,7 +2815,8 @@
             "simpledb",
             "sqs",
             "zf2"
-        ]
+        ],
+        "abandoned": "aws/aws-sdk-php"
     },
     {
         "name": "zendframework/zendxml",
