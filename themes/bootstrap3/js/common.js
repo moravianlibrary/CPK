@@ -611,14 +611,6 @@ jQuery( document ).ready( function( $ ) {
   /* Initialize questionmark helps when available */
   $( '.questionmark-help + .modal' ).appendTo( 'body' );
 
-  // Feedback modal window
-  var feedbackModal = document.getElementById( 'feedback-open' );
-  if ( feedbackModal ) {
-    feedbackModal.onclick = function () {
-      $( '#feedback-modal' ).modal( 'show' );
-    }
-  }
-
   var $mvsSubmit = $('#mvs-submit');
   var $ziskejOrderButton = $('button.ziskej-order-btn');
   
