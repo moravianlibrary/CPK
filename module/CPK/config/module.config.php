@@ -256,6 +256,7 @@ $staticRoutes = array(
     'Admin/ConfigurationsApproval',
     'Admin/PortalPages',
     'Admin/PermissionsManager',
+    'Admin/Widgets',
 	'Search/Conspectus',
  	'Search/MostSearched',
 	'Search/NewAcquisitions',
