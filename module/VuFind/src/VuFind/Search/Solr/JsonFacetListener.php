@@ -72,6 +72,8 @@ class JsonFacetListener
 
     protected $enabledForAllFacets = false;
 
+    protected $facetMethod = 'smart';
+
     protected $parentCount = true;
 
     protected $hiddenFilters = [];
@@ -106,6 +108,9 @@ class JsonFacetListener
         }
         if (isset($facetConfig->JSON_API) && isset($facetConfig->JSON_API->enabled) && $facetConfig->JSON_API->enabled) {
             $this->enabledForAllFacets = true;
+        }
+        if (isset($facetConfig->JSON_API) && isset($facetConfig->JSON_API->method) && $facetConfig->JSON_API->method) {
+            $this->facetMethod = $facetConfig->JSON_API->method;
         }
         if (!empty($this->orFacets) && $this->orFacets[0] == "*") {
             $this->allFacetsAreOr = true;
@@ -232,7 +237,7 @@ class JsonFacetListener
             'type'     => 'terms',
             'field'    => $facetField,
             'mincount' => 0,
-            'method'   => 'stream',
+            'method'   => $this->facetMethod,
             'sort'     => 'index',
             'limit'    => (int) $limit
         ];
