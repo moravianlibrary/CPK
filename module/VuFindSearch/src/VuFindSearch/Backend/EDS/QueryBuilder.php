@@ -72,16 +72,14 @@ class QueryBuilder
      * Convert a single Query object to an eds api query array
      *
      * @param Query  $query    Query to convert
-     * @param string $operator Operator to apply
      *
      * @return string
      */
-    protected function queryToEdsQuery(Query $query, $operator = 'AND')
+    protected function queryToEdsQuery(Query $query)
     {
         $expression = $query->getString();
-        $expression = SearchRequestModel::escapeSpecialCharacters($expression);
-        $fieldCode = ($query->getHandler() == 'AllFields')
-            ? '' : $query->getHandler();  //fieldcode
+        $operator = $query->getOperator();
+        $fieldCode = ($query->getHandler() == 'AllFields') ? '' : $query->getHandler();
         if (!empty($fieldCode)) {
             $expression = $fieldCode . ':' . $expression;
         }
@@ -91,10 +89,27 @@ class QueryBuilder
         return $expression;
     }
 
+    /**
+     * Convert a single Query to EDS term
+     *
+     * @param Query $query to convert
+     *
+     * @return string with EDS term
+     */
+    protected function queryToEdsTerm(Query $query)
+    {
+        $expression = $query->getString();
+        $fieldCode = ($query->getHandler() == 'AllFields') ? '' : $query->getHandler();
+        if (!empty($fieldCode)) {
+            $expression = $fieldCode . ':' . $expression;
+        }
+        return $expression;
+    }
+
     /// Internal API
 
     /**
-     * Convert an AbstractQuery object to a query string.
+     * Convert an AbstractQuery object to a query string
      *
      * @param AbstractQuery $query Query to convert
      *
@@ -110,42 +125,54 @@ class QueryBuilder
     }
 
     /**
-     * Convert a QueryGroup object to a query string.
+     * Convert a QueryGroup object to single query
      *
-     * @param QueryGroup $query QueryGroup to convert
+     * @param AbstractQuery $queryRoot of expression
      *
      * @return array
      */
-    protected function queryGroupToArray(QueryGroup $query)
-    {
-        $groups =  [];
-        $topOperator = $query->getOperator();
-        foreach ($query->getQueries() as $params) {
-            // Advanced Search
-            if ($params instanceof QueryGroup) {
-                $op = $params->getOperator();
-                // Process each search group
-                $index = 0;
-                foreach ($params->getQueries() as $q) {
-                    // Build this group individually as a basic search
-                    if ($params->isNegated()) {
-                        $op = 'NOT';
-                    }
-                    $operator = ($index == 0) ? $topOperator : $op;
-                    if ($index == 0 && $params->isNegated()) {
-                        $groups[] = $topOperator . ',' . 'FT Y OR FT N';
-                        $operator = $op;
-                    }
-                    $grp  = $this->queryToEdsQuery($q, $operator);
-                    $groups[] = $grp;
-                    $index++;
-                }
-            } else {
-                // Basic Search
-                $groups[] = $this->queryToEdsQuery($params);
-            }
-        }
-        return $groups;
+    protected function queryGroupToArray(AbstractQuery $queryRoot) {
 
+        $groups[] = $this->queryToString($queryRoot);
+        return $groups;
+    }
+
+    /**
+     * Convert a query to an expression
+     *
+     * @param AbstractQuery $query is a tree node
+     *
+     * @param int $depth of recursion
+     *
+     * @return string that contains expression
+     */
+    protected function queryToString(AbstractQuery $query, $depth = 0)
+    {
+        // Recursively traverse the tree nodes
+        if ($query instanceof QueryGroup) {
+            // Herein the node is a query group
+            $expression = '';
+            $op = $query->getOperator();
+            $queries = $query->getQueries();
+            $first = true;
+            foreach ($queries as $child) {
+                // Go to child nodes of the current node
+                $partial = $this->queryToString($child, $depth + 1);
+                if ($first) {
+                    $expression = $partial;
+                    $first = false;
+                } else {
+                    $expression .= ' ' . $op . ' ' . $partial;
+                }
+            }
+            // Apply negation and parentheses
+            $multiple = count($queries) > 1;
+            $negatedExpr = $multiple ? 'NOT (' . $expression . ')' : '(NOT ' . $expression . ')';
+            $expression = $query->isNegated() ? $negatedExpr : $expression;
+            return $depth > 0 && $multiple ? '(' . $expression . ')' : $expression;
+        } else {
+            // Node is a simple query
+            return $this->queryToEdsTerm($query);
+        }
     }
 }
