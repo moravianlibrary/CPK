@@ -1056,7 +1056,7 @@ class SolrMarc extends ParentSolrMarc
 
     public function getSimilarFromSolrField(): array
     {
-        $field = $this->fields['similar_str_mv'] ?? [];
+        $field = $this->fields['similar_display_mv'] ?? [];
         return array_map('json_decode', $field);
     }
 }
