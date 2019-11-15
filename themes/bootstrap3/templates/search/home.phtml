@@ -20,6 +20,19 @@
 
   $this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/">' . $this->transEsc('Main page') . '</a></li> ';
 ?>
+
+<section id="partner" class="px-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <a class="text-center" href="https://1989.knihovny.cz/" target="_blank" title="Sametová revoluce '89 v knihovnách">
+          <img class="img-responsive" src="/images/1989.knihovny.cz-745x100.jpg" alt="Sametová revoluce '89 v knihovnách" title="Sametová revoluce '89 v knihovnách">
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="searchHomeContent">
   <? if ($this->ils()->getOfflineMode() == "ils-offline"): ?>
     <div class="alert alert-warning">
