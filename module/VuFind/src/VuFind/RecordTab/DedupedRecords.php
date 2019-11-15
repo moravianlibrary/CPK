@@ -71,7 +71,8 @@ class DedupedRecords extends AbstractBase
      * @param $source
      * @return string|null  URI of the institution logo
      */
-    function get_logo_uri($source){
+    public function get_logo_uri($source)
+    {
         $logosPath =  '/themes/bootstrap3/images/institutions/logos/';
         $logosPostfix =  '_small';
         $sourceWithoutPrefix = str_replace('source_', '', $source);
@@ -111,10 +112,10 @@ class DedupedRecords extends AbstractBase
 
     /**
      * Sorts deduped records and excludes CNB and Caslins at the end
-     * @param $dedupedRecords   array   Array of deduped records
      * @return array    Sorted deduped records
      */
-    public function get_sorted_records_groups(){
+    public function get_sorted_records_groups()
+    {
         //unique array
         $records = array_map("unserialize", array_unique(array_map("serialize", $this->getRecordsInGroup())));
 
@@ -137,7 +138,8 @@ class DedupedRecords extends AbstractBase
      * @param $institution
      * @return array
      */
-    public static function get_internal_multiplicity($dedupedRecords, $institution){
+    public static function get_internal_multiplicity($dedupedRecords, $institution)
+    {
         $records = [];
         //get institution - e.g. 'source_mzk' => 'mzk'
         $compare = substr($institution,0, strpos($institution, '.'));
