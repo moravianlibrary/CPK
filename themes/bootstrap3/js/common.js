@@ -714,7 +714,38 @@ $.fn.listSearch = function (param) {
     placeholder: param.placeholder !== undefined ? param.placeholder : 'Zadejte dotaz'
   };
   let that = $(this);
-  this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function () {
+  this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function (e) {
+    //move in the searched list
+    if ([13, 38, 40].indexOf(e.keyCode) > -1){
+        let el = that.find(param.itemType + '.active');
+        console.log(el);
+        if (el.length == 0){
+            el.first().addClass('active');
+        }else{
+            let active = that.find(param.itemType + '.active').first(), next = 0;
+            switch (e.keyCode) {
+                case 38: //up
+                    next = active.prev(param.itemType);
+                    console.log(next);
+                    if (next.length > 0){
+                        active.removeClass('active');
+                        next.removeClass('active');
+                    }
+                    break;
+                case 40: //down
+                    next = active.next(param.itemType);
+                    if (next.length > 0){
+                        active.removeClass('active');
+                        next.removeClass('active');
+                    }
+                    break;
+                case 13: //enter
+
+                    break;
+            }
+        }
+    }
+
         var value = $(this).val().toLowerCase();
         that.find(param.itemType).filter(function () {
           $(this).toggle($(this).data('search').toLowerCase().indexOf(value) > -1)
