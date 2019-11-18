@@ -102,7 +102,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         return $this->createViewModel([
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
-            'isWidgetsAdmin' => $this->accessManager->isWidgetsAdmin()(),
+            'isWidgetsAdmin' => $this->accessManager->isWidgetsAdmin(),
             'ncipTypes' => $configHandler->getNCIPTypes(),
             'configs' => $configHandler->getAdminConfigs()
         ], 'admin/configurations/main.phtml');
