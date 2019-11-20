@@ -79,7 +79,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @var array
      */
-    protected $statuses = [
+    protected $statuses = [ //TODO: remove
         'checked_out' => 'On Loan',
         'in_transit' => 'In Transit Between Library Locations',
         'waiting_hold' => 'On Order',
@@ -91,16 +91,19 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @var array
      */
     protected $renewalBlockMappings = [
-        'too_soon' => 'Cannot renew yet',
-        'onsite_checkout' => 'Copy has special circulation',
-        'on_reserve' => 'renew_item_requested',
-        'too_many' => 'renew_item_limit',
-        'restriction' => 'Borrowing Block Message',
-        'overdue' => 'renew_item_overdue',
-        'cardlost' => 'renew_card_lost',
-        'gonenoaddress' => 'Borrowing Block Koha Reason Patron_GoneNoAddress',
-        'debarred' => 'Borrowing Block Koha Reason Patron_DebarredOverdue',
-        'debt' => 'renew_debt'
+        'no_item' => 'cannot_renew_no_item',
+        'no_checkout' => 'cannot_renew_no_checkout',
+        'item_denied_renewal' => 'cannot_renew_item_denied_renewal',
+        'too_soon' => 'cannot_renew_yet',
+        'auto_too_soon' => 'cannot_renew_auto_too_soon',
+        'onsite_checkout' => 'cannot_renew_onsite',
+        'auto_renew' => 'cannot_renew_auto_renew',
+        'on_reserve' => 'cannot_renew_item_requested',
+        'too_many' => 'cannot_renew_too_many',
+        'auto_too_late' => 'cannot_renew_auto_too_late',
+        'auto_too_much_oweing' => 'cannot_renew_auto_too_much_oweing',
+        'restriction' => 'cannot_renew_user_restricted',
+        'overdue' => 'cannot_renew_item_overdue',
     ];
 
     /**
@@ -276,7 +279,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = $this->makeRequest(
             ['v1', 'patrons', $patron['id']], __FUNCTION__,false, 'GET'
         );
-
+        $result = $result['data'];
         return [
             'cat_username' => $patron['cat_username'],
             'id' => $patron['id'],
@@ -316,6 +319,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'GET'
         );
 
+        $result = $result['data'];
         $transactions = [];
         if (empty($result)) {
             return $transactions;
@@ -365,7 +369,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             [],
             'GET'
         );
-        return $result;
+        return $result['data'];
     }
 
     /**
@@ -386,14 +390,13 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
 
         foreach ($renewDetails['details'] as $details) {
             list($checkoutId, $itemId) = explode('|', $details);
-            list($code, $result) = $this->makeRequest(
+            $result = $this->makeRequest(
                 ['v1', 'checkouts', $checkoutId, 'renewal'],
                 __FUNCTION__,
                 false,
-                'POST',
-                true
+                'POST'
             );
-            if ($code == 403) {
+            if ($result['code'] == 403) {
                 $finalResult['details'][$itemId] = [
                     'item_id' => $itemId,
                     'success' => false
@@ -402,7 +405,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $finalResult['details'][$itemId] = [
                     'item_id' => $itemId,
                     'success' => true,
-                    'new_date' => $result['date_due']
+                    'new_date' => $result['data']['date_due'],
                 ];
             }
         }
@@ -439,17 +442,28 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'GET'
         );
 
+        $x_total_count = $transactions['headers']->get('x-total-count');
+        $totalPages = 0;
+        if (!empty($x_total_count)) {
+            $totalPages = ceil($x_total_count->getFieldValue() / $perPage );
+        }
         $result = [
-            'totalPages' => 0, // TODO: need to proccess header 'x-total-count' / $perPage,
+            'totalPages' => $totalPages,
             'historyPage' => [],
         ];
 
-        foreach ($transactions as $entry) {
+        $inc = 0;
+
+        foreach ($transactions['data'] as $entry) {
+
+            $inc++;
+
             try {
                 $item = $this->getItem($entry['item_id']);
             } catch (\Exception $e) {
                 $item = [];
             }
+
             $volume = $item['serial_enum_chron'] ?? '';
             /* TODO: not implemented yet
             $title = '';
@@ -464,17 +478,16 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 }
             }*/
 
-            /* TODO: not implemented yet
             $dueStatus = false;
             $now = time();
-            $dueTimeStamp = strtotime($entry['date_due']);
+            $dueTimeStamp = strtotime($entry['due_date']);
             if (is_numeric($dueTimeStamp)) {
                 if ($now > $dueTimeStamp) {
                     $dueStatus = 'overdue';
                 } elseif ($now > $dueTimeStamp - (1 * 24 * 60 * 60)) {
                     $dueStatus = 'due';
                 }
-            }*/
+            }
 
             $transaction = [
                 'id' => $item['biblio_id'] ?? '',
@@ -483,10 +496,11 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 //'title' => $title,
                 'volume' => $volume,
                 'checkoutdate' => $this->normalizer->normalizeDate($entry['checkout_date']),
-                'duedate' => $this->normalizer->normalizeDate($entry['date_due']),
-                //'dueStatus' => $dueStatus,
+                'duedate' => $this->normalizer->normalizeDate($entry['due_date']),
+                'dueStatus' => $dueStatus,
                 'returndate' => $this->normalizer->normalizeDate($entry['checkin_date']),
-                'renew' => $entry['renewals']
+                'renew' => $entry['renewals'],
+                'rowNo' => ($page - 1) * $perPage + $inc,
             ];
 
             $result['historyPage'][] = $transaction;
@@ -515,7 +529,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         );
 
         $holds = [];
-        foreach ($result as $entry) {
+        foreach ($result['data'] as $entry) {
             $holds[] = [
                 'id' => $entry['biblio_id'],
                 'item_id' => $entry['item_id'] ?? null,
@@ -552,11 +566,11 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
 
         foreach ($details as $detail) {
             list($holdId, $itemId) = explode('|', $detail, 2);
-            list($resultCode) = $this->makeRequest(
-                ['v1', 'holds', $holdId], __FUNCTION__, [], 'DELETE', true
+            $result = $this->makeRequest(
+                ['v1', 'holds', $holdId], __FUNCTION__, [], 'DELETE'
             );
 
-            if ($resultCode != 200) {
+            if ($result['code'] != 200) {
                 $response[$itemId] = [
                     'success' => false,
                     'status' => 'hold_cancel_fail',
@@ -683,6 +697,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron)],
                 'GET'
             );
+            $result = $result['data'];
             if (!empty($result['allows_hold']) && $result['allows_hold'] == true) {
                 return [
                     'valid' => true,
@@ -700,6 +715,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron)],
             'GET'
         );
+        $result = $result['data'];
         if (!empty($result['allows_hold']) && $result['allows_hold'] == true) {
             return [
                 'valid' => true,
@@ -783,16 +799,15 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             $request['item_id'] = (int)$itemId;
         }
 
-        list($code, $result) = $this->makeRequest(
+        $result = $this->makeRequest(
             ['v1', 'holds'],
             __FUNCTION__,
             json_encode($request),
-            'POST',
-            true
+            'POST'
         );
 
-        if ($code >= 300) {
-            return $this->holdError($result['error']);
+        if ($result['code'] >= 300) {
+            return $this->holdError($result['data']['error']);
         }
         return ['success' => true];
     }
@@ -818,7 +833,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
 
         $fines = [];
 
-        foreach ($result['outstanding_debits']['lines'] as $entry) {
+        foreach ($result['data']['outstanding_debits']['lines'] as $entry) {
             $fines[] = [
                 'amount' => $entry['amount'],
                 'checkout' => $entry['date'],
@@ -851,20 +866,15 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @throws ILSException*@throws \Exception
      * @internal param bool $authNeeded
      */
-    protected function makeRequest($hierarchy, $action, $params = false, $method = 'GET',
-        $returnCode = false, $oauth2Needed = true
-    ) {
+    protected function makeRequest($hierarchy, $action, $params = false, $method = 'GET')
+    {
         // Set up the request
         $apiUrl = $this->config['Catalog']['host'];
 
-        // Add hierarchy
-        foreach ($hierarchy as $value) {
-            $apiUrl .= '/' . urlencode($value);
-        }
+        $hierarchy = array_map('urlencode', $hierarchy);
+        $apiUrl .= '/' . implode('/', $hierarchy);
 
-        $client = $oauth2Needed
-            ? $this->kohaRestService->createOAUTH2Client($apiUrl)
-            : $this->kohaRestService->createHttpClient($apiUrl, ['username' => 'cpk', 'password' => 'cpk']);
+        $client = $this->kohaRestService->createOAUTH2Client($apiUrl);
 
         // Add params
         if (false !== $params) {
@@ -952,9 +962,13 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         }
 
         $decodedResult = $this->normalizer->normalize($decodedResult, $action);
+        $result = [
+            'data' => $decodedResult,
+            'code' => $response->getStatusCode(),
+            'headers' => $response->getHeaders(),
+        ];
 
-        return $returnCode ? [$response->getStatusCode(), $decodedResult]
-            : $decodedResult;
+        return $result;
     }
 
     /**
@@ -977,9 +991,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             __FUNCTION__,
             [],
             'GET',
-            false,
-            false
         );
+        $availability = $availability['data'];
 
         $holdable = 'Y';
         if ($patron) {
@@ -987,11 +1000,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 ['v1', 'contrib', 'knihovny_cz', 'items', $id, 'allows_hold'], //Should be biblio for original vufind
                 __FUNCTION__,
                 ['patron_id' => $patron['id'], 'library_id' => $this->getDefaultPickUpLocation($patron) ],
-                'GET',
-                false,
-                false
+                'GET'
             );
-            if ($holdability && $holdability['allows_hold'] == false) {
+            if ($holdability['code'] == '200' && $holdability['data']['allows_hold'] == false) {
                 $holdable = 'N';
             }
         }
@@ -1000,19 +1011,17 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'contrib', 'bibliocommons', 'items', $id], //Should be biblios/$id/items
             __FUNCTION__,
             [],
-            'GET',
-            false,
-            true
+            'GET'
         );
+        $item = $item['data'];
 
         $holds = $this->makeRequest(
             ['v1', 'holds'],
             __FUNCTION__,
             ['item_id' => $id],
-            'GET',
-            false,
-            true
+            'GET'
         );
+        $holds = $holds['data'];
 
         $itemStatus = [];
         if ($item) {
@@ -1074,7 +1083,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = $this->makeRequest(
             ['v1', 'patrons', $patron['id']], __FUNCTION__,false, 'GET'
         );
-        if ($result['restricted']) {
+        if ($result['data']['restricted']) {
             return ['patron_account_restricted'];
         }
         return false;
@@ -1126,7 +1135,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     {
         static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
-            $cachedRecords[$id] = $this->makeRequest(['v1', 'contrib', 'bibliocommons','items', $id], __FUNCTION__);
+            $result = $this->makeRequest(['v1', 'contrib', 'bibliocommons','items', $id], __FUNCTION__);
+            $cachedRecords[$id] = $result['data'];
         }
         return $cachedRecords[$id];
     }
@@ -1144,7 +1154,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         //FIXME not working yet, we are missing endpoint for biblio administrative data
         static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
-            $cachedRecords[$id] = $this->makeRequest(['v1', 'contrib', 'bibliocommons', 'biblios', $id], __FUNCTION__);
+            $result = $this->makeRequest(['v1', 'contrib', 'bibliocommons', 'biblios', $id], __FUNCTION__);
+            $cachedRecords[$id] = $result['data'];
         }
         return $cachedRecords[$id];
     }
@@ -1191,7 +1202,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = $this->makeRequest(
             ['v1', 'libraries'], __FUNCTION__, false, 'GET'
         );
-        foreach ($result as $library) {
+        foreach ($result['data'] as $library) {
             self::$libraries[$library['library_id']] = $library;
         }
     }

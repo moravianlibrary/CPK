@@ -892,6 +892,11 @@ class AjaxController extends AjaxControllerBase
                     if ($displayAuthor)
                         $historyItem['author'] = $displayAuthor;
 
+                    $title = $resource->getTitle();
+                    if ($title) {
+                        $historyItem['title'] = $title;
+                    }
+
                     // We need to let JS know what to opt for ...
                     $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
                     $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();

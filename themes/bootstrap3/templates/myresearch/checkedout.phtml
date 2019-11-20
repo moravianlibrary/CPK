@@ -14,6 +14,23 @@
 
     // We will hide the renewal form if we have asynchronous mode ..
     $formAttributes = $isSynchronous ? '' : 'hidden="hidden"';
+
+  // Renew statuses translations
+  $this->jsTranslations()->addStrings([
+    "cannot_renew_no_item" => "cannot_renew_no_item",
+    "cannot_renew_no_checkout" => "cannot_renew_no_checkout",
+    "cannot_renew_item_denied_renewal" => "cannot_renew_item_denied_renewal",
+    "cannot_renew_yet" => "cannot_renew_yet",
+    "cannot_renew_auto_too_soon" => "cannot_renew_auto_too_soon",
+    "cannot_renew_onsite" => "cannot_renew_onsite",
+    "cannot_renew_auto_renew" => "cannot_renew_auto_renew",
+    "cannot_renew_item_requested" => "cannot_renew_item_requested",
+    "cannot_renew_too_many" => "cannot_renew_too_many",
+    "cannot_renew_auto_too_late" => "cannot_renew_auto_too_late",
+    "cannot_renew_auto_too_much_oweing" => "cannot_renew_auto_too_much_oweing",
+    "cannot_renew_user_restricted" => "cannot_renew_user_restricted",
+    "cannot_renew_item_overdue" => "cannot_renew_item_overdue",
+  ]);
 ?>
 <!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
 <div class="<?=$this->layoutClass('mainbody')?>">
