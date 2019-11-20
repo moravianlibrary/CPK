@@ -858,9 +858,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param array|bool $params     A keyed array of query data
      * @param string     $method     The http request method to use (Default is GET)
      * @param array      $patron     Patron information when using patron APIs
-     * @param bool       $returnCode If true, returns HTTP status code in addition to
-     *                               the result
-     * @param bool       $oauth2Needed
      *
      * @return mixed
      * @throws ILSException*@throws \Exception
@@ -874,7 +871,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $hierarchy = array_map('urlencode', $hierarchy);
         $apiUrl .= '/' . implode('/', $hierarchy);
 
-        $client = $this->kohaRestService->createOAUTH2Client($apiUrl);
+        $client = $this->kohaRestService->createClient($apiUrl);
 
         // Add params
         if (false !== $params) {
@@ -918,7 +915,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         // If we get a 401, we need to renew the access token and try again
         if ($response->getStatusCode() == 401) {
             $this->kohaRestService->invalidateToken();
-            $client = $this->kohaRestService->createOAUTH2Client($apiUrl);
+            $client = $this->kohaRestService->createClient($apiUrl);
 
             try {
                 $response = $client->send();

@@ -177,7 +177,7 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
         return $this->token;
     }
 
-    public function createOAUTH2Client($url)
+    public function createClient($url)
     {
         $tokenData = $this->getToken();
 
@@ -188,6 +188,7 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
         );
         return $client;
     }
+
 
     protected function renewToken()
     {
