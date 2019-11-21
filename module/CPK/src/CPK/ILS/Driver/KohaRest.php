@@ -295,6 +295,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'patrons', $patron['id']], __FUNCTION__,false, 'GET'
         );
         $result = $result['data'];
+        $expiryDate = isset($result['expiry_date'])
+            ? $this->normalizer->normalizeDate($result['expiry_date'])  : '';
         return [
             'cat_username' => $patron['cat_username'],
             'id' => $patron['id'],
@@ -309,8 +311,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'group' => $result['category_id'],
             'blocks' => $result['restricted'],
             'email' => $result['email'],
-            'expire' => $result['expiry_date'],
-            'expiration_date' => $result['expiry_date'], // For future compatibility with VuFind 6+
+            'expire' => $expiryDate,
+            'expiration_date' => $expiryDate, // For future compatibility with VuFind 6+
         ];
     }
 
@@ -357,7 +359,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'loan_id' => $entry['checkout_id'],
                 'item_id' => $entry['item_id'],
                 'duedate' => $entry['due_date'],
-                //'dueStatus' => $entry['due_status'],
+                'dueStatus' => $entry['due_status'],
                 'renew' => $entry['renewals'],
                 'barcode' => $item['barcode'] ?? null,
                 'renewable' => $renewability['allows_renewal'] ?? false,
@@ -423,7 +425,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 $finalResult['details'][$itemId] = [
                     'item_id' => $itemId,
                     'success' => true,
-                    'new_date' => $result['data']['date_due'],
+                    'new_date' => !empty($result['data']['due_date'])
+                        ? $this->normalizer->normalizeDate($result['data']['due_date'])
+                        : '',
                 ];
             }
         }
@@ -883,7 +887,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param            $action     string An action driver is doing now
      * @param array|bool $params     A keyed array of query data
      * @param string     $method     The http request method to use (Default is GET)
-     * @param array      $patron     Patron information when using patron APIs
      *
      * @return mixed
      * @throws ILSException*@throws \Exception
@@ -970,7 +973,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $decodedResult = json_decode($result, true);
         if (!$response->isSuccess()
             && (null === $decodedResult || !empty($decodedResult['error']))
-            && !$returnCode
         ) {
             $params = $method == 'GET'
                 ? $client->getRequest()->getQuery()->toString()
@@ -1013,7 +1015,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             ['v1', 'contrib', 'knihovny_cz', 'items', $id, 'allows_checkout'], //Should be biblio for original vufind
             __FUNCTION__,
             [],
-            'GET',
+            'GET'
         );
         $availability = $availability['data'];
 
@@ -1231,6 +1233,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     }
     /**
      * Get library by id
+     *
+     * @param string $libraryId Library identifier (code)
      *
      * @return array|null library data
     */
