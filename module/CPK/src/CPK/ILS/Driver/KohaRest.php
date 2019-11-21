@@ -330,7 +330,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = $this->makeRequest(
             ['v1', 'checkouts'],
             __FUNCTION__,
-            ['patron_id' => $patron['id']],
+            [
+                'patron_id' => $patron['id'],
+                '_match' => 'exact',
+            ],
             'GET'
         );
 
@@ -448,6 +451,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             'checked_in' => true,
             '_page' => $page,
             '_per_page' => $perPage,
+            '_match' => 'exact',
         ];
 
         $transactions = $this->makeRequest(
@@ -539,7 +543,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $result = $this->makeRequest(
             ['v1', 'holds'],
             __FUNCTION__,
-            ['patron_id' => $patron['id']],
+            [
+                'patron_id' => $patron['id'],
+                '_match' => 'exact',
+            ],
             'GET'
         );
 
