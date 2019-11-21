@@ -107,6 +107,21 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     ];
 
     /**
+     * Fines and charges mappings
+     *
+     * @var array
+     */
+    protected $finesAndChargesMappings = [
+        "L" => "Book Replacement Charge",
+        "N" => "Card Replacement Charge",
+        "OVERDUE" => "Reminder Charge",
+        "A" => "Renewal Fee",
+        "Res" => "Reservation Charge",
+        "Rent" => "Rental",
+        "M" => "Other",
+    ];
+
+    /**
      * Constructor
      *
      * @param DateConverter   $dateConverter   Date converter
@@ -834,14 +849,18 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $fines = [];
 
         foreach ($result['data']['outstanding_debits']['lines'] as $entry) {
+            $fineDescription = (isset($this->finesAndChargesMappings[$entry['account_type']]))
+                ? $this->translate($this->finesAndChargesMappings[$entry['account_type']])
+                : $entry['description'];
             $fines[] = [
                 'amount' => $entry['amount'],
                 'checkout' => $entry['date'],
-                'fine' =>  $this->translate("KohaFine_" . $entry['account_type']),
+                'fine' =>  $fineDescription,
+                'title' => $entry['description'],
                 'balance' => $entry['amount_outstanding'],
                 'createdate' => $entry['date'],
                 'duedate' => '',
-                'item_id' => $entry['item_id']
+                'item_id' => $entry['item_id'],
             ];
         }
         return $fines;
