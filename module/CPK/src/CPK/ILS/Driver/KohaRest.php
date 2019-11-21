@@ -75,17 +75,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     protected $normalizer;
 
     /**
-     * Item statuses mapping
-     *
-     * @var array
-     */
-    protected $statuses = [ //TODO: remove
-        'checked_out' => 'On Loan',
-        'in_transit' => 'In Transit Between Library Locations',
-        'waiting_hold' => 'On Order',
-    ];
-
-    /**
      * Mappings from renewal block reasons
      *
      * @var array
@@ -127,7 +116,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @param DateConverter   $dateConverter   Date converter
      * @param KohaRestService $kohaRestService Koha API authentication service
      */
-    public function __construct(DateConverter $dateConverter, KohaRestService $kohaRestService) {
+    public function __construct(DateConverter $dateConverter, KohaRestService $kohaRestService)
+    {
         $this->dateConverter = $dateConverter;
         $this->kohaRestService = $kohaRestService;
     }
@@ -216,7 +206,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @return array         On success, an associative array with the following
      * keys: id, availability (boolean), status, location, reserve, callnumber,
      * duedate, number, barcode.
-     *
      *
      *@throws ILSException
      */
@@ -370,7 +359,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 // title => $biblio[''],
             ];
         }
-
         return $transactions;
     }
 
@@ -382,7 +370,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @return bool
      * @throws ILSException
      */
-    public function getCheckoutRenewability($checkoutId) {
+    public function getCheckoutRenewability($checkoutId)
+    {
         $result = $this->makeRequest(
             ['v1', 'checkouts', $checkoutId, 'allows_renewal'],
             __FUNCTION__,
@@ -1112,40 +1101,6 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
             return ['patron_account_restricted'];
         }
         return false;
-
-        /* FIXME need endpoint /patrons/{id}/restrictions
-        $result = $this->makeRequest(
-            ['v1', 'patrons', $patron['id'], 'restrictions'], //
-            __FUNCTION__,
-            [],
-            'GET'
-        );
-        $blockReason = [];
-        if (!empty($result['blocks'])) {
-            $blockReason[] = $this->translate('Borrowing Block Message');
-            foreach ($result['blocks'] as $reason => $details) {
-                $params = [];
-                if (($reason == 'Patron::Debt'
-                        || $reason == 'Patron::DebtGuarantees')
-                    && !empty($details['current_outstanding'])
-                    && !empty($details['max_outstanding'])
-                ) {
-                    $params = [
-                        '%%blockCount%%' => $details['current_outstanding'],
-                        '%%blockLimit%%' => $details['max_outstanding']
-                    ];
-                }
-                $reason = 'Borrowing Block Koha Reason '
-                    . str_replace('::', '_', $reason);
-                $translated = $this->translate($reason, $params);
-                if ($reason !== $translated) {
-                    $reason = $translated;
-                    $blockReason[] = $reason;
-                }
-            }
-        }
-        return empty($blockReason) ? false : $blockReason;
-        */
     }
 
     /**
@@ -1156,7 +1111,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      * @return array|null
      * @throws ILSException
      */
-    protected function getItem($id) //TODO do it or not
+    protected function getItem($id)
     {
         static $cachedRecords = [];
         if (!isset($cachedRecords[$id])) {
@@ -1238,7 +1193,8 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
      *
      * @return array|null library data
     */
-    protected function getLibrary(string $libraryId) {
+    protected function getLibrary(string $libraryId)
+    {
         if (!isset(self::$libraries)) {
             $this->requestLibraries();
         }
