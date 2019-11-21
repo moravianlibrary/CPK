@@ -40,6 +40,7 @@ use \VuFind\Controller\Plugin\Holds as HoldsBase;
  */
 class Holds extends HoldsBase
 {
+
     /**
      * Process cancellation requests.
      *
