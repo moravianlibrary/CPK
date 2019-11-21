@@ -237,7 +237,7 @@ $config = array(
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
             'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
-            'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory'
+            'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory',
             'CPK\KohaOAUTH2Service' => 'CPK\Auth\Factory::getKohaOAUTH2Service',
         ), // Exceptions throwing system
 
