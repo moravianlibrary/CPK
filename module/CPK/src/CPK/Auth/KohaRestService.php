@@ -82,28 +82,10 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
     {
         $client = $this->httpService->createClient($url);
 
-        if (isset($this->config['Http']['ssl_verify_peer_name'])
-            && !$this->config['Http']['ssl_verify_peer_name']
-        ) {
-            $adapter = $client->getAdapter();
-            if ($adapter instanceof \Zend\Http\Client\Adapter\Socket) {
-                $context = $adapter->getStreamContext();
-                $res = stream_context_set_option(
-                    $context, 'ssl', 'verify_peer_name', false
-                );
-                if (!$res) {
-                    throw new \Exception('Unable to set sslverifypeername option');
-                }
-            } elseif ($adapter instanceof \Zend\Http\Client\Adapter\Curl) {
-                $adapter->setCurlOption(CURLOPT_SSL_VERIFYHOST, false);
-            }
-        }
-
         // Set timeout value
-        $timeout = isset($this->config['Catalog']['http_timeout'])
-            ? $this->config['Catalog']['http_timeout'] : 30;
+        $timeout = $this->config['Catalog']['timeout'] ?? 30;
         $client->setOptions(
-            ['timeout' => $timeout, 'useragent' => 'VuFind', 'keepalive' => true]
+            ['timeout' => $timeout, 'keepalive' => true]
         );
 
         // Set Accept header
@@ -132,9 +114,8 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
                 CURLOPT_POSTFIELDS => [
                     'client_id' => $this->config['Catalog']['clientId'],
                     'client_secret' => $this->config['Catalog']['clientSecret'],
-                    'grant_type' => isset($this->config['Catalog']['grantType'])
-                        ? $this->config['Catalog']['grantType']
-                        : 'client_credentials'
+                    'grant_type' => $this->config['Catalog']['grantType']
+                        ?? 'client_credentials'
                 ]
             ]
         ]);
