@@ -488,7 +488,8 @@ class MultiBackend extends MultiBackendBase
         if ($driver === null)
             throw new ILSException("Driver is undefined!");
 
-        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph || $driver instanceof XCNCIP2V2 || $driver instanceof KohaRest) {
+        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph
+            || $driver instanceof XCNCIP2V2 || $driver instanceof KohaRest) {
 
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
