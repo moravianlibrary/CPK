@@ -703,55 +703,70 @@ function escapeHTML(unsafeStr) {
 }
 
 /**
+ * Creates text input and filters items in list by it's data-search param
  *
- * @param param
- * @returns {$}
+ * @param param parameters [itemType: ".item-selector", inputClass:".class", placeholder:"Placeholder text"]
+ * @returns self
  */
 $.fn.listSearch = function (param) {
-  param = {
-    itemType: param.itemType !== undefined ? param.itemType : 'li.item',
-    inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
-    placeholder: param.placeholder !== undefined ? param.placeholder : 'Zadejte dotaz'
-  };
-  let that = $(this);
-  this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function (e) {
-    //move in the searched list
-    if ([13, 38, 40].indexOf(e.keyCode) > -1){
-        let el = that.find(param.itemType + '.active');
-        console.log(el);
-        if (el.length == 0){
-            el.first().addClass('active');
-        }else{
-            let active = that.find(param.itemType + '.active').first(), next = 0;
-            switch (e.keyCode) {
-                case 38: //up
-                    next = active.prev(param.itemType);
-                    console.log(next);
-                    if (next.length > 0){
-                        active.removeClass('active');
-                        next.removeClass('active');
-                    }
-                    break;
-                case 40: //down
-                    next = active.next(param.itemType);
-                    if (next.length > 0){
-                        active.removeClass('active');
-                        next.removeClass('active');
-                    }
-                    break;
-                case 13: //enter
+    param = {
+        itemType: param.itemType !== undefined ? param.itemType : 'li.item',
+        inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
+        placeholder: param.placeholder !== undefined ? param.placeholder : 'Write query'
+    };
+    let that = $(this);
+    this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function (e) {
+        // value of text field, count of results
+        let value = $(this).val().toLowerCase(), resultCount = 0;
+        that.find(param.itemType).filter(function () {
+            if ($(this).data('search').toLowerCase().indexOf(value) > -1) {
+                $(this).show();
+                resultCount++;
+            } else {
+                $(this).hide();
+                // IC the current elem is active one
+                $(this).removeClass('active');
+            }
+        });
 
-                    break;
+        if (resultCount > 0) {
+            // move in the searched list
+            let activeEl = that.find(param.itemType + '.active'),
+                elList = that.find(param.itemType + ':visible'),
+                nextEl;
+
+            if (activeEl.length == 0) {
+                // no active item, now select the first visible element as active
+                elList.first().addClass('active');
+            } else {
+                // one of previous keypress created active el, now can move in the list
+                if ([13, 38, 40].indexOf(e.keyCode) > -1) {
+                    // one of these keys pressed
+                    switch (e.keyCode) {
+                        case 38: // up
+                            nextEl = activeEl.prev(param.itemType + ':visible');
+                            if (nextEl.length > 0) {
+                                activeEl.removeClass('active');
+                                nextEl.addClass('active');
+                            }
+                            break;
+                        case 40: // down
+                            nextEl = activeEl.next(param.itemType + ':visible');
+                            if (nextEl.length > 0) {
+                                activeEl.removeClass('active');
+                                nextEl.addClass('active');
+                            }
+                            break;
+                        case 13: // enter
+                            // simulate click event
+                            activeEl.click();
+                            break;
+                    }
+                }
             }
         }
-    }
-
-        var value = $(this).val().toLowerCase();
-        that.find(param.itemType).filter(function () {
-          $(this).toggle($(this).data('search').toLowerCase().indexOf(value) > -1)
-        });
-      });
-  $(this).prepend(this.input);
+    });
+    $(this).prepend(this.input);
 
     this.focus = function () {
         this.input.focus();
@@ -766,7 +781,7 @@ $.fn.listSearch = function (param) {
         return this;
     };
 
-  return this;
+    return this;
 };
 /**
  * JQuery plugin for bootstrap dropdown search filter.
@@ -774,12 +789,12 @@ $.fn.listSearch = function (param) {
  * @param e
  */
 $.fn.dropFinder = function (placeholder) {
-  let dropdownList = $(this).find('.dropdown-menu').listSearch({
-    itemType: 'li',
-    inputClass: 'dropdown-search',
-    placeholder: placeholder
-  });
-  $(this).on('shown.bs.dropdown', function () {
-    dropdownList.focus();
-  });
+    let dropdownList = $(this).find('.dropdown-menu').listSearch({
+        itemType: 'li',
+        inputClass: 'dropdown-search',
+        placeholder: placeholder
+    });
+    $(this).on('shown.bs.dropdown', function () {
+        dropdownList.focus();
+    });
 };
