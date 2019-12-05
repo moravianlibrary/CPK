@@ -63,6 +63,11 @@ $config = array(
 					'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
                 ], /* factories */
             ], /* recommend */
+            'related' => [
+                'invokables' => [
+                    'solrfield' => 'CPK\Related\SolrField',
+                ], /* invokables */
+            ], /* related */
             'auth' => array(
                 'factories' => array(
                     'shibbolethIdentityManager' => 'CPK\Auth\Factory::getShibbolethIdentityManager'

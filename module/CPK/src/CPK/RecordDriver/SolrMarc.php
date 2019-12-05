@@ -1062,4 +1062,10 @@ class SolrMarc extends ParentSolrMarc
 
         return $this->fields['ziskej_boolean'] ?? false;
     }
+
+    public function getSimilarFromSolrField(): array
+    {
+        $field = $this->fields['similar_display_mv'] ?? [];
+        return array_map('json_decode', $field);
+    }
 }
