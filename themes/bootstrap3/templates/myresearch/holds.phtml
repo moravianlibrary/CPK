@@ -84,7 +84,7 @@
         <? if($eppn == 'ziskej'): ?>
           <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
             <?= $this->translate('Ziskej') ?>
-            <img class="pull-right" height="32" src="<?=$this->logos()->getLogo('ziskej') ?>"/>
+            <img class="pull-right" height="32" src="<?=$this->imageLink('logo-ziskej.png') ?>"/>
           </h3>
         <? else: ?>
           <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
