@@ -81,22 +81,26 @@ if (!$isSynchronous) {
       </form>
 
       <? foreach ($this->libraryIdentities as $eppn => $libraryIdentity): ?>
-        <? if ($eppn == 'ziskej'): ?>
-          <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
-            <?= $this->translate('Ziskej') ?>
-            <img class="pull-right" height="32" src="<?= $this->imageLink('logo-ziskej.png') ?>"/>
-          </h3>
-        <? else: ?>
-          <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
-          <h3 class="well row" style="margin-bottom: 3px;" id="<?= $source ?>">
-            <?= $this->transEsc("source_$source", null, $source) ?>
-            <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($source) ?>"/>
-          </h3>
-        <? endif; ?>
-
-        <div id="<?= $libraryIdentity->cat_username ?? 'ziskejAjaxLoad' ?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
-          <i class="fa fa-spinner fa-spin"></i>
-          <span class="label label-info"><?= $this->transEsc('Loading') ?> ...</span>
+        <div class="card">
+          <div class="card-header">
+            <? if ($eppn == 'ziskej'): ?>
+              <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
+                <?= $this->translate('Ziskej') ?>
+                <img class="pull-right" height="32" src="<?= $this->imageLink('logo-ziskej.png') ?>"/>
+              </h3>
+            <? else: ?>
+              <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
+              <h3 class="well row" style="margin-bottom: 3px;" id="<?= $source ?>">
+                <?= $this->transEsc("source_$source", null, $source) ?>
+                <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($source) ?>"/>
+              </h3>
+            <? endif; ?>
+          </div>
+          <div class="card-body">
+            <div id="<?= $libraryIdentity->cat_username ?? 'ziskejAjaxLoad' ?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+              <i class="fa fa-spinner fa-spin"></i> <span class="label label-info"><?= $this->transEsc('Loading') ?> ...</span>
+            </div>
+          </div>
         </div>
       <? endforeach; ?>
     <? endif; ?>
