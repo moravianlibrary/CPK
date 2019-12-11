@@ -111,6 +111,18 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     ];
 
     /**
+     * Checkout statuses
+     *
+     * @var array
+     */
+    protected $statuses = [
+        'checked_out' => 'On Loan',
+        'on_shelf' => 'Available On Shelf',
+        'in_transfer' => 'In Transit Between Library Locations',
+        'waiting_hold' => 'Available For Pickup',
+    ];
+
+    /**
      * Constructor
      *
      * @param DateConverter   $dateConverter   Date converter
@@ -1040,7 +1052,9 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
         $itemStatus = [];
         if ($item) {
             $status = $this->statuses[$availability['allows_checkout_status']]
-                ?? 'available';
+                ?? 'Available On Shelf';
+            $label = $availability['allows_checkout'] ? 'label-success'
+                : 'label-warning';
             $duedate = isset($availability['date_due'])
                 ? $this->normalizer->normalizeDate($availability['date_due']) : null;
             $entry = [
@@ -1055,6 +1069,7 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
                 'duedate' => $duedate,
                 'number' => $item['serial_enum_chron'],
                 'barcode' => $item['barcode'],
+                'label' => $label,
             ];
             if (!empty($item['public_notes'])) {
                 $entry['item_notes'] = [$item['public_notes']];
