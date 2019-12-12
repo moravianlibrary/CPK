@@ -37,10 +37,10 @@
 	// Public
 
 	function login(idp) {
-
 	    if (typeof idp === 'string')
-		idp = JSON.parse(idp);
+		    idp = JSON.parse(idp);
 	    if (!idp.isConsolidation) {
+	        window.history.pushState({}, document.getElementsByTagName('title')[0].innerHTML, window.location.href);
 			var action = 'library';
 			if (idp.name == "MojeID | Google+ | Facebook | LinkedIn")
 				action = 'social';
