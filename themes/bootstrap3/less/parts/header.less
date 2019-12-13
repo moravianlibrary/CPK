@@ -144,10 +144,14 @@ tr.link {
   list-style-type: none;
   padding:0;
   li{
+    display:none;
     width:100%;
     padding:5px 0;
     margin:2px auto;
-    &:hover{
+    &.result{
+      display: list-item;
+    }
+    &:hover, &.active{
       background:whitesmoke;
       cursor:pointer;
       a{

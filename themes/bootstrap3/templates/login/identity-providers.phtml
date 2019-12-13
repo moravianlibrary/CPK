@@ -2,7 +2,7 @@
   <? foreach($idps as $idp):
     $json = json_encode($idp);
     ?>
-    <li class="row link idp-record" data-search="<?=strtolower($idp['name'])?>" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
+    <li class="row link idp-record result" data-search="<?=strtolower($idp['name'])?>" data-ng-click="fedLoginCtrl.login('<?=htmlentities($json)?>')">
       <div class="col-sm-3 logo">
         <? if($idp['logo']):?>
           <img src="<?=$idp['logo']?>">
