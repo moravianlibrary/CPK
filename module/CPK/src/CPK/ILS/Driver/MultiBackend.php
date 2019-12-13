@@ -488,7 +488,8 @@ class MultiBackend extends MultiBackendBase
         if ($driver === null)
             throw new ILSException("Driver is undefined!");
 
-        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph || $driver instanceof XCNCIP2V2) {
+        if ($driver instanceof XCNCIP2 || $driver instanceof Aleph
+            || $driver instanceof XCNCIP2V2 || $driver instanceof KohaRest) {
 
             foreach ($ids as &$id) {
                 $id = $this->stripIdPrefixes($id, $source);
@@ -583,6 +584,13 @@ class MultiBackend extends MultiBackendBase
         return null;
     }
 
+    /**
+     * Takes sigla and return library source for it
+     *
+     * @param $sigla
+     *
+     * @return int|string|null
+     */
     public function siglaToSource($sigla)
     {
         $source = null;
@@ -592,6 +600,18 @@ class MultiBackend extends MultiBackendBase
         }
 
         return $source;
+    }
+
+    /**
+     * Library source to sigla
+     *
+     * @param string $source
+     * @return string|null
+     */
+    public function sourceToSigla(string $source): ?string
+    {
+        $siglaMapping = $this->config['SiglaMapping'];
+        return isset($siglaMapping[$source]) ? $siglaMapping[$source] : null;
     }
 
     protected function getDetailsFromCurrentSource($source, $details)
@@ -767,6 +787,25 @@ class MultiBackend extends MultiBackendBase
                     $this->stripIdPrefixes($checkoutDetails, $source)
             );
             return $this->addIdPrefixes($details, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function createZiskejMessage($patron)
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            $resp = $driver->createMessage($patron['id'], $patron['eppn'], $patron['message']);
+            return $resp;
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    public function getZiskejDriver()
+    {
+        $driver = $this->getDriver('ziskej');
+        if ($driver) {
+            return $driver;
         }
         throw new ILSException('No suitable backend driver found');
     }

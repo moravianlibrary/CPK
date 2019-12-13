@@ -2,7 +2,7 @@
   <? foreach ($this->widgets as $widget): ?>
     <option value='<?= $widget->getName() ?>'<?= ($widget->getName() == $this->homePageWidgets[$this->name]
         ? ' selected' : '') ?>>
-        <?= $this->translate($widget->getTitleCs()) ?>
+      <?= $this->escapeHtml($widget->getTitleCs()) ?>
     </option>
   <? endforeach; ?>
   <option value='conspectus'<?= ($this->homePageWidgets[$this->name] == 'conspectus' ? ' selected' : '') ?>>

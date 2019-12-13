@@ -79,4 +79,21 @@ class Factory
         );
     }
 
+    /**
+     * Factory for KohaRest driver.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return KohaRest
+     */
+    public static function getKohaRest(ServiceManager $sm)
+    {
+        $sl = $sm->getServiceLocator();
+
+        return new KohaRest(
+            $sl->get('VuFind\DateConverter'),
+            $sl->get('CPK\KohaOAUTH2Service')
+        );
+    }
+
 }

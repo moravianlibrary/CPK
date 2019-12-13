@@ -110,4 +110,20 @@ class Factory
         return $factory->createProxy('CPK\Auth\ILSAuthenticator', $callback);
     }
 
+    /**
+     * Koha OAUTH2 service.
+     *
+     * @param ServiceManager $sm
+     *
+     * @return KohaRestService
+     * @throws \Exception
+     */
+    public static function getKohaOAUTH2Service(ServiceManager $sm)
+    {
+        return new KohaRestService(
+            $sm->get('VuFind\CacheManager'),
+            $sm->get('VuFind\Config')->get('config')
+        );
+    }
+
 }

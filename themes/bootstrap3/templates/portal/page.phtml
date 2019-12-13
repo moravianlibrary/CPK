@@ -2,6 +2,7 @@
   $title = $page['title'].' | '.$this->translate('Central Library Portal');
   $this->layout()->title = $title;
   $this->headTitle($title);
+  $this->layout()->searchbox = false;
 ?>
 <script>
   dataLayer.push({

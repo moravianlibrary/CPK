@@ -30,25 +30,94 @@ use VuFind\Controller\AbstractBase;
 
 class ZiskejController extends AbstractBase
 {
-    /**
-     * Home Action
-     *
-     * @return \Zend\View\Model\ViewModel
-     */
+    use LoginTrait;
+
     public function homeAction()
     {
         $view = $this->createViewModel();
-        $view->setTemplate('ziskej/ziskej');
-        $view->ziskejConfig = array_keys($this->getConfig()->Ziskej->toArray());
+        //$view->setTemplate('ziskej/ziskej');
 
-        // Check if it is post request
+        $ziskejModes = array_keys($this->getConfig()->Ziskej->toArray());
+        /** @var array ziskejModes */
+        $view->ziskejModes = $ziskejModes;
+
+        $request = $this->getRequest();
         if ($this->getRequest()->isPost()) {
-            // Check if ziskej value for cookie, which we get through post request, is exist in config
-            // Default value - disabled
-            $data = in_array($this->getRequest()->getPost('ziskej'),
-                $view->ziskejConfig) ? $this->getRequest()->getPost('ziskej') : 'disabled';
-            setcookie('ziskej', $data, 0);
-            $view->setting = $data;
+            $data = in_array($this->getRequest()->getPost('ziskej'), $ziskejModes)
+                ? $this->getRequest()->getPost('ziskej')
+                : 'disabled';
+            setcookie('ziskej', $data, 0, '/');
+            if ($this->getRequest()->getPost('ziskej')) {
+                $this->flashMessenger()->addMessage('Nastavení módu pro službu Získej bylo uloženo.', 'success');
+            }
+            return $this->redirect()->refresh();
+        }
+
+        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
+        /** @var string ziskejCurrentMode */
+        $view->ziskejCurrentMode = $ziskejCurrentMode;
+
+        if ($ziskejCurrentMode === 'disabled') {
+            return $view;
+        }
+
+        /** @var \VuFind\Db\Row\User $user */
+        $user = $this->getUser();
+        if (!$user) {
+            return $view;
+        }
+
+        $userData = $user->toArray();
+        /** @var array userData */
+        $view->userData = $userData;
+
+        $multiBackend = $this->getILS()->getDriver();
+
+        try {
+            /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+            $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+            $libraryIds = [];
+            $ziskejLibraries = $ziskejApi->getLibraries();
+            foreach ($ziskejLibraries as $sigla) {
+                $id = $multiBackend->siglaToSource($sigla);
+                if (!empty($id)) {
+                    $libraryIds[] = $id;
+                }
+            }
+
+            $userCards = $user->getAllUserLibraryCards();
+
+            $allData = [];
+
+            /** @var \VuFind\Db\Row\UserCard $userCard */
+            foreach ($userCards as $userCard) {
+                $eppn = $userCard['eppn'];
+
+                $allData[$eppn]['home_library'] = $userCard['home_library'];
+
+                $inZiskej = in_array($userCard['home_library'], $libraryIds);
+                $allData[$eppn]['library_in_ziskej'] = $inZiskej;
+
+                if ($inZiskej) {
+                    $reader = $ziskejApi->getReader($eppn);
+                    $allData[$eppn]['reader'] = $reader;
+
+                    if ($reader && $reader->isActive()) {
+                        $tickets = $ziskejApi->getTicketsDetails($eppn);
+                        foreach ($tickets as $ticket) {
+                            $allData[$eppn]['tickets'][$ticket['hid']] = $ticket;
+                            $messages = $ziskejApi->getMessages($eppn, $ticket['ticket_id']);
+                            $allData[$eppn]['tickets'][$ticket['hid']]['messages'] = $messages;
+                        }
+                    }
+                }
+            }
+
+            /** @var array ziskejData */
+            $view->ziskejData = $allData;
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');
         }
 
         return $view;

@@ -7,11 +7,10 @@
     '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('My Holds') . '</li>';
 
     $isSynchronous = $this->isSynchronous;
-
-    if (! $isSynchronous)
+  if (!$isSynchronous){
         $this->headScript()->appendFile("async-holds.js");
+  }
 ?>
-<!--<ul class="breadcrumb hidden-print"><?=$this->layout()->breadcrumbs ?></ul>-->
 <div class="row">
   <div class="<?=$this->layoutClass('mainbody')?>">
     <h2>
@@ -44,11 +43,12 @@
             </ul>
           </div>
           </form>
-      <? break; endif; ?>
+          <? break; ?>
+        <? endif; ?>
     <? endforeach; ?>
-    <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-        $source = explode('.', $libraryIdentity['cat_username'])[0]; ?>
 
+      <? foreach($this->libraryIdentities as $eppn => $libraryIdentity): ?>
+        <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
       <h3 class="well row blickable" style="margin-bottom: 3px;">
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
@@ -58,7 +58,8 @@
 
     <? endforeach; ?>
     <? else: // Here we know we need to use asynchronous holdings?>
-        <form hidden="hidden" name="cancelForm" class="inline" method="post" id="cancelHold">
+
+      <form name="cancelForm" class="inline" method="post" id="cancelHold">
           <input type="hidden" id="submitType" name="cancelSelected" value="1"/>
           <input type="hidden" id="cancelConfirm" name="confirm" value="0"/>
           <div class="btn-group">
@@ -79,15 +80,21 @@
           </div>
           </form>
 
-    <? foreach($this->libraryIdentities as $eppn => $libraryIdentity):
-        $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
-
+      <? foreach($this->libraryIdentities as $eppn => $libraryIdentity): ?>
+        <? if($eppn == 'ziskej'): ?>
+          <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
+            <?= $this->translate('Ziskej') ?>
+            <img class="pull-right" height="32" src="<?=$this->logos()->getLogo('ziskej') ?>"/>
+          </h3>
+        <? else: ?>
+          <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
       <h3 class="well row" style="margin-bottom: 3px;" id="<?=$source?>">
       <?=$this->transEsc("source_$source", null, $source) ?>
       <img class="pull-right" height="32" src="<?=$this->logos()->getLogo($source) ?>"/>
       </h3>
+        <?endif;?>
 
-      <div id="<?=$libraryIdentity->cat_username?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+        <div id="<?=$libraryIdentity->cat_username ?? 'ziskejAjaxLoad'?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
         <i class="fa fa-spinner fa-spin"></i>
         <span class="label label-info"><?=$this->transEsc('Loading')?> ...</span>
       </div>

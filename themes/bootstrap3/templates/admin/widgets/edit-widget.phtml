@@ -65,6 +65,16 @@
           </fieldset>
           <fieldset class='form-group'>
             <div class='col-xs-8'>
+              <label><?=$this->translate('Title')?> En</label>
+              <input class='form-control'
+                     name='title_en'
+                     type='text'
+                     placeholder='<?=$this->translate('Enter title')?>'
+                     value='<?=$this->widget->getTitleEn()?>'>
+            </div>
+          </fieldset>
+          <fieldset class='form-group'>
+            <div class='col-xs-8'>
               <label>
                 <?=$this->translate('Solr field')?> <?=$this->translate('E.g.')?> (widget_name_with_underscores)
               </label>

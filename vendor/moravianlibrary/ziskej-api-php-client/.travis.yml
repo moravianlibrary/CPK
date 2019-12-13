@@ -1,0 +1,58 @@
+# set environment
+language: php
+
+# php versions
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+  - hhvm
+
+env:
+  - TESTER_PHP_BIN="php-cgi"
+  - TESTER_PHP_BIN="hhvm"
+
+matrix:
+  exclude:
+    - php: 7.1
+      env: TESTER_PHP_BIN="hhvm"
+
+    - php: 7.2
+      env: TESTER_PHP_BIN="hhvm"
+
+    - php: 7.3
+      env: TESTER_PHP_BIN="hhvm"
+
+    - php: hhvm
+      env: TESTER_PHP_BIN="php-cgi"
+
+  allow_failures:
+    - php: 7.1
+    - php: hhvm
+
+before_install:
+  - composer self-update
+
+install:
+  - composer install --prefer-source --no-interaction
+
+# before runs environment
+before_script:
+  - chmod +x build.sh
+
+script:
+  # phpstan
+  - ./vendor/bin/phpstan analyse -l 7 --memory-limit=500M --debug -c phpstan.neon
+  # phpunit
+  - ./vendor/bin/phpunit --colors=always -c phpunit.xml
+  # nette tester
+  #- ./vendor/bin/tester -p $TESTER_PHP_BIN -s -c ./tests/php.ini ./tests
+
+after_success:
+
+
+after_failure:
+  # display content of files *.actual
+  #- for i in $(find ./tests -name \*.actual); do echo "--- $i"; cat $i; echo; echo; done
+
+after_script:

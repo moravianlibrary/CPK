@@ -6,8 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    $vendorDir . '/pear/pear_exception',
     $vendorDir . '/pear/file_marc',
+    $vendorDir . '/pear/pear_exception',
     $vendorDir . '/pear/validate',
     $vendorDir . '/pear/validate_ispn',
 );

@@ -1,7 +1,7 @@
 <?
   $portalPage = $this->portalPages()->getPage('dekujeme-vam-za-zpetnou-vazbu', explode("-", $this->layout()->userLang)[0]);
-
   $title = $portalPage['title'].' | '.$this->translate('Central Library Portal');
+  $this->layout()->searchbox = false;
   $this->layout()->title = $title;
   $this->headTitle($title);
 ?>

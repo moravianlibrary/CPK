@@ -359,10 +359,15 @@ class DeduplicationListener
         $recordSources, $sourcePriority
     ) {
         $localRecordData['local_ids_str_mv'] = $dedupRecordData['local_ids_str_mv'];
-        if (empty($localRecordData['monographic_series_display_mv'])
-            && ! empty($dedupRecordData['monographic_series_display_mv'])) {
-            $localRecordData['monographic_series_display_mv'] = $dedupRecordData['monographic_series_display_mv'];
+
+        //first check existence, then copy, add wanted keys to array
+        $keys =  ['monographic_series_display_mv', 'summary_display_mv'];
+        foreach ($keys as $key) {
+            if ( (empty($localRecordData[$key]) && !empty($dedupRecordData[$key])) ) {
+                $localRecordData[$key] = $dedupRecordData[$key];
+            }
         }
+
         return $localRecordData;
     }
 

@@ -1854,10 +1854,7 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function getAdministratorEmail()
     {
-        if (isset($this->config->Catalog->contactPerson))
-            return $this->config->Catalog->contactPerson;
-        else
-            return null;
+        return $this->config['Catalog']['contactPerson'] ?? null;
     }
 
     /**

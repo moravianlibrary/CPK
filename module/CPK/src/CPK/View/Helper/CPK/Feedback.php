@@ -68,7 +68,6 @@ class Feedback extends FeedbackBase
         $this->config = $config;
 
         $this->initConfiguration();
-        $this->setActualLinkForEmail();
     }
 
     /**
@@ -78,22 +77,6 @@ class Feedback extends FeedbackBase
     {
         //set site and secret keys for captcha
         $this->siteKey = $this->config->Captcha->siteKey;
-    }
-
-    /**
-     * Gets current url from user has sent feedback
-     * Need for email message to support
-     */
-    public function setActualLinkForEmail()
-    {
-        $protocolHttps = filter_input(
-            INPUT_SERVER,
-            'HTTPS',
-            FILTER_SANITIZE_STRING,
-            FILTER_FLAG_NO_ENCODE_QUOTES
-        );
-        $this->actualLink = (($protocolHttps !== null) ? "https" : "http")
-            . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     }
 
     /**

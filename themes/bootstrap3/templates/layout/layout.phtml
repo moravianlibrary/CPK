@@ -400,30 +400,10 @@
     <? if (!$this->feedback()->hideFeedbackModalButton): ?>
       <!-- Float feedback button -->
       <div class="feedback-link">
-        <span id="feedback-open" class="pr-communication-bubblehelpquestionsupport2"
-              title="<?= $this->transEsc('Feedback') ?>"></span>
+        <a class="pr-communication-bubblehelpquestionsupport2" href="/Portal/Feedback"
+              title="<?= $this->transEsc('Feedback') ?>" target="_blank"></a>
       </div>
       <!--/ End float feedback button -->
-
-      <!-- Modal for feedback -->
-      <div id="feedback-modal" class="modal fade hidden-print" role="dialog">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-body">
-              <button type="button" class="close" data-dismiss="modal">x</button>
-                <?= $this->render('portal/feedback.phtml', [
-                    'siteKey' => $this->feedback()->siteKey
-                ]) ?>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">
-                  <?= $this->translate('close') ?>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!--/ End modal for feedback -->
     <? endif; ?>
 
     <? if (! $user): ?>

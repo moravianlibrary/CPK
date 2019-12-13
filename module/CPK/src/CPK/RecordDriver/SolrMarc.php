@@ -1022,9 +1022,18 @@ class SolrMarc extends ParentSolrMarc
      *
      * @return array
      */
-    public function getSummary()
+    public function getSummary($searchAlsoInParentRecord = true)
     {
-        return isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : [];
+        /**
+         * @var array   summary
+         */
+        $summary = isset($this->fields['summary_display_mv']) ? $this->fields['summary_display_mv'] : null;
+        //nothing found and allowed to search in parent
+        if ($searchAlsoInParentRecord && !$summary){
+            $summary = ($parent = $this->getParentRecordDriver()) ? $parent->getSummary(false) : null;
+        }
+        //return the summary
+        return $summary;
     }
 
     public function getMonographicSeries($searchAlsoInParentRecord = true)
@@ -1052,5 +1061,11 @@ class SolrMarc extends ParentSolrMarc
     {
 
         return $this->fields['ziskej_boolean'] ?? false;
+    }
+
+    public function getSimilarFromSolrField(): array
+    {
+        $field = $this->fields['similar_display_mv'] ?? [];
+        return array_map('json_decode', $field);
     }
 }

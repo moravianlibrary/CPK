@@ -249,21 +249,3 @@ obalky.display_authority_results = function (element, bibinfo, query) {
         });
     });
 }
-
-obalky.display_summary = function (element, bibinfo) {
-	var multi = encodeURIComponent(JSON.stringify(bibinfo));
-	$(document).ready(function() {
-		$.getJSON( "/AJAX/JSON?method=getSummaryObalkyKnih", {bibinfo: bibinfo}, function( data ) {
-			$(element).html(data.data);
-		});
-	});
-}
-
-obalky.display_summary_short = function (element, bibinfo) {
-	var multi = encodeURIComponent(JSON.stringify(bibinfo));
-	$(document).ready(function() {
-		$.getJSON( "/AJAX/JSON?method=getSummaryShortObalkyKnih", {bibinfo: bibinfo}, function( data ) {
-			$(element).html(data.data);
-		});
-	});
-}

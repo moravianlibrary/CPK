@@ -57,7 +57,7 @@ function updateTransactions(response) {
     else {
 	// FIXME ! rework to angular app with an html directive ..
 	pointer[0].outerHTML = '<div class="row well" style="margin-bottom: 2px;">\
-	    <div class="label label-danger">' + data.message + '</div>\
+	    <div class="label label-danger">' + VuFind.translate(data.message) + '</div>\
 	  </div>';
     }
     

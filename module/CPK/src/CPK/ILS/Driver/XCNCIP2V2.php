@@ -257,6 +257,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
         // Make the NCIP request:
         try {
+            $this->httpService->setDefaultAdapter(new \Zend\Http\Client\Adapter\Socket());
             $client = $this->httpService->createClient($this->config['Catalog']['url']);
             //$client->setRawBody($jsonXML->toXmlString());
             $client->setRawBody($xml);
@@ -1549,10 +1550,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      */
     public function getAdministratorEmail()
     {
-        if (isset($this->config->Catalog->contactPerson))
-            return $this->config->Catalog->contactPerson;
-        else
-            return null;
+        return $this->config['Catalog']['contactPerson'] ?? null;
     }
 
     /**

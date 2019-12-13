@@ -27,11 +27,16 @@
  */
 namespace CPK\Controller;
 
-use VuFind\Controller\RecordController as RecordControllerBase,
-    VuFind\Controller\HoldsTrait as HoldsTraitBase,
-    Zend\Mail\Address,
-    CPK\RecordDriver\SolrAuthority,
-    VuFind\Exception\RecordMissing as RecordMissingException;
+use Mzk\ZiskejApi\RequestModel\Reader;
+use Mzk\ZiskejApi\RequestModel\Ticket;
+use VuFind\Controller\RecordController as RecordControllerBase;
+use VuFind\Controller\HoldsTrait as HoldsTraitBase;
+use VuFind\Exception\RecordMissing as RecordMissingException;
+use VuFind\Db\Row\User as UserRow;
+use VuFind\Log\LoggerAwareTrait;
+use Zend\Http\PhpEnvironment\Request;
+use Zend\Json\Json;
+use Zend\Log\LoggerAwareInterface;
 
 /**
  * Redirects the user to the appropriate default VuFind action.
@@ -42,10 +47,10 @@ use VuFind\Controller\RecordController as RecordControllerBase,
  * @license http://opensource.org/licenses/gpl-3.0.php GNU General Public License
  * @link http://vufind.org Main Site
  */
-class RecordController extends RecordControllerBase
+class RecordController extends RecordControllerBase implements LoggerAwareInterface
 {
 
-    use LoginTrait, HoldsTrait, HoldsTraitBase {
+    use LoginTrait, HoldsTrait, HoldsTraitBase, LoggerAwareTrait {
         HoldsTrait::holdAction insteadof HoldsTraitBase;
     }
 
@@ -89,19 +94,20 @@ class RecordController extends RecordControllerBase
         return $metadata;
     }
 
-
     /**
      * Display a particular tab.
      *
-     * @param string $tab
-     *            Name of tab to display
-     * @param bool $ajax
-     *            Are we in AJAX mode?
+     * @param string $tab Name of tab to display
+     * @param bool $ajax Are we in AJAX mode?
+     * @return array|bool|mixed|\Zend\Http\Response|\Zend\View\Model\ViewModel
      *
-     * @return mixed
+     * @throws \Http\Client\Exception
      */
     protected function showTab($tab, $ajax = false)
     {
+        /* @var $request Request */
+        $request = $this->getRequest();
+
         if ($this->params()->fromQuery('getXml')) {
             return $this->getXml();
         }
@@ -122,6 +128,7 @@ class RecordController extends RecordControllerBase
         $view->tabs = $this->getAllTabs();
         $view->activeTab = strtolower($tab);
         $view->defaultTab = strtolower($this->getDefaultTab());
+        $view->records = $view->tabs['DedupedRecords']->getRecordsInGroup();
 
         // Set up next/previous record links (if appropriate)
         if ($this->resultScrollerActive()) {
@@ -160,9 +167,6 @@ class RecordController extends RecordControllerBase
             }
         }
 
-        $user = $this->getAuthManager()->isLoggedIn();
-
-        $view->isLoggedIn = $user;
         $view->offlineFavoritesEnabled = false;
 
         if ($this->getConfig()->Site['offlineFavoritesEnabled'] !== null) {
@@ -182,9 +186,13 @@ class RecordController extends RecordControllerBase
             }
         }
 
-        $userSettingsTable = $this->getTable("usersettings");
+        /** @var UserRow|bool $user */
+        $user = $this->getUser();
 
-        if ($user = $this->getAuthManager()->isLoggedIn()) {
+        $view->isLoggedIn = $user ? true : false;
+
+        if ($user) {
+        $userSettingsTable = $this->getTable("usersettings");
             $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
         }
 
@@ -216,6 +224,7 @@ class RecordController extends RecordControllerBase
             $view->socialUser = $this->getUser()->getSource().'_user';
         }
 
+        $view->user = $this->getUser();
         $view->setTemplate($ajax ? 'record/ajaxtab' : 'record/view');
 
         $referer = $this->params()->fromQuery('referer', false);
@@ -237,9 +246,7 @@ class RecordController extends RecordControllerBase
 
         $searchesConfig = $this->getConfig('searches');
         // If user have preferred limit and sort settings
-        if ($user = $this->getAuthManager()->isLoggedIn()) {
-            $userSettingsTable = $this->getTable("usersettings");
-
+        if ($user) {
             $userSettingsTable = $this->getTable("usersettings");
             $preferredRecordsPerPage = $userSettingsTable->getRecordsPerPage($user);
             $preferredSorting = $userSettingsTable->getSorting($user);
@@ -260,25 +267,174 @@ class RecordController extends RecordControllerBase
             $this->layout()->sort = $searchesConfig->General->default_sort;
         }
 
-        // Set up MVS button
-        $request = $this->getRequest();
-        $ziskejCookie = $request->getCookie()->ziskej;
 
-        if (isset($config->Ziskej, $config->Ziskej->$ziskejCookie) && $ziskejCookie != 'disabled') {
-            $view->mvsUrl = $view->ziskejUrl = $config->Ziskej->$ziskejCookie;
-            $view->eppn = $request->getServer()->eduPersonPrincipalName;
-            $view->serverName = $request->getServer()->SERVER_NAME;
-            $view->entityId = $request->getServer('Shib-Identity-Provider');
+        // ziskej
+        /** @var string|null $ziskejMode */
+        $ziskejMode = $request->getCookie()->ziskej;
+        if ($ziskejMode === 'disabled') {
+            $ziskejMode = null;
+        }
+        $view->ziskejMode = $ziskejMode;
+
+        /** @var bool $ziskejEnabled */
+        $ziskejEnabled = !empty($ziskejMode);
+        $view->ziskejEnabled = $ziskejEnabled;
+
+        // ziskej tab
+        if (strtolower($tab) === 'ziskej') {
+
+            /** @var string|null $ziskejApiUrl */
+            $ziskejApiUrl = null;
+            if ($ziskejEnabled) {
+                if (isset($config->Ziskej) && isset($config->Ziskej->$ziskejMode)) {
+                    $ziskejApiUrl = $config->Ziskej->$ziskejMode;
+                }
+            }
+            $view->ziskejApiUrl = $ziskejApiUrl;
+
+            if ($ziskejEnabled) {
+                /** @var string|null ziskejMinUrl */
+                $view->ziskejMinUrl = $config->Ziskej_minimal->url ?? null;
+
+                /** @var string|null $ziskejTechlibFrontUrl */
+                $view->ziskejTechlibFrontUrl = !empty($config->ZiskejTechlibFrontUrl->$ziskejMode)
+                    ? $config->ZiskejTechlibFrontUrl->$ziskejMode
+                    : null;
+
+                if ($ziskejApiUrl && $user) {
+                    try {
+                        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+                        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+                        $ziskejActive = true;
+
+                        /** @var \CPK\ILS\Driver\MultiBackend $ilsDriver */
+                        $ilsDriver = $this->getILS()->getDriver();
+
+                        // list of ziskej libraries sigla
+                        $ziskejLibsSiglas = $ziskejApi->getLibraries();
+
+                        /** @var array $ziskejLibsIds */
+                        $ziskejLibsIds = [];
+                        foreach ($ziskejLibsSiglas as $sigla) {
+                            $id = $ilsDriver->siglaToSource($sigla);
+                            if (!empty($id)) {
+                                $ziskejLibsIds[] = $id;
+                            }
+                        }
+                        $view->ziskejLibsIds = $ziskejLibsIds;
+
+                        if ($user) {
+                            /** @var array $connectedLibs */
+                            $connectedLibs = [];
+                            /** @var \VuFind\Db\Row\UserCard $libraryCard */
+                            foreach ($user->getLibraryCards() as $libraryCard) {
+                                //@todo refactor to array_filter
+                                if (!empty($libraryCard->home_library)) {
+                                    if (in_array($libraryCard->home_library, $ziskejLibsIds)) {
+                                        $connectedLibs[$libraryCard->home_library]['reader'] = $libraryCard->toArray();
+                                    }
+                                }
+                            }
+                            $view->connectedLibs = $connectedLibs;
+                        }
+
+                    } catch (\Exception $e) {
+                        $ziskejActive = false;
+                    }
+                    $view->ziskejActive = $ziskejActive;
+                }
+            }
         }
 
-        $view->setVariable('isZiskej', $this->driver->getZiskejBoolean());
-        $view->setVariable('ziskejMinUrl', $config->Ziskej_minimal->url ?? '');
-        //add data for meta tags
-        $this->layout()->recordMetaTags = $this->getDataForMetaTags() ?: [];
+        $view->serverName = $request->getServer()->SERVER_NAME;
+        $view->entityId = $request->getServer('Shib-Identity-Provider');
+
+        $defaultAskedDate = new \DateTime();
+        $defaultAskedDate->add(new \DateInterval('P1M'));
+        $view->defaultAskedDate = $defaultAskedDate;
+
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
         $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
 
         return $view;
+    }
+
+    public function mvsFormAction()
+    {
+        try {
+            /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+            $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+            /** @var \VuFind\ILS\Connection $ils */
+            $ils = $this->getILS();
+
+            /** @var \CPK\ILS\Driver\MultiBackend $driver */
+            $driver = $ils->getDriver();
+
+            /** @var \CPK\Db\Row\User $user */
+            $user = $this->getUser();
+
+            /** @var array $params */
+            $params = $this->params()->fromPost();
+
+            /** @var string $eppn */
+            $eppn = $params['eppn'];
+
+            if (!$params['is_conditions']) {
+                $this->flashMessenger()->addMessage('ziskej_error_is_conditions', 'error');
+                return $this->redirectToRecord('', 'Ziskej');
+            }
+
+            if (!$params['is_price']) {
+                $this->flashMessenger()->addMessage('ziskej_error_is_price', 'error');
+                return $this->redirectToRecord('', 'Ziskej');
+            }
+
+            /** @var array $userData */
+            $userData = $user->toArray();
+
+            //try {
+            $reader = $ziskejApi->getReader($eppn);
+            if (!$reader) {
+                $reader = $ziskejApi->createReader($eppn, new Reader(
+                    $userData['firstname'],
+                    $userData['lastname'],
+                    $userData['email'],
+                    $driver->sourceToSigla($user->home_library),
+                    true,
+                    true
+                ));
+            }
+
+            if (!$reader->isActive()) {
+                $this->flashMessenger()->addMessage('ziskej_error_account_not_active', 'warning');
+                //@todo next step
+                return $this->redirectToRecord('', 'Ziskej');
+            }
+
+            $ticket = new Ticket($params['doc_id']);
+            $ticket->setDocumentAltIds($params['doc_alt_ids']);
+            $ticket->setNote($params['text']);
+
+            $tickeId = $ziskejApi->createTicket($eppn, $ticket);
+
+            $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');    //@todo $tickeId
+
+        } catch (\Exception $ex) {
+            $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');
+        }
+
+        return $this->redirectToRecord('', 'Ziskej');
+    }
+
+    public function getContent(\Zend\Http\Response $response)
+    {
+        $responseContent = [];
+        if (!empty($response)) {
+            $responseContent = Json::decode($response->getContent(), true);
+        }
+
+        return $responseContent;
     }
 
     protected function base64url_decode($data) {

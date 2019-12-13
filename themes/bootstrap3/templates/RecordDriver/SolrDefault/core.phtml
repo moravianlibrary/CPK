@@ -49,9 +49,9 @@
       <? if ($preview): ?><?=$preview?><? endif; ?>
     </div>
 
-    <div class="col-sm-9">
+          <div class="col-sm-9 record-information">
   <? else: ?>
-      <div class="col-sm-12">
+          <div class="col-sm-12 record-information">
   <? endif; ?>
         <h2 class='record-title' property='name'>
         <strong><?=$this->escapeHtml($this->driver->getTitle())?></strong>
@@ -66,17 +66,10 @@
             <? foreach ($summ as $field): ?>
               <p><?=$this->escapeHtml($field)?></p>
             <? endforeach; ?>
+          <? endif; ?>
 
-            <? else: ?>
-              <p class="obalkysumm"><i class="fa fa-spinner fa-spin"></i><?=$this->transEsc('loading_obalkyknih_summary')?><br/></p>
 
-              <script type="text/javascript">
-                obalky.display_summary(".obalkysumm", <?=$bibinfo?>);
-              </script>
-
-            <? endif; ?>
-
-            <? if ($this->userlist()->getMode() !== 'disabled'): ?>
+          <? if ($this->userlist()->getMode() !== 'disabled'): ?>
               <? /* Display the lists that this record is saved to */ ?>
               <div class="savedLists hidden alert alert-info" id="savedLists">
                 <strong><?=$this->transEsc("Saved in")?>:</strong>

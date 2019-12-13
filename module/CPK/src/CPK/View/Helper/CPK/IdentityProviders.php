@@ -27,9 +27,11 @@
  */
 namespace CPK\View\Helper\CPK;
 
+use VuFind\Exception\Auth;
 use Zend\Config\Config, CPK\Auth\Manager as AuthManager;
+use Zend\View\Helper\AbstractHelper;
 
-class IdentityProviders extends \Zend\View\Helper\AbstractHelper
+class IdentityProviders extends AbstractHelper
 {
 
     /**
@@ -50,21 +52,24 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
 
     protected $others = [];
 
+    protected $idps = [];
+
     /**
      * C'tor
      *
      * @param AuthManager $authManager
-     * @param \Zend\Config\Config $config
+     * @param Logos $logosHelper
+     * @param Config $config
      * @param string $lang
      */
-    public function __construct(AuthManager $authManager, Logos $logosHelper, \Zend\Config\Config $config, $lang)
+    public function __construct(AuthManager $authManager, Logos $logosHelper, Config $config, $lang)
     {
         $this->authManager = $authManager;
         $this->logosHelper = $logosHelper;
 
-        $idps = $config->toArray();
+        $this->idps = $config->toArray();
 
-        foreach ($idps as $source => $idp) {
+        foreach ($this->idps as $source => $idp) {
 
             if (isset($idp['entityId']))
                 if (isset($idp['cat_username'])) {
@@ -98,11 +103,34 @@ class IdentityProviders extends \Zend\View\Helper\AbstractHelper
         return $this->produceListForTemplate($this->others, $isConsolidation);
     }
 
+
+    /**
+     * filter institutions by those which available in ziskej
+     *
+     * @param $institutions array of institutions available in ziskej
+     * @return array of filtered institutions
+     * @throws Auth
+     */
+    public function getZiskejLibraries($institutions) {
+        if ($this->authManager->isLoggedIn())
+            $isConsolidation = true;
+        else
+            $isConsolidation = false;
+
+        $filtered = array_filter($this->idps, function ($key) use ($institutions) {
+            return in_array($key, $institutions);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $this->produceListForTemplate($filtered, $isConsolidation);
+    }
+
     /**
      * Adds a href to redirect user to in order to authenticate him with Shibboleth
      *
      * @param array $institutions
+     * @param $isConsolidation
      * @return array of parsed institutions
+     * @throws Auth
      */
     protected function produceListForTemplate(array $institutions, $isConsolidation)
     {
