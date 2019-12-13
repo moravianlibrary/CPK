@@ -770,9 +770,10 @@ $.fn.listSearch = function (param) {
     param = {
         itemType: param.itemType !== undefined ? param.itemType : 'li.item',
         inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
-        placeholder: param.placeholder !== undefined ? param.placeholder : 'Write query'
+        placeholder: param.placeholder !== undefined ? param.placeholder : 'Write query',
+        clickSelector: param.clickSelector !== undefined ? param.clickSelector : undefined
     };
-    let that = $(this), i=1;
+    let that = $(this);
 
     this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function (e) {
         // value of text field, count of results
@@ -809,8 +810,6 @@ $.fn.listSearch = function (param) {
                         // don't need to go further
                         break;
                     }
-                    console.log(prevEl);
-                    console.log(nextEl);
                 }
 
                 // one of previous keypress created active el, now can move in the list
@@ -834,6 +833,8 @@ $.fn.listSearch = function (param) {
                             if (param.clickSelector != undefined){
                                 // if target element is child of active one
                                 activeEl = activeEl.find(param.clickSelector);
+                                // workaround - click won't work (WTF Jquery?!?)
+                                window.location = activeEl.prop('href');
                             }
                             activeEl.click();
                             break;

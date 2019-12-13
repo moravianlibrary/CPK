@@ -23,7 +23,7 @@
 }
 
 .dropdown.search-enabled {
-  .dropdown-menu {
+  ul.dropdown-menu {
     input.dropdown-search {
       display: block;
       background: #f1f1f1;
@@ -35,6 +35,13 @@
       border: 0;
       border-radius: 0;
     }
+    li{
+      display: none;
+      &.result{
+        display: block;
+      }
+    }
+
   }
 }
 
