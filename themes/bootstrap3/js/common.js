@@ -611,13 +611,71 @@ jQuery( document ).ready( function( $ ) {
   /* Initialize questionmark helps when available */
   $( '.questionmark-help + .modal' ).appendTo( 'body' );
 
-  // Feedback modal window
-  var feedbackModal = document.getElementById( 'feedback-open' );
-  if ( feedbackModal ) {
-    feedbackModal.onclick = function () {
-      $( '#feedback-modal' ).modal( 'show' );
+  var $mvsSubmit = $('#mvs-submit');
+  var $ziskejOrderButton = $('button.ziskej-order-btn');
+  
+  var renderMVSModal = function () {
+    $( '#mvs-modal' ).modal( 'show' );
+    // get container where we will render our page
+    var $container = $('div.record-mvs-description');
+
+    var $recordInformation = $('div.record-information');
+    var $table = $recordInformation.find('table.table');
+    $table.find('tr#subjects-tr').remove();
+    // console.log(renderTable);
+    var renderObject = {
+      cover: $('#cover .cover_thumbnail img').attr('src'),
+      title: $recordInformation.find('h2.record-title').text(),
+      tableInformation: $table
+    };
+  
+    let htmlCov = '';
+    htmlCov += '<div class="row table-core">';
+    htmlCov += '<h3>' + VuFind.translate('Informace o dokumentu') + '</h3>';
+    htmlCov += '<div class="col-md-3">';
+    if(renderObject.cover){
+      htmlCov += '<img src="' + renderObject.cover + '" alt="cover">';
+    }else{
+      htmlCov += '<div class="text-center">';
+      htmlCov +=  '<i style="font-size: 70px; color: #cccccc;" class="pr-format-books"></i>';
+      htmlCov += '</div>';
     }
-  }
+    htmlCov += '</div>';
+    htmlCov += '<div class="col-md-9">';
+    htmlCov += '<h4>' + renderObject.title + '</h4>';
+    htmlCov += '<table class="table">' + renderObject.tableInformation.html() + '</table>';
+    htmlCov += '</div>';
+    htmlCov += '</div>';
+    $container.html(htmlCov);
+  };
+
+  $mvsSubmit.one('click', function (e) {
+    e.preventDefault();
+    // renderMVSModal();
+  });
+
+  $mvsSubmit.on('click', function (e) {
+    e.preventDefault();
+    // $( '#mvs-modal' ).modal( 'show' );
+  });
+
+  $ziskejOrderButton.one('click', function (e) {
+    e.preventDefault();
+    renderMVSModal();
+  });
+
+  $ziskejOrderButton.on('click', function (e) {
+    e.preventDefault();
+    let library_eppn = $(this).data('eppn');
+    $('#mvs-modal #eppn').val(library_eppn);
+    $('#mvs-modal').modal('show');
+  });
+
+  $('.ziskej-lib-title').on('click', function (e) {
+    var id = this.id;
+    $('#content_'+id).toggleClass('hidden');
+  })
+
 });
 
 /**
@@ -703,33 +761,104 @@ function escapeHTML(unsafeStr) {
 }
 
 /**
+ * Creates text input and filters items in list by it's data-search param
  *
- * @param param
- * @returns {$}
+ * @param param parameters [itemType: ".item-selector", inputClass:".class", placeholder:"Placeholder text"]
+ * @returns self
  */
 $.fn.listSearch = function (param) {
-  param = {
-    itemType: param.itemType !== undefined ? param.itemType : 'li.item',
-    inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
-    placeholder: param.placeholder !== undefined ? param.placeholder : 'Zadejte dotaz'
-  };
-  let that = $(this),
-      input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function () {
-        var value = $(this).val().toLowerCase();
+    param = {
+        itemType: param.itemType !== undefined ? param.itemType : 'li.item',
+        inputClass: param.inputClass !== undefined ? param.inputClass : 'search-term',
+        placeholder: param.placeholder !== undefined ? param.placeholder : 'Write query',
+        clickSelector: param.clickSelector !== undefined ? param.clickSelector : undefined
+    };
+    let that = $(this);
+
+    this.input = $('<input>').addClass(param.inputClass).prop('placeholder', param.placeholder).on("keyup", function (e) {
+        // value of text field, count of results
+        let value = $(this).val().toLowerCase(), resultCount = 0;
         that.find(param.itemType).filter(function () {
-          $(this).toggle($(this).data('search').toLowerCase().indexOf(value) > -1)
+            if ($(this).data('search').toLowerCase().indexOf(value) > -1) {
+                $(this).addClass('result');
+                resultCount++;
+            } else {
+                // IC the current elem is active or was one of previous results
+                $(this).removeClass('active result');
+            }
         });
-      });
-  $(this).prepend(input);
 
-  this.focus = function () {
-    input.focus().val("");
-    $(this).find(param.itemType).each(function () {
-      $(this).show();
+        if (resultCount > 0) {
+            // move in the searched list
+            let
+                elList = that.find(param.itemType + '.result'),
+                activeEl = that.find(param.itemType + '.active'), nextEl, prevEl;
+
+            if (activeEl.length == 0) {
+                // no active item, now select the first visible element as active
+                elList.first().addClass('active');
+            } else {
+                // begin from 2nd element, end before last elem
+                for (i = 0; i < elList.length; i++) {
+                    if ($(elList[i]).hasClass('active')) {
+                        // normal elem
+                        prevEl = elList[i - 1] !== undefined ? $(elList[i - 1]) : 0;
+                        activeEl = $(elList[i]);
+                        // assign only if there is any ancestor
+                        nextEl = elList[i + 1] !== undefined ? $(elList[i + 1]) : 0;
+
+                        // don't need to go further
+                        break;
+                    }
+                }
+
+                // one of previous keypress created active el, now can move in the list
+                if ([13, 38, 40].indexOf(e.keyCode) > -1) {
+                    // one of these keys pressed
+                    switch (e.keyCode) {
+                        case 38: // up
+                            if (prevEl != 0) {
+                                activeEl.removeClass('active');
+                                prevEl.addClass('active');
+                            }
+                            break;
+                        case 40: // down
+                            if (nextEl != 0) {
+                                activeEl.removeClass('active');
+                                nextEl.addClass('active');
+                            }
+                            break;
+                        case 13: // enter
+                            // simulate click event
+                            if (param.clickSelector != undefined){
+                                // if target element is child of active one
+                                activeEl = activeEl.find(param.clickSelector);
+                                // workaround - click won't work (WTF Jquery?!?)
+                                window.location = activeEl.prop('href');
+                            }
+                            activeEl.click();
+                            break;
+                    }
+                }
+            }
+        }
     });
-  };
+    $(this).prepend(this.input);
 
-  return this;
+    this.focus = function () {
+        this.input.focus();
+        return this;
+    };
+
+    this.clear = function () {
+        this.input.val("");
+        $(this).find(param.itemType).each(function () {
+            $(this).show();
+        });
+        return this;
+    };
+
+    return this;
 };
 /**
  * JQuery plugin for bootstrap dropdown search filter.
@@ -737,12 +866,13 @@ $.fn.listSearch = function (param) {
  * @param e
  */
 $.fn.dropFinder = function (placeholder) {
-  let dropdownList = $(this).find('.dropdown-menu').listSearch({
-    itemType: 'li',
-    inputClass: 'dropdown-search',
-    placeholder: placeholder
-  });
-  $(this).on('shown.bs.dropdown', function () {
-    dropdownList.focus();
-  });
+    let dropdownList = $(this).find('.dropdown-menu').listSearch({
+        itemType: 'li',
+        inputClass: 'dropdown-search',
+        placeholder: placeholder,
+        clickSelector: 'a'
+    });
+    $(this).on('shown.bs.dropdown', function () {
+        dropdownList.focus();
+    });
 };

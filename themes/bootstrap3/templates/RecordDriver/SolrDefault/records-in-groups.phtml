@@ -47,7 +47,7 @@ if ($resultCount > 1){
     <ul class="dropdown-menu" aria-labelledby="records-in-groups-nav" style='width: 100%;'>
       <? foreach ($institutionList as $record){
         $institutionTitle = $this->translate($record['source']);?>
-        <li data-search="<?= strtolower($institutionTitle); ?>">
+        <li class="result" data-search="<?= strtolower($institutionTitle); ?>">
           <a href="<?=$this->url('record', array('id' => $record['id']))?>?referer=<?=$this->referer?>#records-in-groups" title="<?=$institutionTitle?>">
             <div class='record-group-list-item'>
 

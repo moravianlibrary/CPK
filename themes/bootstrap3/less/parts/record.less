@@ -23,7 +23,7 @@
 }
 
 .dropdown.search-enabled {
-  .dropdown-menu {
+  ul.dropdown-menu {
     input.dropdown-search {
       display: block;
       background: #f1f1f1;
@@ -35,6 +35,13 @@
       border: 0;
       border-radius: 0;
     }
+    li{
+      display: none;
+      &.result{
+        display: block;
+      }
+    }
+
   }
 }
 
@@ -119,6 +126,11 @@ body .well.similar-item {
 
 .similar-items-container.list-group .list-group-item {
     margin-bottom: 24px;
+}
+
+.similar-item .iconlabel i {
+  font-size: 300%;
+  color: #CCCCCC;
 }
 
 .back-to-search-link {
