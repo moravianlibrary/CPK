@@ -140,3 +140,33 @@ list_item[] = 'doctypes_widget_authorities;doctypes_widget_authorities_descripti
 
 ; List is rendered in given order, otherwise can be sorted randomly
 list_sorting = random
+
+[Ziskej]
+disabled = ''
+prod = 'https://ziskej.techlib.cz:9080/api/v1'
+test = 'https://ziskej-test.techlib.cz:9080/api/v1'
+demo = 'https://ziskej-demo.techlib.cz:9080/api/v1'
+dev  = 'https://ziskej-dev.techlib.cz:9080/api/v1'
+
+[Ziskej_minimal]
+url = 'https://ziskej.techlib.cz'
+
+[SensitiveZiskej]
+username = "ziskej_api_username"
+password = "ziskej_api_password"
+
+; Available types: File, Memcache, Database, Redis
+[Session]
+type                        = Redis
+lifetime                    = 3600 ; Session lasts for 1 hour
+;file_save_path              = /tmp/vufind_sessions
+;memcache_host               = localhost
+;memcache_port               = 11211
+;memcache_connection_timeout = 1
+
+;redis_host               = localhost
+;redis_port               = 6379
+;redis_connection_timeout = 0.5
+;redis_db                 = 0
+;redis_auth               = some_very_secret_password
+;redis_version            = 3

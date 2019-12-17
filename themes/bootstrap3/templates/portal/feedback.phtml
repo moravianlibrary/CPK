@@ -1,7 +1,7 @@
 <?
 $title = $this->translate('Feedback') . ' | ' . $this->translate('Central Library Portal');
 $this->headTitle($title);
-
+$this->layout()->searchbox = false;
 //Hide feedback modal window in Feedback page (uses in layout.phtml to render modal)
 $this->feedback()->hideFeedbackModalButton = true;
 ?>
@@ -12,7 +12,7 @@ $this->feedback()->hideFeedbackModalButton = true;
         }
     });
 </script>
-<div class='clearfix portal-page'>
+<div class="clearfix portal-page white-box">
   <div class="title">
     <h1><?=$this->translate('Feedback') ?></h1>
   </div>
@@ -77,7 +77,7 @@ $this->feedback()->hideFeedbackModalButton = true;
 
     <div id='RecaptchaField'></div>
 
-    <input type="hidden" name="page_path" value="<?= $this->feedback()->actualLink ?>">
+    <input type="hidden" name="page_path" value="<?= $this->escapeHtml($this->previous_page_path); ?>">
 
     <fieldset class="form-group">
       <input id="captcha_submit"

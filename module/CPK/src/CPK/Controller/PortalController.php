@@ -104,6 +104,7 @@ class PortalController extends AbstractBase
         $secretKey = $config->Captcha->secretKey;
         $siteKey = $config->Captcha->siteKey;
         $vars['siteKey'] = $siteKey;
+        $vars['previous_page_path'] = $this->getRequest()->getHeader('referer')->getUri();
 
         $captchaContentLink = str_replace([
             '%secretKey%',

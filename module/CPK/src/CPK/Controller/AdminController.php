@@ -83,7 +83,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
      */
     public function homeAction()
     {
-        return $this->redirect()->toRoute('admin-configurations');
+        return $this->redirect()->toRoute('admin-widgets');
     }
 
     /**
@@ -102,6 +102,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         return $this->createViewModel([
             'isPortalAdmin' => $this->accessManager->isPortalAdmin(),
+            'isWidgetsAdmin' => $this->accessManager->isWidgetsAdmin(),
             'ncipTypes' => $configHandler->getNCIPTypes(),
             'configs' => $configHandler->getAdminConfigs()
         ], 'admin/configurations/main.phtml');
@@ -119,6 +120,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
         $viewModel->setVariable('user', $user);
 
         $portalPagesTable = $this->getTable("portalpages");
@@ -214,6 +216,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
         $viewModel->setVariable('user', $user);
 
         $userTable = $this->getTable('user');
@@ -262,8 +265,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $this->forceLogin();
         }
 
-        // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
+        // Must be an admin ..
+        $this->accessManager->assertIsAnyAdmin();
 
         $user = $this->accessManager->getUser();
 
@@ -310,6 +313,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         if ($subAction == 'CreateWidget') {
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setTemplate('admin/widgets/create-widget');
 
@@ -344,6 +348,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setVariable('widget', $widget);
             $viewModel->setTemplate('admin/widgets/edit-widget');
@@ -386,6 +391,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
         $viewModel->setVariable('user', $user);
 
         $config = $this->getConfig();
@@ -420,8 +426,8 @@ class AdminController extends \VuFind\Controller\AbstractBase
             return $this->forceLogin();
         }
 
-        // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
+        // Must be an admin ..
+        $this->accessManager->assertIsAnyAdmin();
 
         /*
          * Handle subactions
@@ -432,6 +438,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setTemplate('admin/widgets/infobox/create-item');
             $this->layout()->searchbox = false;
@@ -451,6 +458,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setVariable('item', $item);
             $viewModel->setTemplate('admin/widgets/infobox/edit-item');
@@ -505,6 +513,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
         $viewModel->setVariable('user', $user);
         $viewModel->setTemplate('admin/widgets/infobox/list');
 
@@ -563,7 +572,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
         }
 
         // Must be an portal admin ..
-        $this->accessManager->assertIsPortalAdmin();
+        $this->accessManager->assertIsAnyAdmin();
 
         $widgetId = $this->params()->fromRoute('subaction');
 
@@ -584,6 +593,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setVariable('widgetId', $widgetId);
             $viewModel->setVariable('widgetTitle', $widgetName);
@@ -606,6 +616,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setVariable('widgetContent', $widgetContent);
             $viewModel->setVariable('widgetId', $widgetId);
@@ -625,6 +636,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
             $viewModel = $this->createViewModel();
             $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+            $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
             $viewModel->setVariable('user', $user);
             $viewModel->setVariable('widgetId', $widgetId);
             $viewModel->setVariable('widgetTitle', $widgetName);
@@ -702,6 +714,7 @@ class AdminController extends \VuFind\Controller\AbstractBase
 
         $viewModel = $this->createViewModel();
         $viewModel->setVariable('isPortalAdmin', $this->accessManager->isPortalAdmin());
+        $viewModel->setVariable('isWidgetsAdmin', $this->accessManager->isWidgetsAdmin());
         $viewModel->setVariable('user', $user);
         $viewModel->setVariable('widgetId', $widgetId);
         $viewModel->setVariable('widgetTitle', $widgetName);
@@ -736,6 +749,13 @@ class AccessManager
     const PORTAL_ADMIN_SOURCE = 'cpk';
 
     /**
+     * Source / identifier of widgets admin part
+     *
+     * @var string
+     */
+    const PORTAL_WIDGETS_SOURCE = 'widgets';
+
+    /**
      * User
      *
      * @var \CPK\Db\Row\User
@@ -764,6 +784,13 @@ class AccessManager
     protected $isPortalAdmin;
 
     /**
+     * Holds info about user being widgets admin
+     *
+     * @var bool
+     */
+    protected $isWidgetsAdmin;
+
+    /**
      * C'tor
      *
      * Throws AuthException only if logged in user is not admin
@@ -790,8 +817,10 @@ class AccessManager
     {
         $this->user = $this->authManager->isLoggedIn();
 
+        $this->isWidgetsAdmin = false;
+        $this->isPortalAdmin = false;
+
         if (! $this->user) {
-            $this->isPortalAdmin = false;
             return;
         }
 
@@ -824,8 +853,10 @@ class AccessManager
         $this->isPortalAdmin = false;
         foreach ($this->institutionsBeingAdminAt as $key => $adminSource) {
             if (strtolower($adminSource) === self::PORTAL_ADMIN_SOURCE) {
-
                 $this->isPortalAdmin = true;
+                unset($this->institutionsBeingAdminAt[$key]); // Do not break because it can be defined more than one way ..
+            } elseif (strtolower($adminSource) === self::PORTAL_WIDGETS_SOURCE) {
+                $this->isWidgetsAdmin = true;
                 unset($this->institutionsBeingAdminAt[$key]); // Do not break because it can be defined more than one way ..
             }
         }
@@ -865,6 +896,19 @@ class AccessManager
             throw new AuthException('You\'re not a portal admin!');
     }
 
+
+    /**
+     * If current user is not admin, it throws an \VuFind\Exception\Auth
+     *
+     * @throws AuthException
+     */
+    public function assertIsAnyAdmin()
+    {
+        if ($this->isPortalAdmin() === false && $this->isWidgetsAdmin() === false) {
+            throw new AuthException('You\'re not an admin!');
+        }
+    }
+
     /**
      * Returns bool whether current user is an portal admin or is not
      *
@@ -873,6 +917,16 @@ class AccessManager
     public function isPortalAdmin()
     {
         return $this->isPortalAdmin;
+    }
+
+    /**
+     * Returns bool whether current user is a widgets admin or is not
+     *
+     * @return boolean
+     */
+    public function isWidgetsAdmin()
+    {
+        return $this->isWidgetsAdmin;
     }
 
     /**

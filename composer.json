@@ -12,6 +12,10 @@
         {
             "type": "composer",
             "url": "https://packages.zendframework.com/"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/moravianlibrary/ziskej-api-php-client"
         }
     ],
     "require": {
@@ -33,8 +37,12 @@
         "zendframework/zendrest": "2.0.2",
         "zendframework/zendservice-amazon": "2.0.4",
         "zf-commons/zfc-rbac": "2.5.2",
-	"sentry/sentry": "1.6.2",
-	"nullpunkt/lz-string-php": "1.2.0"
+        "sentry/sentry": "1.6.2",
+        "nullpunkt/lz-string-php": "1.2.0",
+        "monolog/monolog": "^1.24",
+        "php-http/guzzle6-adapter": "^2.0",
+        "moravianlibrary/ziskej-api-php-client": "^1.0",
+        "colinmollenhour/credis": "^1.10"
     },
     "require-dev": {
         "behat/mink": "1.7.0",

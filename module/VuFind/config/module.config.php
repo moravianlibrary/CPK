@@ -576,6 +576,7 @@ $config = [
                     'database' => 'VuFind\Session\Database',
                     'file' => 'VuFind\Session\File',
                     'memcache' => 'VuFind\Session\Memcache',
+                    'redis' => 'VuFind\Session\Redis',
                 ],
                 'aliases' => [
                     // for legacy 1.x compatibility

@@ -63,6 +63,11 @@ $config = array(
 					'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
                 ], /* factories */
             ], /* recommend */
+            'related' => [
+                'invokables' => [
+                    'solrfield' => 'CPK\Related\SolrField',
+                ], /* invokables */
+            ], /* related */
             'auth' => array(
                 'factories' => array(
                     'shibbolethIdentityManager' => 'CPK\Auth\Factory::getShibbolethIdentityManager'
@@ -98,7 +103,8 @@ $config = array(
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
-                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph'
+                    'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
+                    'koharest' => 'CPK\ILS\Driver\Factory::getKohaRest',
                 ), /* factories */
             ], /* ils_driver */
                 'autocomplete' => [
@@ -229,9 +235,10 @@ $config = array(
             'CPK\AutocompletePluginManager' => 'CPK\Service\Factory::getAutocompletePluginManager',
             'CPK\SolrEdgeFaceted' => 'CPK\Service\Factory::getSolrEdgeFaceted',
             'CPK\NotificationsHandler' => 'CPK\Notifications\Factory::getNotificationsHandler',
-            'CPK\Libraries' => 'CPK\Libraries\Factory::getLoader',
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
-			'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds'
+            'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
+            'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory',
+            'CPK\KohaOAUTH2Service' => 'CPK\Auth\Factory::getKohaOAUTH2Service',
         ), // Exceptions throwing system
 
         'invokables' => array(
@@ -248,6 +255,7 @@ $config = array(
 );
 
 $staticRoutes = array(
+    'AJAX/JSON',
     'MyResearch/UserConnect',
     'MyResearch/UserDelete',
     'MyResearch/Settings',
@@ -255,6 +263,7 @@ $staticRoutes = array(
     'Admin/ConfigurationsApproval',
     'Admin/PortalPages',
     'Admin/PermissionsManager',
+    'Admin/Widgets',
 	'Search/Conspectus',
  	'Search/MostSearched',
 	'Search/NewAcquisitions',
@@ -262,7 +271,7 @@ $staticRoutes = array(
 	'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
 	'MyResearch/ProfileChange',
-    'MyResearch/ChangeTitle'
+    'MyResearch/ChangeTitle',
 );
 
 foreach ($staticRoutes as $route) {
@@ -280,7 +289,7 @@ foreach ($staticRoutes as $route) {
     );
 }
 
-$nonTabRecordActions = array('ShortLoan');
+$nonTabRecordActions = array('ShortLoan', 'mvsForm');
 
 foreach ($nonTabRecordActions as $action) {
     $config['router']['routes']['record' . '-' . strtolower($action)] = array(
@@ -310,6 +319,21 @@ $config['router']['routes']['inspiration-show'] = array(
         'defaults' => array(
             'controller' => 'Inspiration',
             'action'     => 'show',
+        )
+    )
+);
+
+$config['router']['routes']['ziskej'] = array(
+    'type'    => 'Zend\Mvc\Router\Http\Segment',
+    'options' => array(
+        'route'    => '/' . 'ziskej' . '/',
+        'constraints' => array(
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'tag'        => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ),
+        'defaults' => array(
+            'controller' => 'Ziskej',
+            'action'     => 'home',
         )
     )
 );

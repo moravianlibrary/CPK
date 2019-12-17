@@ -358,33 +358,6 @@ class Entry
     }
 
     /**
-     * Set the annotation feed
-     *
-     * @param $annotation
-     * @return $this
-     */
-    public function setAnnotation($annotation) {
-        if (empty($annotation) || !is_string($annotation) || !$annotation) {
-            throw new Exception\InvalidArgumentException('Invalid parameter: parameter must be a non-empty string');
-        }
-        $this->data['annotation'] = $annotation;
-
-        return $this;
-    }
-
-    /**
-     * Get an annotation
-     *
-     * @return mixed|void
-     */
-    public function getAnnotation() {
-        if (!array_key_exists('annotation', $this->data)) {
-            return;
-        }
-        return $this->data['annotation'];
-    }
-
-    /**
      * Get an array with feed authors
      *
      * @return array

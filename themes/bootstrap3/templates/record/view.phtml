@@ -212,6 +212,7 @@
                   <ul class="recordTabs nav nav-tabs">
 
                     <? foreach ($this->tabs as $tab => $obj): ?>
+                    <? if($tab == 'Ziskej' && !$this->ziskejEnabled) continue; ?>
                     <? // add current tab to breadcrumbs if applicable:
                       $desc = $obj->getDescription();
                       $tab_classes = array();
@@ -227,6 +228,7 @@
                     <? if ($desc !== 'Buy'): /* temporary hide Buy tab */ ?>
                     <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
                       <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav">
+                          <? ?>
                           <? $titleHtml = ($desc=='Holdings') ? $this->transEsc('Borrow') : $this->transEsc($desc) ?>
                           <?= $this->help()->getElementHelp('element_help_record_tab_'.$desc, $titleHtml) ?>
 
@@ -239,7 +241,7 @@
             </div>
            	<? endif; ?>
                 <div class="tab-content well border" id="record-tabs">
-                  <? if($this->activeTab != 'ziskej' || ( $this->isZiskej || isset($this->ziskejUrl))): ?>
+                  <? if($this->activeTab != 'ziskej' || $this->ziskejEnabled): ?>
                     <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
                       <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
                     </div>
@@ -383,7 +385,7 @@
                     disableTab($( '#branches' ));
                 }
 
-                <? if(!$this->isZiskej && !isset($this->ziskejUrl)): ?>
+                <? if(!$this->ziskejEnabled): ?>
                     disableTab($( '#ziskej' ));
                 <? endif; ?>
 

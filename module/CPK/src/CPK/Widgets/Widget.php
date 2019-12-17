@@ -85,6 +85,10 @@ class Widget {
         return $this->title_cs;
     }
 
+    public function getTitleEn() {
+        return $this->title_en;
+    }
+
     public function getShowAllRecordsLink() {
         return $this->show_all_records_link;
     }

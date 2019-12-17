@@ -53,7 +53,7 @@
           <? foreach ($addedEntryNames as $field): $iteration++; ?>
           <div>
             <? $name = ''; ?>
-            <? if(count($field) == 1) $field = explode('--', is_array($field) ? $field[0] : $field); ?>
+            <? $field = explode('--', $field); ?>
             <? $i = 0; foreach ($field as $subfield): ?>
               <?=($i++ == 0) ? '' : ' &gt; '?>
               <? $name = trim($subfield); ?>

@@ -3,7 +3,7 @@ $(function() { // Onload DOM ..
 	var cat_username = $(this).attr('id');
 
 	fetchFines(cat_username);
-    })
+    });
     
     goToAnchorIfAny();
 });
@@ -29,7 +29,7 @@ function fetchFines(cat_username) {
 	    updateFinesTable(response);
 	    goToAnchorIfAny();
 	}
-    })
+    });
 }
 
 function updateFinesTable(response) {

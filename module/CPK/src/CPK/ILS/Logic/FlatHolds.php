@@ -49,7 +49,7 @@ class FlatHolds extends Holds
             if ($mode == "disabled") {
                 $holdings = $this->standardHoldings($result);
             } else if ($mode == "driver") {
-                $holdings = $this->driverHoldings($result);
+                $holdings = $this->driverHoldings($result, null);
             } else {
                 $holdings = $this->generateHoldings($result, $mode);
             }
