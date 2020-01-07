@@ -17,12 +17,12 @@
             <? foreach ($this->tabs['DedupedRecords']->getRecordsInGroup() as $record): ?>
               <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
             <? endforeach; ?>
-            <input type="image" src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+            <input type="image" src="<?= $this->imageLink('logo-ziskej.png') ?>" alt="<?= $this->translate('ziskej') ?>">
           </form>
         <? else: ?>
           <? if (!empty($this->ziskejMinUrl)): ?>
             <a href="<?= $this->ziskejMinUrl ?>" target="_blank">
-              <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+              <img src="<?= $this->imageLink('logo-ziskej.png') ?>" alt="<?= $this->translate('ziskej') ?>">
             </a>
           <? endif; ?>
         <? endif; ?>
