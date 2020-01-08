@@ -104,6 +104,22 @@ if (php_sapi_name() != 'cli' && !defined('STDIN')) {
     }
 }
 
+function logErrorMessage($type, $message, $details)
+{
+    $content = date("Y-m-d H:i:s ") . ' ' . $type . ' ' . $message . "\n";
+    $content .= $message . "\n";
+    if (isset($details)) {
+        $content .= $details . "\n";
+    }
+    $logFile = __DIR__ . "/../log/fatal-errors.log";
+    $fp = fopen($logFile, "a");
+    if ($fp) {
+        fwrite($fp, $content);
+        fclose($fp);
+    }
+    return $content;
+}
+
 /**
  * throw exceptions based on E_* error types
  */
@@ -116,16 +132,9 @@ function cpkErrorHandler($err_severity, $err_msg, $err_file, $err_line, array $e
         return false;
     }
 
-    $logDetails = date("Y-m-d H:i:s ");
-    $logDetails .= friendlyErrorType($err_severity)." \n";
-    $logDetails .= "$err_msg\n";
-    $logDetails .= "Error on line $err_line in file $err_file\n\n";
+    $details = "Error on line $err_line in file $err_file";
 
-    $logFile = __DIR__."/../log/fatal-errors.log";
-    $fp = fopen($logFile, "a");
-    fwrite($fp, $logDetails);
-    fwrite($fp, "");
-    fclose($fp);
+    $logDetails = logErrorMessage(friendlyErrorType($err_severity), $err_msg, $details);
 
     if (php_sapi_name() != 'cli' || defined('STDIN') || (is_numeric($_SERVER['argc']) && $_SERVER['argc'] > 0)) {
         if (isset($_SERVER['VUFIND_ENV'])) {
@@ -155,6 +164,15 @@ function cpkErrorHandler($err_severity, $err_msg, $err_file, $err_line, array $e
 };
 
 set_error_handler('cpkErrorHandler');
+
+function cpkExceptionHandler($exception)
+{
+    $message = $exception->getMessage();
+    $details = $exception->getTraceAsString();
+    logErrorMessage('EXCEPTION', $message, $details);
+}
+
+set_exception_handler('cpkExceptionHandler');
 
 // Run the application!
 Zend\Mvc\Application::init(require 'config/application.config.php')->run();

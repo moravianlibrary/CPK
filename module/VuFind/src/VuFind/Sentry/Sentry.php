@@ -58,7 +58,9 @@ class Sentry {
 
     public static function handleErrorException($exception)
     {
-        if (self::$errorHandler != null) {
+        if (self::$errorHandler == null) {
+            cpkExceptionHandler($exception);
+        } else {
             self::$errorHandler->handleException($exception, true);
         }
     }
