@@ -49,8 +49,6 @@ class JsonFacetListener
 
     const SOLR_LOCAL_PARAMS = "/(\\{[^\\}]*\\})*(\S+)/";
 
-    const UNLIMITED_FACET_LIMIT = 10000;
-
     /**
      * Backend.
      *
@@ -73,6 +71,8 @@ class JsonFacetListener
     protected $allFacetsAreOr = false;
 
     protected $enabledForAllFacets = false;
+
+    protected $facetMethod = 'smart';
 
     protected $parentCount = true;
 
@@ -108,6 +108,9 @@ class JsonFacetListener
         }
         if (isset($facetConfig->JSON_API) && isset($facetConfig->JSON_API->enabled) && $facetConfig->JSON_API->enabled) {
             $this->enabledForAllFacets = true;
+        }
+        if (isset($facetConfig->JSON_API) && isset($facetConfig->JSON_API->method) && $facetConfig->JSON_API->method) {
+            $this->facetMethod = $facetConfig->JSON_API->method;
         }
         if (!empty($this->orFacets) && $this->orFacets[0] == "*") {
             $this->allFacetsAreOr = true;
@@ -201,7 +204,7 @@ class JsonFacetListener
         $data = [
                 'type'  => 'terms',
                 'field' => $field,
-                'limit' => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
+                'limit' => $limit
         ];
         if ($this->isOrFacet($field)) {
             $data['excludeTags'][] = $field . '_filter';
@@ -234,7 +237,9 @@ class JsonFacetListener
             'type'     => 'terms',
             'field'    => $facetField,
             'mincount' => 0,
-            'limit'    => ($limit == -1) ? self::UNLIMITED_FACET_LIMIT : (int) $limit
+            'method'   => $this->facetMethod,
+            'sort'     => 'index',
+            'limit'    => (int) $limit
         ];
         if ($this->parentCount) {
             $config['facet'][$facetField]['facet'] = [ 'count' => 'unique(_root_)' ];
