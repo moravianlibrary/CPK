@@ -132,6 +132,10 @@ class RecordCollection extends AbstractRecordCollection
                             $buckets = $facet['buckets'];
                         } else if (isset($facet[$field]['buckets'])) {
                             $buckets = $facet[$field]['buckets'];
+                            // sort JSON facets by count
+                            usort($buckets, function ($a, $b) {
+                                return ($b['count'] <=> $a['count']);
+                            });
                         }
                         foreach ($buckets as $bucket) {
                             $value = $bucket['val'];
