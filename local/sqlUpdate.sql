@@ -1052,3 +1052,7 @@ UPDATE `widget` SET `title_cs` = "Knihovnictví" WHERE `name` = "kiv_library_sci
 UPDATE `widget` SET `title_cs` = "Horolezectví a alpinismus" WHERE `name` = "mountain_climbing";
 
 UPDATE `system` SET `value` = '65' WHERE `key`='DB_VERSION';
+
+-- Bug 1301
+DELETE FROM `inst_configs` where `key` = "cannotUseLUIS";
+UPDATE `system` SET `value` = '66' WHERE `key`='DB_VERSION';

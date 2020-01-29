@@ -82,11 +82,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
     /**
      * @var bool
      */
-    protected $cannotUseLUIS = false;
-
-    /**
-     * @var bool
-     */
     protected $hideHoldLinks = false;
 
     /**
@@ -171,9 +166,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $this->maximumItemsCount = intval($maximumItemsCount);
         else
             $this->maximumItemsCount = 20;
-
-        if (isset($this->config['Catalog']['cannotUseLUIS']) && $this->config['Catalog']['cannotUseLUIS'])
-            $this->cannotUseLUIS = true;
 
         if (!empty($this->config['Catalog']['hideHoldLinks']))
             $this->hideHoldLinks = true;
@@ -301,7 +293,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $result = $client->send();
         } catch (\Exception $e) {
             $message = $e->getMessage();
-
             $this->addEnvironmentalException($message);
             throw new ILSException($message);
         }
@@ -797,20 +788,9 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      */
     public function getStatuses($ids, $patron = [], $filter = [], $bibId = [], $nextItemToken = null)
     {
-        if (empty($bibId))
-            $this->cannotUseLUIS = true;
-
-        if ($this->cannotUseLUIS) {
-            // If we cannot use LUIS we will parse only the first one
-            $retVal = [];
-            $retVal[] = $this->getStatus(reset($ids), $patron);
-            return $retVal;
-        } else {
-            $request = $this->requests->LUISBibItemV2($bibId, $nextItemToken, $this, $patron);
-            $response = $this->sendRequest($request);
-            return $this->handleStatuses($response);
-
-        }
+        $request = $this->requests->LUISBibItemV2($bibId, $nextItemToken, $this, $patron);
+        $response = $this->sendRequest($request);
+        return $this->handleStatuses($response);
     }
 
     /**
@@ -1706,7 +1686,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
             $denormalizedJsonXmlRequest = $this->getNewNCIPDenormalizer($method)->denormalize($ncipRequest);
             $ncipRequest = $denormalizedJsonXmlRequest->toXmlString();
-            $this->logger->debug("Denormalized NCIP response for " . $method . ": \n" . $ncipRequest);
+            $this->logger->debug("Denormalized NCIP request for " . $method . ": \n" . $ncipRequest);
         } catch (JsonXMLException $e) {
             $this->logger->crit("NCIP: Failed to denormalize the request.");
             $this->logger->crit($e->getMessage());
@@ -1744,7 +1724,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             } catch (JsonXMLException $e) {
                 throw new ILSException("Malformed XML came from the NCIP server!");
             }
-
         }
     }
 
@@ -1770,6 +1749,8 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
     private function getNewNCIPNormalizer($method)
     {
         $router = new NCIPNormalizerRouter();
+
+
 
         $normalizer = $router->route($method, $this->source, $this->agency, $this->requests, $this->translator);
 
