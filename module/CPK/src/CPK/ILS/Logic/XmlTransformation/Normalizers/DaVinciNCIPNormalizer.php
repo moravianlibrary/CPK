@@ -39,113 +39,24 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
         throw new ILSException('driver_no_fines');
     }
 
-    public function normalizeLookupItemStatus(JsonXML &$response)
-    {
-
-        $status = $response->get('LookupItemResponse', 'ItemOptionalFields', 'CirculationStatus');
-
-        $newStatus = $this->normalizeStatus($status);
-
-        // We always need department to determine normalization, so parse it unconditionally
-        $department = null;
-
-        $locations = $response->getArray('LookupItemResponse', 'ItemOptionalFields', 'Location');
-        foreach ($locations as $locElement) {
-            $level = $response->getRelative(
-                $locElement,
-                'LocationName',
-                'LocationNameInstance',
-                'LocationNameLevel'
-            );
-            $value = $response->getRelative(
-                $locElement,
-                'LocationName',
-                'LocationNameInstance',
-                'LocationNameValue'
-            );
-            if ($value !== null) {
-                if ($level == '1') {
-                    // We're only looking for the department ..
-                    $department = $value;
-                    break;
-                }
-            }
-        }
-
-        if ($department !== null) {
-
-            $parts = explode("@", $department);
-            $translate = $this->translator->translate(
-                isset($parts[0]) ? $this->source . '_location_' . $parts[0] : ''
-            );
-            $parts = explode(" ", $translate, 2);
-            $department = isset($parts[0]) ? $parts[0] : '';
-            $collection = isset($parts[1]) ? $parts[1] : '';
-
-            $response->unsetDataValue(
-                'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationName'
-            );
-            $response->unsetDataValue(
-                'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationType'
-            );
-
-            $response->setDataValue(
-                array(
-                    array(
-                        'ns1:LocationName' => array(
-                            'ns1:LocationNameInstance' => array(
-                                'ns1:LocationNameLevel' => '1',
-                                'ns1:LocationNameValue' => $department
-                            )
-                        )
-                    ),
-                    array(
-                        'ns1:LocationName' => array(
-                            'ns1:LocationNameInstance' => array(
-                                'ns1:LocationNameLevel' => '2',
-                                'ns1:LocationNameValue' => $collection
-                            )
-                        )
-                    )
-                ),
-                'ns1:LookupItemResponse',
-                'ns1:ItemOptionalFields',
-                'ns1:Location'
-            );
-        }
-
-        // Update status only if it have changed
-        if ($newStatus !== null)
-            $response->setDataValue(
-                $newStatus,
-                'ns1:LookupItemResponse',
-                'ns1:ItemOptionalFields',
-                'ns1:CirculationStatus'
-            );
-
-        // This condition is very weird ... it would be nice to find out what agency it belongs, to avoid misuse
-        if ($department == 'Podlesí') {
-
-            // Only append 'Not For Loan' to the end of item restriction
-            $itemRestriction = $response->getArray(
-                'LookupItemResponse',
-                'ItemOptionalFields',
-                'ItemUseRestrictionType'
-            );
-            $i = sizeof($itemRestriction);
-
-            $response->setDataValue(
-                'Not For Loan',
-                'ns1:LookupItemResponse',
-                'ns1:ItemOptionalFields',
-                "ns1:ItemUseRestrictionType[$i]"
-            );
-        }
-    }
-
     public function normalizeLookupItemSetStatus(JsonXML &$response)
     {
-        $this->normalizeLookupItemStatus($response);
+        $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
+
+        $response->unsetDataValue('ns1:LookupItemSetResponse', 'ns1:BibInformation', 'ns1:HoldingsSet');
+
+        // Rewind holdingSets to ItemInformation ..
+        foreach ($holdingSets as $i => $holdingSet) {
+            $itemInformation = $response->getRelative($holdingSet, 'ItemInformation');
+            $response->setDataValue(
+                $itemInformation,
+                'ns1:LookupItemSetResponse',
+                'ns1:BibInformation',
+                'ns1:HoldingsSet',
+                "ns1:ItemInformation",
+                $i
+            );
+        }
     }
 
     public function normalizeRequestedItems(JsonXML &$response)
