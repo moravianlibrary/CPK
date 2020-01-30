@@ -126,20 +126,94 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
     public function normalizeLookupItemSetStatus(JsonXML &$response)
     {
         $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
-
-        $response->unsetDataValue('ns1:LookupItemSetResponse', 'ns1:BibInformation', 'ns1:HoldingsSet');
+        $namespace = array_key_exists('ns1:LookupItemSetResponse', $response->toJsonObject()) ? 'ns1:' : '';
+        $response->unsetDataValue(
+            $namespace . 'LookupItemSetResponse',
+            $namespace . 'BibInformation',
+            $namespace . 'HoldingsSet'
+        );
 
         // Rewind holdingSets to ItemInformation ..
         foreach ($holdingSets as $i => $holdingSet) {
             $itemInformation = $response->getRelative($holdingSet, 'ItemInformation');
+            $callNumber = $response->getRelative($holdingSet, 'CallNumber');
             $response->setDataValue(
                 $itemInformation,
-                'ns1:LookupItemSetResponse',
-                'ns1:BibInformation',
-                'ns1:HoldingsSet',
-                "ns1:ItemInformation",
+                $namespace . 'LookupItemSetResponse',
+                $namespace . 'BibInformation',
+                $namespace . 'HoldingsSet',
+                $namespace . 'ItemInformation',
                 $i
             );
+            $response->setDataValue(
+                $callNumber,
+                $namespace . 'LookupItemSetResponse',
+                $namespace . 'BibInformation',
+                $namespace . 'HoldingsSet',
+                $namespace . 'ItemInformation',
+                $i,
+                $namespace . 'ItemOptionalFields',
+                $namespace . 'CallNumber'
+            );
+
+            $department = null;
+            $location = $response->getRelative($holdingSet, 'Location');
+            $level = $response->getRelative(
+                $location,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameLevel'
+            );
+            $value = $response->getRelative(
+                $location,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameValue'
+            );
+            if ($value !== null) {
+                if ($level == '1') {
+                    // We're only looking for the department ..
+                    $department = $value;
+                }
+            }
+
+            if ($department !== null) {
+                $parts = explode("@", $department);
+                $translate = $this->translator->translate(
+                    isset($parts[0]) ? $this->source . '_location_' . $parts[0] : ''
+                );
+                $parts = explode(" ", $translate, 2);
+                $department = $parts[0] ?? '';
+                $collection = $parts[1] ?? '';
+
+                $response->setDataValue(
+                    [
+                        [
+                            $namespace . 'LocationName' => [
+                                $namespace . 'LocationNameInstance' => [
+                                    $namespace . 'LocationNameLevel' => '1',
+                                    $namespace . 'LocationNameValue' => $department
+                                ]
+                            ]
+                        ],
+                        [
+                            $namespace . 'LocationName' => [
+                                $namespace . 'LocationNameInstance' => [
+                                    $namespace . 'LocationNameLevel' => '2',
+                                    $namespace . 'LocationNameValue' => $collection
+                                ]
+                            ]
+                        ]
+                    ],
+                    $namespace . 'LookupItemSetResponse',
+                    $namespace . 'BibInformation',
+                    $namespace . 'HoldingsSet',
+                    $namespace . 'ItemInformation',
+                    $i,
+                    $namespace . 'ItemOptionalFields',
+                    $namespace . 'Location'
+                );
+            }
         }
     }
 
