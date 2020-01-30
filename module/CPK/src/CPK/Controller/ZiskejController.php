@@ -104,7 +104,7 @@ class ZiskejController extends AbstractBase
                     $allData[$eppn]['reader'] = $reader;
 
                     if ($reader && $reader->isActive()) {
-                        $tickets = $ziskejApi->getTicketsDetails($eppn);
+                        $tickets = $ziskejApi->getTickets($eppn);
                         foreach ($tickets as $ticket) {
                             $allData[$eppn]['tickets'][$ticket['hid']] = $ticket;
                             $messages = $ziskejApi->getMessages($eppn, $ticket['ticket_id']);

@@ -682,7 +682,7 @@ class AjaxController extends AjaxControllerBase
             $items[$key] = [];
             $reader = $ziskejApi->getReader($eppn);
             if ($reader && $reader->isActive()) {
-                $source = $ziskejApi->getTicketsDetails($eppn);
+                $source = $ziskejApi->getTickets($eppn);
                 foreach ($source as $current) {
                     if (in_array($current['status_reader'], [
                         'created',

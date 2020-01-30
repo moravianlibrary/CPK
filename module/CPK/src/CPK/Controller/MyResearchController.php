@@ -281,7 +281,7 @@ class MyResearchController extends MyResearchControllerBase
                     foreach ($sourceEppn as $source => $eppn) {
                         $reader = $ziskejApi->getReader($eppn);
                         if ($reader && $reader->isActive()) {
-                            $userTickets[$source] = $ziskejApi->getTicketsDetails($eppn);
+                            $userTickets[$source] = $ziskejApi->getTickets($eppn);
                         }
                     }
                     $libraryIdentities['ziskej'] = $userTickets;
