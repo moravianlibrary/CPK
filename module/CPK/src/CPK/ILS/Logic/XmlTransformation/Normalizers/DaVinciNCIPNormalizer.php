@@ -157,6 +157,7 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
             );
 
             $department = null;
+            $collection = '';
             $location = $response->getRelative($holdingSet, 'Location');
             $level = $response->getRelative(
                 $location,
@@ -178,13 +179,16 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
             }
 
             if ($department !== null) {
-                $parts = explode("@", $department);
-                $translate = $this->translator->translate(
-                    isset($parts[0]) ? $this->source . '_location_' . $parts[0] : ''
-                );
-                $parts = explode(" ", $translate, 2);
-                $department = $parts[0] ?? '';
-                $collection = $parts[1] ?? '';
+                if($this->source != "rkka") {
+                    $parts = explode("@", $department);
+                    $translate = $this->translator->translate(
+                        isset($parts[0]) ? $this->source . '_location_' . $parts[0]
+                            : ''
+                    );
+                    $parts = explode(" ", $translate, 2);
+                    $department = $parts[0] ?? '';
+                    $collection = $parts[1] ?? '';
+                }
 
                 $response->setDataValue(
                     [
