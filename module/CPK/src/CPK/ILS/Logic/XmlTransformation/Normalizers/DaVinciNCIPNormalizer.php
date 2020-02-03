@@ -355,4 +355,21 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
             }
         }
     }
+
+    public function normalizeLookupUserLoanedItems(JsonXML &$response)
+    {
+        parent::normalizeLookupUserLoanedItems($response);
+        $namespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject()) ? 'ns1:' : '';
+        $loanedItems = $response->getArray('LookupUserResponse', 'LoanedItem');
+        foreach ($loanedItems as $i => $loanedItem) {
+            $response->setDataValue(
+                '',
+                $namespace . 'LookupUserResponse',
+                $namespace . 'LoanedItem',
+                $i,
+                $namespace . 'Ext',
+                $namespace . 'RenewalNotPermitted'
+            );
+        }
+    }
 }
