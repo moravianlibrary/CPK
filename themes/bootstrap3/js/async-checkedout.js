@@ -39,7 +39,7 @@ function updateTransactions(response) {
     var cat_username = data.cat_username, html = data.html, overdue = data.overdue;
     // TODO process overdue somehow ..
 
-    var pointer = $('div#' + cat_username);
+    var pointer = $('div#' + cat_username.replace( /(:|\[|\]|,|=|@|#|\/)/g, "\\$1" ));
     
     if (! pointer.length) {
 
