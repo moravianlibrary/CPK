@@ -38,7 +38,7 @@ function updateHolds(response) {
 
     var cat_username = data.cat_username, html = data.html;
 
-    var pointer = $('div#' + cat_username);
+    var pointer = $('div#' + cat_username.replace( /(:|\[|\]|,|=|@|#|\/)/g, "\\$1" ));
     
     if (! pointer.length) {
 
