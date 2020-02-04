@@ -101,7 +101,7 @@ var holdingsILS = {
 	var ids = [];
 
 	holdingsILS.getAllNotLoadedHoldings(includingBeingLoadedIds).each(function() {
-	    ids.push($(this).attr('id'));
+	    ids.push($(this).attr('id').trim());
 
 	    // Add loading class so that we know about being it parsed
 	    $(this).addClass('loading');
@@ -216,8 +216,11 @@ var holdingsILS = {
 	    tableRow = $(id);
 
 	} else {
-
-	    tableRow = holdingsILS.pointers.tbody.children("tr#" + id.replace( /(:|\.|\[|\]|,|=|@|#|\/)/g, "\\$1" ));
+        var idSelector = id.replace( /(:|\.|\[|\]|,|=|@|#|\/)/g, "\\$1" );
+        tableRow = holdingsILS.pointers.tbody.children("tr#" + idSelector);
+        if (tableRow.length === 0) {
+            tableRow = holdingsILS.pointers.tbody.children("tr[id^='" + idSelector + "']");
+        }
 	}
 
 	var statusDiv = tableRow.find('td div[data-type=item-status]').first(), icon = statusDiv.children('i'), label = statusDiv.children('span.label');
