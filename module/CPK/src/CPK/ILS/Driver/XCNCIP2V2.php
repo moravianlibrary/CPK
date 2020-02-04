@@ -879,7 +879,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : $nextItemToken,
+                'next_item_token' => is_string($nextItemToken) ? $nextItemToken : null,
                 'addLink' => $addLink
             );
         }
