@@ -1257,7 +1257,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $available = false;
             if ($requestStatusType === 'Available For Pickup') {
                 $available = true;
-                $cannotCancel = true;
             }
 
             $retVal[] = array(
