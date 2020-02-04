@@ -34,11 +34,6 @@ use VuFind\Exception\ILS as ILSException;
 
 class DaVinciNCIPNormalizer extends NCIPNormalizer
 {
-    public function normalizeLookupUserBlocksAndTraps(JsonXML &$response)
-    {
-        throw new ILSException('driver_no_fines');
-    }
-
     public function normalizeLookupItemStatus(JsonXML &$response)
     {
         $status = $response->get('LookupItemResponse', 'ItemOptionalFields', 'CirculationStatus');
