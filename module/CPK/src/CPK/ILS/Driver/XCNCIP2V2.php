@@ -503,7 +503,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
         }
         if ($holdDetails['item_id'] == 'N/A')
             $holdDetails['item_id'] = '';
-        return empty($holdDetails['reqnum']) ? $holdDetails['item_id'] : $holdDetails['reqnum'];
+        return empty($holdDetails['item_id']) ? $holdDetails['reqnum'] : $holdDetails['item_id'];
     }
 
     /**
