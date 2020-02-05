@@ -338,12 +338,14 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
             );
 
             if ($location !== null) {
-                $parts = explode("@", $location);
-                $location = $this->translator->translate(
-                    isset($parts[0])
-                        ? $this->source . '_location_' . $parts[0]
-                        : ''
-                );
+                if($this->source != "rkka") {
+                    $parts = explode("@", $location);
+                    $location = $this->translator->translate(
+                        isset($parts[0])
+                            ? $this->source . '_location_' . $parts[0]
+                            : ''
+                    );
+                }
 
                 $response->setDataValue(
                     $location,
