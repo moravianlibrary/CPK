@@ -430,4 +430,23 @@ class User extends BaseUser
 
         return $this->executeAnyZendSQLUpdate($update);
     }
+
+    /**
+     * Get a query representing expired user accounts (this can be passed
+     * to select() or delete() for further processing).
+     *
+     * @param int $daysOld Days from last_login
+     *
+     * @return callable
+     */
+    public function getExpiredQuery($daysOld = 730)
+    {
+        // Determine the expiration date:
+        $expireDate = date('Y-m-d', strtotime(sprintf('-%d days', (int)$daysOld)));
+        return function ($select) use ($expireDate) {
+            $select->where->lessThan('last_login', $expireDate);
+        };
+
+    }
+
 }
