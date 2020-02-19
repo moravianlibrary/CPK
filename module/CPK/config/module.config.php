@@ -324,19 +324,36 @@ $config['router']['routes']['inspiration-show'] = array(
     )
 );
 
-$config['router']['routes']['ziskej'] = array(
+$config['router']['routes']['ziskej'] = [
     'type' => 'Zend\Mvc\Router\Http\Segment',
-    'options' => array(
-        'route' => '/' . 'ziskej' . '/',
-        'constraints' => array(
-            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-            'tag' => '[a-zA-Z][a-zA-Z0-9_-]*',
-        ),
-        'defaults' => array(
+    'options' => [
+        'route' => '/ziskej/',
+        'defaults' => [
             'controller' => 'Ziskej',
             'action' => 'home',
-        )
-    )
-);
+        ]
+    ]
+];
+
+$config['router']['routes']['ziskej-payment'] = [
+    'type' => 'Zend\Mvc\Router\Http\Segment',
+    'options' => [
+        'route' => '/ziskej/payment/:eppn/:ticket_id',
+        'defaults' => [
+            'controller' => 'Ziskej',
+            'action' => 'payment',
+        ]
+    ]
+];
+
+$dynamicRoutes = [
+    'MyResearch' => [
+        'MyResearch-ziskejTicket' => 'ZiskejTicket/[:eppn]/[:ticket_id]',
+    ]
+];
+
+$routeGenerator = new \VuFind\Route\RouteGenerator();
+$routeGenerator->addDynamicRoutes($config, $dynamicRoutes);
+
 
 return $config;
