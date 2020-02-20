@@ -11,27 +11,27 @@ $this->layout()->searchbox = false;
 <!-- ziskej select mode -->
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">Získej mode</h3>
+    <h3 class="panel-title"><?= $this->translate('ziskej_settings_title_mode') ?></h3>
   </div>
   <div class="panel-body">
     <form action="<?= $this->url('ziskej') ?>" id="ziskejForm" method="post" name="ziskejForm">
-    <div class="form-group">
-        <label for="ziskejSelect">Mode: </label>
-      <select name="ziskej" class="form-control" id="ziskejSelect">
+      <div class="form-group">
+        <label for="ziskejSelect"><?= $this->translate('ziskej_label_mode') ?>: </label>
+        <select name="ziskej" class="form-control" id="ziskejSelect">
           <? foreach ($this->ziskejModes as $mode): ?>
             <option value="<?= $this->escapeHtmlAttr($mode) ?>"
                     <? if ($mode == $this->ziskejCurrentMode): ?>selected="selected"<? endif; ?>>
               <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
             </option>
           <? endforeach; ?>
-      </select>
-    </div>
-    <div class="form-group">
-      <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
-             value="<?= $this->translate('Set') ?>">
-    </div>
-  </form>
-</div>
+        </select>
+      </div>
+      <div class="form-group">
+        <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
+               value="<?= $this->translate('Set') ?>">
+      </div>
+    </form>
+  </div>
 </div>
 <!-- /ziskej select mode -->
 
@@ -40,7 +40,7 @@ $this->layout()->searchbox = false;
   <!-- user data -->
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title">Logged user</h3>
+      <h3 class="panel-title"><?= $this->translate('ziskej_settings_title_user') ?></h3>
     </div>
     <div class="panel-body">
       <? if (!empty($this->userData)): ?>
@@ -66,7 +66,7 @@ $this->layout()->searchbox = false;
         </div>
       <? else: ?>
         <div class="alert alert-warning text-center">
-          No user logged in
+          <?= $this->translate('message_no_user_logged_in') ?>
         </div>
       <? endif; ?>
     </div>
@@ -145,10 +145,10 @@ $this->layout()->searchbox = false;
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                           <? foreach ($tickets as $ticket): ?>
                             <div class="panel panel-default">
-                              <div class="panel-heading" role="tab" id="headingOne">
+                              <div class="panel-heading" role="tab">
                                 <h4 class="panel-title">
-                                  <a role="button" data-toggle="collapse" href="#ticket_<?= $ticket['ticket_id']; ?>">
-                                    <?= $ticket['date_created']; ?> | <?= $ticket['ticket_id']; ?>
+                                  <a role="button" data-toggle="collapse" href="#ticket_<?= $ticket['hid']; ?>">
+                                    <?= $ticket['date_created']; ?> | <?= $ticket['id']; ?>
                                     <span class="pull-right">
                               <? if (count($ticket['messages'])): ?>
                                 <span class="badge"><?= count($ticket['messages']); ?> messages</span>
@@ -157,20 +157,24 @@ $this->layout()->searchbox = false;
                                   </a>
                                 </h4>
                               </div>
-                              <div id="ticket_<?= $ticket['ticket_id']; ?>" class="panel-collapse collapse out"
+                              <div id="ticket_<?= $ticket['hid']; ?>" class="panel-collapse collapse out"
                                    role="tabpanel">
                                 <div class="panel-body">
                                   <div class="row">
                                     <div class="col-md-6">
                                       <dl class="dl-horizontal">
+                                        <dt>ID:</dt>
+                                        <dd><?= $ticket['id']; ?></dd>
+                                        <dt>HID:</dt>
+                                        <dd><?= $ticket['hid']; ?></dd>
                                         <dt>is_open:</dt>
                                         <dd><?= $ticket['is_open']; ?></dd>
                                         <dt>doc_id:</dt>
-                                        <dd><?= $ticket['doc_id']; ?></dd>
+                                        <dd><?= $ticket['document_id']; ?></dd>
                                         <dt>sigla:</dt>
                                         <dd><?= $ticket['sigla']; ?></dd>
                                         <dt>status_reader :</dt>
-                                        <dd><?= $ticket['status_reader']; ?></dd>
+                                        <dd><?= $ticket['status']; ?></dd>
                                       </dl>
                                     </div>
                                     <div class="col-md-6">
@@ -185,25 +189,6 @@ $this->layout()->searchbox = false;
                                     </div>
                                   </div>
                                   <hr>
-                                  <? if (count($ticket['messages'])): ?>
-                                    <h4>Messages</h4>
-                                    <div>
-                                      <? foreach ($ticket['messages'] as $message): ?>
-                                        <div>
-                                          <dl class="dl-horizontal">
-                                            <dt>date:</dt>
-                                            <dd><?= $message['date']; ?></dd>
-                                            <dt>sender:</dt>
-                                            <dd><?= $message['sender']; ?></dd>
-                                            <dt>text:</dt>
-                                            <dd><?= $message['text']; ?></dd>
-                                            <dt>unread :</dt>
-                                            <dd><?= $message['unread']; ?></dd>
-                                          </dl>
-                                        </div>
-                                      <? endforeach; ?>
-                                    </div>
-                                  <? endif; ?>
                                 </div>
                               </div>
                             </div>
