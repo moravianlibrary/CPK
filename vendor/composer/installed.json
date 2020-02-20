@@ -875,12 +875,12 @@
     },
     {
         "name": "moravianlibrary/ziskej-api-php-client",
-        "version": "1.0.3",
-        "version_normalized": "1.0.3.0",
+        "version": "1.0.4",
+        "version_normalized": "1.0.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/moravianlibrary/ziskej-api-php-client",
-            "reference": "021e2e15a4ca68655f80d6d6b6071815996fae33"
+            "reference": "0a088be713ffc2baa530b4b97781f71f809573ae"
         },
         "require": {
             "ext-json": "*",
@@ -906,7 +906,7 @@
             "squizlabs/php_codesniffer": "^3.4",
             "symfony/dotenv": "^4.3"
         },
-        "time": "2020-01-17T08:48:59+00:00",
+        "time": "2020-02-20T13:16:58+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {

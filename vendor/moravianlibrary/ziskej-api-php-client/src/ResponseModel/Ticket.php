@@ -135,6 +135,26 @@ class Ticket
         return $ticket;
     }
 
+    public function toArray()
+    {
+        return [
+            'id' => $this->getId(),
+            'type' => $this->getType(),
+            'hid' => $this->getHid(),
+            'sigla' => $this->getSigla(),
+            'document_id' => $this->getDocumentId(),
+            'status' => $this->getStatus(),
+            'is_open' => $this->isOpen(),
+            'payment_id' => $this->getPaymentId(),
+            'payment_url' => $this->getPaymentUrl(),
+            'date_created' => !empty($this->getDateCreated()) ? $this->getDateCreated()->format('Y-m-d H:i:s') : null,
+            'date_requested' => !empty($this->getDateRequested()) ? $this->getDateRequested()->format('Y-m-d H:i:s') : null,
+            'date_return' => !empty($this->getDateReturn()) ? $this->getDateReturn()->format('Y-m-d H:i:s') : null,
+            'count_messages' => $this->getCountMessages(),
+            'count_messages_unread' => $this->getCountMessagesUnread(),
+        ];
+    }
+
     public function getId(): ?string
     {
         return $this->id;
