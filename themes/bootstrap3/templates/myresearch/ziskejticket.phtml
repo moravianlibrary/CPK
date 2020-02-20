@@ -1,0 +1,119 @@
+<? $this->layout()->searchbox = false; ?>
+
+<?
+// Set up page title:
+$this->headTitle($this->translate('Objednávka Získej č. ') . $this->ticket['hid']);
+?>
+
+<div class="row">
+  <div class="<?= $this->layoutClass('mainbody'); ?>">
+
+    <ul class="breadcrumb hidden-print" style="padding: 0;">
+      <li><a title="<?= $this->transEsc('Main page'); ?>" href="/Search"><?= $this->transEsc('Main page'); ?></a></li>
+      <li><a href="<?= $this->url('myresearch-home'); ?>"><?= $this->transEsc('Your Account'); ?></a></li>
+      <li><a href="<?= $this->url('myresearch-holds'); ?>"><?= $this->transEsc('Holds and Recalls'); ?></a></li>
+      <li class="active"><?= $this->transEsc('Objednávka Získej č. ') . $this->ticket['hid']; ?></li>
+    </ul>
+
+    <h2>
+      <?= $this->transEsc('Objednávka Získej č. ') . $this->ticket['hid']; ?>
+    </h2>
+
+    <?= $this->flashmessages() ?>
+
+    <? if ($this->ticket['status_reader'] == 'created' && !empty($this->ticket['payment_url'])): ?>
+      <div class="text-center well border" style="margin-bottom: 1em;">
+        <a class="btn btn-primary" href="<?= $this->ticket['payment_url'] ?>" title="Uhradit objednávku">
+          <i class="fa fa-shopping-cart"></i> Uhradit objednávku
+        </a>
+      </div>
+    <? endif; ?>
+
+    <h3>Dokument</h3>
+    <div class="well border">
+      <? include('_ziskejticket-core.phtml'); ?>
+      <a href="<?= $this->recordLink()->getUrl($this->driver) ?>" class="title">Zobrazit detail</a>
+    </div>
+
+    <h3>Detail objednávky</h3>
+
+    <div class="well border">
+
+      <dl class="dl-horizontal dl-left">
+        <? if (!empty($this->ticket['created_datetime'])): ?>
+          <dt><?= $this->transEsc('date_ordered'); ?>:</dt>
+          <dd><?= date('j.n.Y H:i', strtotime($this->ticket['created_datetime'])); ?></dd>
+        <? endif; ?>
+
+        <? if (!empty($this->ticket['updated_datetime']) && $this->ticket['updated_datetime'] != $this->ticket['created_datetime']): ?>
+          <dt><?= $this->transEsc('date_updated'); ?>:</dt>
+          <dd><?= date('j.n.Y H:i', strtotime($this->ticket['updated_datetime'])); ?></dd>
+        <? endif; ?>
+
+        <? if (!empty($this->ticket['date_requested'])): ?>
+          <dt><?= $this->transEsc('date_requested'); ?>:</dt>
+          <dd><?= date('j.n.Y H:i', strtotime($this->ticket['date_requested'])); ?></dd>
+        <? endif; ?>
+
+        <? if (!empty($this->ticket['date_return'])): ?>
+          <dt><?= $this->transEsc('date_return'); ?>:</dt>
+          <dd><?= date('j.n.Y H:i', strtotime($this->ticket['date_return'])); ?></dd>
+        <? endif; ?>
+
+        <dt><?= $this->transEsc('ziskej_label_order_status'); ?>:</dt>
+        <dd>
+          <span class="label label-<?= \Mzk\ZiskejApi\Object\TicketStatuses::getStatus($this->ticket['status_reader']) ?>">
+            <?= $this->translate('ziskej_order_status_' . $this->ticket['status_reader']) ?>
+          </span>
+          <? if (!$this->ticket['is_open']): ?>
+            (<?= $this->transEsc('ziskej_order_status_not_open') ?>)
+          <? endif; ?>
+        </dd>
+      </dl>
+    </div>
+
+    <h3>
+      Zprávy k objednávce
+      <? if ($this->ticket['count_messages'] > 0): ?>
+        <span class="badge"><?= $this->ticket['count_messages']; ?></span>
+      <? endif; ?>
+    </h3>
+
+    <div class="well border">
+      <? if (count($this->messages)): ?>
+        <?
+        /** @var array $message */
+        foreach ($this->messages as $message): ?>
+          <ul class="media-list">
+            <li class="media">
+              <div class="media-body">
+                <p class="media-heading">
+                  <? if ($message['sender'] == 'reader'): ?>
+                    <span title="Vy"><i class="fa fa-user"></i></span>
+                  <? else: ?>
+                    Knihovna
+                  <? endif; ?>
+                  <?= $message['date']; ?>
+                </p>
+                <div>
+                  <?= $message['text']; ?>
+                </div>
+              </div>
+            </li>
+          </ul>
+        <? endforeach; ?>
+      <? else: ?>
+        <div class="alert alert-info">
+          Objednávka neobsahuje žádné zprávy
+        </div>
+      <? endif; ?>
+    </div>
+
+  </div>
+
+
+  <div class="<?= $this->layoutClass('sidebar') ?>">
+    <?= $this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'holds')) ?>
+  </div>
+
+</div>
