@@ -27,6 +27,7 @@
  */
 namespace CPK\Controller;
 
+use Mzk\ZiskejApi\ResponseModel\Ticket;
 use VuFind\Controller\AjaxController as AjaxControllerBase;
 
 /**
@@ -682,9 +683,10 @@ class AjaxController extends AjaxControllerBase
             $items[$key] = [];
             $reader = $ziskejApi->getReader($eppn);
             if ($reader && $reader->isActive()) {
-                $source = $ziskejApi->getTickets($eppn);
-                foreach ($source as $current) {
-                    if (in_array($current['status_reader'], [
+                $ticketsCollection = $ziskejApi->getTickets($eppn);
+                /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
+                foreach ($ticketsCollection->getAll() as $ticket) {
+                    if (in_array($ticket->getStatus(), [
                         'created',
                         'accepted',
                         'prepared',
@@ -692,7 +694,7 @@ class AjaxController extends AjaxControllerBase
                         'rejected',
                     ])) {
                         $i++;
-                        $resource = $this->getDriverForILSRecordZiskej($current);
+                        $resource = $this->getDriverForILSRecordZiskej($ticket);
 
                         // obalky
                         $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
@@ -1180,14 +1182,14 @@ class AjaxController extends AjaxControllerBase
         return $record;
     }
 
-    protected function getDriverForILSRecordZiskej($current)
+    protected function getDriverForILSRecordZiskej(Ticket $ticket)
     {
-        $id = isset($current['doc_id']) ? $current['doc_id'] : null;
-        $source = isset($current['source']) ? $current['source'] : 'VuFind';
+        $id = $ticket->getDocumentId();
+        $source = 'VuFind';
         $record = $this->getServiceLocator()
             ->get('VuFind\RecordLoader')
             ->load($id, $source, true);
-        $record->setExtraDetail('ils_details', $current);
+        $record->setExtraDetail('ils_details', $ticket);
         return $record;
     }
 
