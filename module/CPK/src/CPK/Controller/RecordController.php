@@ -412,13 +412,20 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 return $this->redirectToRecord('', 'Ziskej');
             }
 
-            $ticket = new Ticket($params['doc_id']);
-            $ticket->setDocumentAltIds($params['doc_alt_ids']);
-            $ticket->setNote($params['text']);
+            $ticketNew = new Ticket($params['doc_id']);
+            $ticketNew->setDocumentAltIds($params['doc_alt_ids']);
+            $ticketNew->setNote($params['text']);
 
-            $tickeId = $ziskejApi->createTicket($eppn, $ticket);
+            $tickeId = $ziskejApi->createTicket($eppn, $ticketNew);
+            //$ticket = $ziskejApi->getTicket($eppn, $tickeId);
 
-            $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');    //@todo $tickeId
+            $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');
+            $this->flashMessenger()->addMessage('Objednávka nyní čeká na úhradu.', 'warning');
+
+            return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+                'eppn' => $eppn,
+                'ticket_id' => $tickeId,
+            ]);
 
         } catch (\Exception $ex) {
             $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');
