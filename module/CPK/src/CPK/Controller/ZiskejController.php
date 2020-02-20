@@ -32,6 +32,10 @@ class ZiskejController extends AbstractBase
 {
     use LoginTrait;
 
+    /**
+     * @return \Zend\Http\Response|\Zend\View\Model\ViewModel
+     * @throws \Http\Client\Exception
+     */
     public function homeAction()
     {
         $view = $this->createViewModel();
@@ -48,7 +52,7 @@ class ZiskejController extends AbstractBase
                 : 'disabled';
             setcookie('ziskej', $data, 0, '/');
             if ($this->getRequest()->getPost('ziskej')) {
-                $this->flashMessenger()->addMessage('Nastavení módu pro službu Získej bylo uloženo.', 'success');
+                $this->flashMessenger()->addMessage('message_ziskej_mode_saved', 'success');
             }
             return $this->redirect()->refresh();
         }
@@ -105,10 +109,11 @@ class ZiskejController extends AbstractBase
 
                     if ($reader && $reader->isActive()) {
                         $tickets = $ziskejApi->getTickets($eppn);
-                        foreach ($tickets as $ticket) {
-                            $allData[$eppn]['tickets'][$ticket['hid']] = $ticket;
-                            $messages = $ziskejApi->getMessages($eppn, $ticket['ticket_id']);
-                            $allData[$eppn]['tickets'][$ticket['hid']]['messages'] = $messages;
+                        /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
+                        foreach ($tickets->getAll() as $ticket) {
+                            $ticketArray = $ticket->toArray();
+                            $ticketArray['messages'] = $ziskejApi->getMessages($eppn, $ticket->getId());
+                            $allData[$eppn]['tickets'][$ticket->getHid()] = $ticketArray;
                         }
                     }
                 }
@@ -117,7 +122,8 @@ class ZiskejController extends AbstractBase
             /** @var array ziskejData */
             $view->ziskejData = $allData;
         } catch (\Exception $ex) {
-            $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');
+            $this->flashMessenger()->addMessage($ex->getMessage(), 'warning');
+            //$this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');    //@todo zapnout na produkci
         }
 
         return $view;
