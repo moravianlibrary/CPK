@@ -2,8 +2,10 @@
 $isAJAX = isset($AJAX) && $AJAX === true;
 $i = 0;
 ?>
-<? if (!empty($this->items)): ?>
-  <? foreach ($this->items as $libraryId => $resources): ?>
+<? if (!empty($this->data)): ?>
+  <? foreach ($this->data as $item): ?>
+  <? $libraryId = $item['key']; ?>
+  <? $resources = $item['items']; ?>
     <h3 class="well row blickable" style="margin-bottom: 3px;">
       <?= $this->transEsc("source_$libraryId", null, $libraryId) ?>
       <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($libraryId) ?>"/>
@@ -104,12 +106,10 @@ $i = 0;
                       <i class="fa fa-shopping-cart"></i> Uhradit objednávku
                     </a>
                   <? endif; ?>
-                  <a class="btn btn-sm btn-primary" href="/MyResearch/ZiskejTicket/1185@mzk.cz/<?= $ticket->getId() ?>" title="Detail objednávku">
-                    <? //@todo EPPN a LINK  ?>
+                  <a class="btn btn-sm btn-primary" href="/MyResearch/ZiskejTicket/<?= $item['eppn']; ?>/<?= $ticket->getId() ?>" title="Detail objednávku">
                     <i class="fa fa-search"></i> Detail
                   </a>
                 </div>
-
               </div>
             </div>
           </li>

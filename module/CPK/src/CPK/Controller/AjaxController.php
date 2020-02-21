@@ -50,7 +50,7 @@ class AjaxController extends AjaxControllerBase
     /**
      * Downloads SFX JIB content for current record.
      *
-     * @param string $_GET['institute']
+     * @param string $_GET ['institute']
      *
      * @return array
      */
@@ -75,18 +75,22 @@ class AjaxController extends AjaxControllerBase
             $linkServer = $multiBackendConfig->LinkServers->$lsID;
 
             if ($linkServer === null) // if there is no configuration in Multibackend.ini, use default settings
+            {
                 $linkServer = $multiBackendConfig->LinkServers->ls_default;
+            }
 
             $instituteLsShortcut = explode("|", $linkServer)[0];
             $instituteLsLink = explode("|", $linkServer)[1];
 
-            if (! array_key_exists($instituteLsShortcut, $linkServers))
+            if (!array_key_exists($instituteLsShortcut, $linkServers)) {
                 $linkServers[$instituteLsShortcut] = $instituteLsLink;
+            }
         }
 
         $isn = $parentRecordDriver->getIsn();
-        if ($isn === false)
+        if ($isn === false) {
             $isn = $recordDriver->getIsn();
+        }
 
         $openUrl = $recordDriver->getOpenURL();
         $additionalParams = array();
@@ -108,7 +112,7 @@ class AjaxController extends AjaxControllerBase
             'ctx_ver' => 'Z39.88-2004',
             'ctx_enc' => 'info:ofi/enc:UTF-8',
             'sfx.response_type' => 'simplexml',
-            $isnKey => str_replace("-", "", (string) $isn)
+            $isnKey => str_replace("-", "", (string)$isn)
         );
 
         $allParams = array_merge($params, $additionalParams);
@@ -172,7 +176,7 @@ class AjaxController extends AjaxControllerBase
 
         $viewRend = $this->getViewRenderer();
 
-        if ($ids === null || ! is_array($ids) || empty($ids)) {
+        if ($ids === null || !is_array($ids) || empty($ids)) {
             return $this->output(
                 [
                     'status' => $this->getTranslatedUnknownStatus($viewRend)
@@ -202,23 +206,34 @@ class AjaxController extends AjaxControllerBase
                 ], self::STATUS_ERROR);
             }
 
-            if (null === $statuses || empty($statuses))
+            if (null === $statuses || empty($statuses)) {
                 return $this->output([
                     'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                     'msg' => '$ilsDriver->getStatuses returned nothing'
                 ], self::STATUS_ERROR);
+            }
 
             $itemsStatuses = [];
 
-            if (! empty($statuses)) {
-                if (array_key_exists('next_item_token', $statuses[0])) $nextItemToken = $statuses[0]['next_item_token'];
-                else $nextItemToken = null;
-                if (array_key_exists('usedGetStatus', $statuses[0])) $usedGetStatus = $statuses[0]['usedGetStatus'];
-                else $usedGetStatus = null;
-                if (array_key_exists('usedAleph', $statuses[0])) $usedAleph = $statuses[0]['usedAleph'];
-                else $usedAleph = null;
+            if (!empty($statuses)) {
+                if (array_key_exists('next_item_token', $statuses[0])) {
+                    $nextItemToken = $statuses[0]['next_item_token'];
+                } else {
+                    $nextItemToken = null;
+                }
+                if (array_key_exists('usedGetStatus', $statuses[0])) {
+                    $usedGetStatus = $statuses[0]['usedGetStatus'];
+                } else {
+                    $usedGetStatus = null;
+                }
+                if (array_key_exists('usedAleph', $statuses[0])) {
+                    $usedAleph = $statuses[0]['usedAleph'];
+                } else {
+                    $usedAleph = null;
+                }
+            } else {
+                $nextItemToken = $usedGetStatus = $usedAleph = null;
             }
-            else $nextItemToken = $usedGetStatus = $usedAleph = null;
 
             foreach ($statuses as $status) {
                 $unescId = $status['item_id'];
@@ -226,10 +241,10 @@ class AjaxController extends AjaxControllerBase
 
                 $itemsStatuses[$id] = [];
 
-                if (! empty($status['status']))
+                if (!empty($status['status'])) {
                     $itemsStatuses[$id]['status'] = $viewRend->transEsc(
                         'status_' . $status['status'], null, $status['status']);
-                else {
+                } else {
                     // The status is empty - set label to 'label-danger'
                     $itemsStatuses[$id]['label'] = 'label-unknown';
 
@@ -238,31 +253,39 @@ class AjaxController extends AjaxControllerBase
                         $viewRend);
                 }
 
-                if (! empty($status['duedate']))
+                if (!empty($status['duedate'])) {
                     $itemsStatuses[$id]['duedate'] = $status['duedate'];
+                }
 
-                if (! empty($status['hold_type']))
+                if (!empty($status['hold_type'])) {
                     $itemsStatuses[$id]['holdtype'] = $viewRend->transEsc(
                         $status['hold_type']);
+                }
 
-                if (! empty($status['label']))
+                if (!empty($status['label'])) {
                     $itemsStatuses[$id]['label'] = $status['label'];
+                }
 
-                if (! empty($status['addLink']))
+                if (!empty($status['addLink'])) {
                     $itemsStatuses[$id]['addLink'] = $status['addLink'];
+                }
 
-                if (! empty($status['availability']))
+                if (!empty($status['availability'])) {
                     $itemsStatuses[$id]['availability'] = $viewRend->transEsc(
                         'availability_' . $status['availability'], null, $status['availability']);
+                }
 
-                if (! empty($status['collection']))
+                if (!empty($status['collection'])) {
                     $itemsStatuses[$id]['collection'] = $status['collection'];
+                }
 
-                if (! empty($status['department']))
+                if (!empty($status['department'])) {
                     $itemsStatuses[$id]['department'] = $status['department'];
+                }
 
-                if (! empty($status['location']))
+                if (!empty($status['location'])) {
                     $itemsStatuses[$id]['location'] = $status['location'];
+                }
 
                 $key = array_search(trim($unescId), $ids);
 
@@ -274,8 +297,7 @@ class AjaxController extends AjaxControllerBase
             if ($nextItemToken || $usedGetStatus || $usedAleph) {
                 $retVal['remaining'] = $ids;
                 $retVal['next_item_token'] = $nextItemToken;
-            }
-            else {
+            } else {
                 foreach ($ids as $id) {
                     $itemsStatuses[$id]['availability'] = $viewRend->transEsc('availability_Not For Loan');
                     $itemsStatuses[$id]['status'] = $viewRend->transEsc('status_Unknown Status');
@@ -285,11 +307,12 @@ class AjaxController extends AjaxControllerBase
 
             $retVal['statuses'] = $itemsStatuses;
             return $this->output($retVal, self::STATUS_OK);
-        } else
+        } else {
             return $this->output([
                 'statuses' => $this->getTranslatedUnknownStatuses($ids, $viewRend),
                 'msg' => "ILS Driver isn't instanceof MultiBackend - ending job now."
             ], self::STATUS_ERROR);
+        }
     }
 
     public function getCaslinHoldingsStatusesAjax()
@@ -303,7 +326,7 @@ class AjaxController extends AjaxControllerBase
 
         $viewRend = $this->getViewRenderer();
 
-        if ($siglas === null || ! is_array($siglas) || empty($siglas)) {
+        if ($siglas === null || !is_array($siglas) || empty($siglas)) {
             return $this->output(
                 [
                     'status' => $this->getTranslatedUnknownStatus($viewRend)
@@ -358,7 +381,7 @@ class AjaxController extends AjaxControllerBase
             foreach ($records as $id => $sigla) {
                 foreach ($table as $cols) {
                     if (strpos($cols['siglaCol'], $sigla) !== false) {
-                        $link = $cols['linkCol'].$cols['param'];
+                        $link = $cols['linkCol'] . $cols['param'];
                         if (strpos(strtolower($cols['linkCol']), 'carmen') !== false) { // if Carmen, use last 8 chars of ID
                             $link .= substr($id, -8);
                         } else {
@@ -382,9 +405,9 @@ class AjaxController extends AjaxControllerBase
     /**
      * Returns subfileds of MARC 996 field for specific recordID
      *
-     * @param string $_POST['record']
-     * @param string $_POST['field']
-     * @param string $_POST['subfields']
+     * @param string $_POST ['record']
+     * @param string $_POST ['field']
+     * @param string $_POST ['subfields']
      *            subfileds
      *
      * @return array subfields values
@@ -415,8 +438,9 @@ class AjaxController extends AjaxControllerBase
 
         $hasPermissions = $this->hasPermissions($cat_username);
 
-        if ($hasPermissions instanceof \Zend\Http\Response)
+        if ($hasPermissions instanceof \Zend\Http\Response) {
             return $hasPermissions;
+        }
 
         $ilsDriver = $this->getILS()->getDriver();
 
@@ -460,13 +484,14 @@ class AjaxController extends AjaxControllerBase
             $profile['prolongRegistrationUrl'] = $prolongRegistrationUrl;
             $profile['prolongText'] = $this->translate('prolong_registration_url');
             return $this->output($profile, self::STATUS_OK);
-        } else
+        } else {
             return $this->output(
                 [
                     'cat_username' => str_replace('.', '\.', $cat_username),
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+        }
     }
 
     public function getMyHoldsAjax()
@@ -587,8 +612,9 @@ class AjaxController extends AjaxControllerBase
 
         $hasPermissions = $this->hasPermissions($cat_username);
 
-        if ($hasPermissions instanceof \Zend\Http\Response)
+        if ($hasPermissions instanceof \Zend\Http\Response) {
             return $hasPermissions;
+        }
 
         $ilsDriver = $this->getILS()->getDriver();
 
@@ -608,14 +634,14 @@ class AjaxController extends AjaxControllerBase
                 $data['source'] = $fines['source'];
 
                 $totalFine = 0;
-                if (! empty($fines)) {
+                if (!empty($fines)) {
                     foreach ($fines as $fine) {
                         $totalFine += ($fine['amount']);
                     }
                 }
                 if ($totalFine < 0) {
                     $data['paymentUrl'] = $ilsDriver->getPaymentURL($patron,
-                        - 1 * $totalFine);
+                        -1 * $totalFine);
                 }
                 $data['payButtonText'] = $this->translate('Online payment of fines');
 
@@ -624,13 +650,14 @@ class AjaxController extends AjaxControllerBase
             }
 
             return $this->output($data, self::STATUS_OK);
-        } else
+        } else {
             return $this->output(
                 [
                     'cat_username' => $cat_username,
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+        }
     }
 
     /**
@@ -678,39 +705,42 @@ class AjaxController extends AjaxControllerBase
 
         $i = 0;
         $obalky = [];
-        $items = [];
         foreach ($sourceEppn as $key => $eppn) {
-            $items[$key] = [];
+            $data[$key] = [
+                'key' => $key,
+                'eppn' => $eppn,
+                'items' => [],
+            ];
             $reader = $ziskejApi->getReader($eppn);
             if ($reader && $reader->isActive()) {
                 $ticketsCollection = $ziskejApi->getTickets($eppn);
                 /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
                 foreach ($ticketsCollection->getAll() as $ticket) {
-                    if (in_array($ticket->getStatus(), [
-                        'created',
-                        'accepted',
-                        'prepared',
-                        'cancelled',
-                        'rejected',
-                    ])) {
-                        $i++;
-                        $resource = $this->getDriverForILSRecordZiskej($ticket);
+//                    if (in_array($ticket->getStatus(), [
+//                        //@todo
+//                        'created',
+//                        'accepted',
+//                        'prepared',
+//                        'cancelled',
+//                        'rejected',
+//                    ])) {
+                    $i++;
+                    $resource = $this->getDriverForILSRecordZiskej($ticket);
 
-                        // obalky
-                        $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
-                        $bibInfo = $zendRenderer->record($resource)->getObalkyKnihJSONV3();
-                        if ($bibInfo) {
-                            $recordId = "#cover_$recordId";
-                            $bibInfo = json_decode($bibInfo);
-                            $recordId = preg_replace("/[\.:]/", "", $recordId);
-                            $obalky[$recordId] = [
-                                'bibInfo' => $bibInfo,
-                                'advert' => $zendRenderer->record($resource)->getObalkyKnihAdvert('checkedout')
-                            ];
-                        }
-                        $items[$key][] = $resource;
-                        $transactions[] = $resource;
+                    // obalky
+                    $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
+                    $bibInfo = $zendRenderer->record($resource)->getObalkyKnihJSONV3();
+                    if ($bibInfo) {
+                        $recordId = "#cover_$recordId";
+                        $bibInfo = json_decode($bibInfo);
+                        $recordId = preg_replace("/[\.:]/", "", $recordId);
+                        $obalky[$recordId] = [
+                            'bibInfo' => $bibInfo,
+                            'advert' => $zendRenderer->record($resource)->getObalkyKnihAdvert('checkedout')
+                        ];
                     }
+                    $data[$key]['items'][] = $resource;
+//                    }
 
                 }
             }
@@ -721,7 +751,7 @@ class AjaxController extends AjaxControllerBase
         if ($type == 'holds') {
             $html = $zendRenderer->render('myresearch/holds-from-ziskej.phtml',
                 [
-                    'items' => $items,
+                    'data' => $data,
                     'AJAX' => true,
                     'config' => $this->getConfig(),
                 ]);
@@ -743,8 +773,9 @@ class AjaxController extends AjaxControllerBase
 
         $hasPermissions = $this->hasPermissions($cat_username);
 
-        if ($hasPermissions instanceof \Zend\Http\Response)
+        if ($hasPermissions instanceof \Zend\Http\Response) {
             return $hasPermissions;
+        }
 
         $renderer = $this->getViewRenderer();
 
@@ -835,13 +866,14 @@ class AjaxController extends AjaxControllerBase
             ];
 
             return $this->output($toRet, self::STATUS_OK);
-        } else
+        } else {
             return $this->output(
                 [
                     'cat_username' => $cat_username,
                     'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
                 ],
                 self::STATUS_ERROR);
+        }
     }
 
     public function getMyHistoryPageAjax()
@@ -852,8 +884,9 @@ class AjaxController extends AjaxControllerBase
 
         $hasPermissions = $this->hasPermissions($cat_username);
 
-        if ($hasPermissions instanceof \Zend\Http\Response)
+        if ($hasPermissions instanceof \Zend\Http\Response) {
             return $hasPermissions;
+        }
 
         $renderer = $this->getViewRenderer();
 
@@ -869,7 +902,7 @@ class AjaxController extends AjaxControllerBase
             ];
 
             $page = isset($post['page']) ? $post['page'] : 1;
-            $perPage = isset($post['perPage']) ? (int) $post['perPage'] : 10;
+            $perPage = isset($post['perPage']) ? (int)$post['perPage'] : 10;
 
             try {
                 // Try to get the profile ..
@@ -887,51 +920,54 @@ class AjaxController extends AjaxControllerBase
                 if ($resource instanceof \VuFind\RecordDriver\Missing) {
                     unset($historyItem['id']);
                     $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
-                } else try {
+                } else {
+                    try {
 
-                    $displayAuthor = $resource->getDisplayAuthor();
+                        $displayAuthor = $resource->getDisplayAuthor();
 
-                    if ($displayAuthor)
-                        $historyItem['author'] = $displayAuthor;
+                        if ($displayAuthor) {
+                            $historyItem['author'] = $displayAuthor;
+                        }
 
-                    $title = $resource->getTitle();
-                    if ($title) {
-                        $historyItem['title'] = $title;
-                    }
+                        $title = $resource->getTitle();
+                        if ($title) {
+                            $historyItem['title'] = $title;
+                        }
 
-                    // We need to let JS know what to opt for ...
-                    $recordId = $resource->getUniqueId() . ++ $i; // adding order to id (as suffix) to be able to show more covers with same id
-                    $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
+                        // We need to let JS know what to opt for ...
+                        $recordId = $resource->getUniqueId() . ++$i; // adding order to id (as suffix) to be able to show more covers with same id
+                        $bibInfo = $renderer->record($resource)->getObalkyKnihJSONV3();
 
-                    if ($bibInfo) {
+                        if ($bibInfo) {
 
-                        $recordId = preg_replace("/[\.:]/", "", $recordId);
+                            $recordId = preg_replace("/[\.:]/", "", $recordId);
 
-                        $historyItem['uniqueId'] = $recordId;
+                            $historyItem['uniqueId'] = $recordId;
 
-                        $recordId = "#cover_$recordId";
+                            $recordId = "#cover_$recordId";
 
-                        $bibInfo = json_decode($bibInfo);
+                            $bibInfo = json_decode($bibInfo);
 
-                        $obalky[$recordId] = [
-                            'bibInfo' => $bibInfo,
-                            'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
-                        ];
-                    } else {
+                            $obalky[$recordId] = [
+                                'bibInfo' => $bibInfo,
+                                'advert' => $renderer->record($resource)->getObalkyKnihAdvert('checkedouthistory')
+                            ];
+                        } else {
+                            $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
+                        }
+
+                        $formats = $resource->getFormats();
+                        if (count($formats) > 0) {
+                            $historyItem['formats'] = array_map(function ($item) {
+                                return [
+                                    'orig' => $item,
+                                    'format' => preg_replace('/[^a-z]/', '', strtolower($item))
+                                ];
+                            }, $formats);
+                        }
+                    } catch (\Exception $e) {
                         $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                     }
-
-                    $formats = $resource->getFormats();
-                    if (count($formats) > 0) {
-                        $historyItem['formats'] = array_map(function($item) {
-                            return [
-                                'orig' => $item,
-                                'format' => preg_replace('/[^a-z]/', '', strtolower($item))
-                            ];
-                        }, $formats);
-                    }
-                } catch (\Exception $e) {
-                    $historyItem['thumbnail'] = $this->url()->fromRoute('cover-unavailable');
                 }
             }
 
@@ -943,18 +979,19 @@ class AjaxController extends AjaxControllerBase
             }
 
             return $this->output($result, self::STATUS_OK);
-        } else
+        } else {
             return $this->output([
                 'cat_username' => $cat_username,
                 'message' => 'ILS Driver isn\'t instanceof MultiBackend - ending job now.'
             ], self::STATUS_ERROR);
+        }
     }
 
     public function getAllNotificationsForUserAjax()
     {
 
         // Check user's logged in
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
 
@@ -973,12 +1010,13 @@ class AjaxController extends AjaxControllerBase
      *
      * @return \Zend\Http\Response
      */
-    public function pushFavoritesAjax() {
+    public function pushFavoritesAjax()
+    {
 
         $favorites = $this->params()->fromPost('favs');
 
         // Check user is logged in ..
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
 
@@ -1001,7 +1039,7 @@ class AjaxController extends AjaxControllerBase
 
         foreach ($favorites as $favorite) {
 
-            if (! isset($favorite['title']['link'])) {
+            if (!isset($favorite['title']['link'])) {
                 return $this->output('Favorite client sent to server has not title link.', self::STATUS_ERROR);
             }
 
@@ -1034,8 +1072,9 @@ class AjaxController extends AjaxControllerBase
     {
         $prettyUrl = $this->params()->fromQuery('prettyUrl');
 
-        if (empty($prettyUrl) && empty($prettyUrl = $this->params()->fromPost('prettyUrl')))
+        if (empty($prettyUrl) && empty($prettyUrl = $this->params()->fromPost('prettyUrl'))) {
             return $this->output('No prettyUrl provided', self::STATUS_ERROR);
+        }
 
         $lang = $this->getServiceLocator()->has('VuFind\Translator') ? $this->getServiceLocator()
             ->get('VuFind\Translator')
@@ -1103,8 +1142,9 @@ class AjaxController extends AjaxControllerBase
             ));
         $response = $client->send();
         $responseBody = $response->getBody();
-        if ($responseBody == "ok")
+        if ($responseBody == "ok") {
             return $this->output($id, self::STATUS_OK);
+        }
 
         return $this->output($responseBody, self::STATUS_ERROR);
     }
@@ -1112,9 +1152,9 @@ class AjaxController extends AjaxControllerBase
     /**
      * Gets Buy Links
      *
+     * @return array
      * @author Martin Kravec <Martin.Kravec@mzk.cz>
      *
-     * @return array
      */
     protected function getBuyLinksAjax()
     {
@@ -1140,21 +1180,21 @@ class AjaxController extends AjaxControllerBase
         $buyChoiceLinksCount = 0;
 
         if ($gBooksLink) {
-            ++ $buyChoiceLinksCount;
+            ++$buyChoiceLinksCount;
         }
 
         if ($zboziLink) {
-            ++ $buyChoiceLinksCount;
+            ++$buyChoiceLinksCount;
         }
 
         if ($antikvariatyLink) {
-            ++ $buyChoiceLinksCount;
+            ++$buyChoiceLinksCount;
         }
 
         $vars[] = array(
-            'gBooksLink' => $gBooksLink ?  : '',
-            'zboziLink' => $zboziLink ?  : '',
-            'antikvariatyLink' => $antikvariatyLink ?  : '',
+            'gBooksLink' => $gBooksLink ?: '',
+            'zboziLink' => $zboziLink ?: '',
+            'antikvariatyLink' => $antikvariatyLink ?: '',
             'buyLinksCount' => $buyChoiceLinksCount
         );
 
@@ -1213,9 +1253,10 @@ class AjaxController extends AjaxControllerBase
         return $this->output($html, self::STATUS_OK);
     }
 
-    protected function getTranslatedUnknownStatuses($ids, $viewRend) {
+    protected function getTranslatedUnknownStatuses($ids, $viewRend)
+    {
         $statuses = [];
-        foreach($ids as $id) {
+        foreach ($ids as $id) {
             $statuses[$id] = [
                 'status' => $this->getTranslatedUnknownStatus($viewRend),
                 'label' => 'label-unknown'
@@ -1246,7 +1287,7 @@ class AjaxController extends AjaxControllerBase
     {
 
         // Check user is logged in ..
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             return $this->output('You are not logged in.', self::STATUS_ERROR);
         }
 
@@ -1288,7 +1329,7 @@ class AjaxController extends AjaxControllerBase
         $notifHandler = $this->getServiceLocator()->get('CPK\NotificationsHandler');
 
         // Check we have correct notifications handler
-        if (! $notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
+        if (!$notifHandler instanceof \CPK\Notifications\NotificationsHandler) {
 
             return $this->output([
                 'errors' => [
@@ -1304,9 +1345,9 @@ class AjaxController extends AjaxControllerBase
     /**
      * Send output data and exit.
      *
-     * @param mixed  $data     The response data
-     * @param string $status   Status of the request
-     * @param int    $httpCode A custom HTTP Status Code
+     * @param mixed $data The response data
+     * @param string $status Status of the request
+     * @param int $httpCode A custom HTTP Status Code
      *
      * @return \Zend\Http\Response
      * @throws \Exception
@@ -1329,12 +1370,14 @@ class AjaxController extends AjaxControllerBase
             }
             $response->setContent(json_encode($output));
             return $response;
-        } else if ($this->outputMode == 'plaintext') {
-            $headers->addHeaderLine('Content-type', 'text/plain');
-            $response->setContent($data ? $status . " $data" : $status);
-            return $response;
         } else {
-            throw new \Exception('Unsupported output mode: ' . $this->outputMode);
+            if ($this->outputMode == 'plaintext') {
+                $headers->addHeaderLine('Content-type', 'text/plain');
+                $response->setContent($data ? $status . " $data" : $status);
+                return $response;
+            } else {
+                throw new \Exception('Unsupported output mode: ' . $this->outputMode);
+            }
         }
     }
 
@@ -1346,7 +1389,8 @@ class AjaxController extends AjaxControllerBase
      * @param string $cat_username
      * @return \Zend\Http\Response
      */
-    protected function outputException(\Exception $e, $cat_username = null) {
+    protected function outputException(\Exception $e, $cat_username = null)
+    {
 
         // Something went wrong - include cat_username to properly
         // attach the error message into the right table
@@ -1390,7 +1434,8 @@ class AjaxController extends AjaxControllerBase
      * @param string $cat_username
      * @return \Zend\Http\Response
      */
-    protected function outputExceptionWithoutPrefix(\Exception $e, $cat_username = null) {
+    protected function outputExceptionWithoutPrefix(\Exception $e, $cat_username = null)
+    {
 
         // Something went wrong - include cat_username to properly
         // attach the error message into the right table
@@ -1497,17 +1542,19 @@ class AjaxController extends AjaxControllerBase
         $parentRecordDriver = $recordLoader->load($parentRecordId);
 
         $format = $parentRecordDriver->getRecordType();
-        if ($format === 'marc')
+        if ($format === 'marc') {
             $format .= '21';
+        }
         $recordXml = $parentRecordDriver->getXml($format);
 
-        if (strpos($recordXml, "datafield") === false)
+        if (strpos($recordXml, "datafield") === false) {
             return $this->output($statusCode, self::STATUS_ERROR);
+        }
 
         // Set preferred citation style
         if ($changedCitationValue == 'false') {
             $user = $this->getAuthManager()->isLoggedIn();
-            if (! $user) {
+            if (!$user) {
                 $preferredCitationStyle = $this->getConfig()
                     ->Record->default_citation_style;
             } else {
@@ -1532,9 +1579,9 @@ class AjaxController extends AjaxControllerBase
         $citationLocalDomain = str_replace("www.", "", $citationLocalDomain);
 
         $citationServerUrl = "https://www.citacepro.com/api/cpk/citace/"
-            .$recordId
-            ."?server=".$citationLocalDomain
-            ."&citacniStyl=".$preferredCitationStyle;
+            . $recordId
+            . "?server=" . $citationLocalDomain
+            . "&citacniStyl=" . $preferredCitationStyle;
 
         try {
             $ch = curl_init($citationServerUrl);
@@ -1551,7 +1598,7 @@ class AjaxController extends AjaxControllerBase
             $results = $xpath->query('//*[@id="citace"]');
 
             $citation = $results->item(0)->c14n();
-            if (! empty($citation)) {
+            if (!empty($citation)) {
                 return $this->output($citation, self::STATUS_OK);
             }
 
@@ -1570,7 +1617,7 @@ class AjaxController extends AjaxControllerBase
     public function setCitationStyleAjax()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1595,7 +1642,7 @@ class AjaxController extends AjaxControllerBase
     public function setRecordsPerPageAjax()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1622,7 +1669,7 @@ class AjaxController extends AjaxControllerBase
     public function setPreferredSortingAjax()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1672,7 +1719,7 @@ class AjaxController extends AjaxControllerBase
     public function saveTheseInstitutionsAjax()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1702,7 +1749,7 @@ class AjaxController extends AjaxControllerBase
     public function getSavedInstitutionsAjax()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1721,9 +1768,9 @@ class AjaxController extends AjaxControllerBase
      *
      * Get advanced handlers
      *
+     * @return \Zend\Http\Response
      * @deprecated
      *
-     * @return \Zend\Http\Response
      */
     public function getAllAdvancedHandlersAjax()
     {
@@ -1735,11 +1782,11 @@ class AjaxController extends AjaxControllerBase
         $solrAdvancedHandlers = $solrOptions->getAdvancedHandlers();
         $edsAdvancedHandlers = $edsOptions->getAdvancedHandlers();
 
-        foreach($solrAdvancedHandlers as $key => $value) {
+        foreach ($solrAdvancedHandlers as $key => $value) {
             $solrAdvancedHandlers[$key] = $renderer->translate($value);
         }
 
-        foreach($edsAdvancedHandlers as $key => $value) {
+        foreach ($edsAdvancedHandlers as $key => $value) {
             $edsAdvancedHandlers[$key] = $renderer->translate($value);
         }
 
@@ -1768,11 +1815,11 @@ class AjaxController extends AjaxControllerBase
                 $data .= "<br>\n";
             }
             $widgetName = $widget->getName();
-            $data .= "[$widgetName]"."<br>\n";
+            $data .= "[$widgetName]" . "<br>\n";
 
             $contents = $widgetContentTable->getContentsByName($widgetName);
             foreach ($contents as $content) {
-                $data .= $content->getValue()."<br>\n";
+                $data .= $content->getValue() . "<br>\n";
             }
             $i++;
         }
@@ -1795,12 +1842,12 @@ class AjaxController extends AjaxControllerBase
         try {
             $librariesGeolocationTable = $this->getTable("libraries_geolocations");
 
-            $infoApiUrl = $this->adresarKnihovenApiUrl.'/libraries?limit=999999';
+            $infoApiUrl = $this->adresarKnihovenApiUrl . '/libraries?limit=999999';
 
             $libraries = $this->remoteJsonToArray($infoApiUrl);
 
             $data = [];
-            foreach($libraries as $library) {
+            foreach ($libraries as $library) {
                 $data[] = [
                     'sigla' => $library['sigla'],
                     'latitude' => $library['latitude'],
@@ -1828,30 +1875,31 @@ class AjaxController extends AjaxControllerBase
      * CURLOPT_HEADER - Include header in result? (0 = yes, 1 = no)
      * CURLOPT_RETURNTRANSFER - (true = return, false = print) data
      *
-     * @param  string  $infoApiUrl
+     * @param string $infoApiUrl
      *
-     * @throws	\Exception when cURL us not installed
-     * @throws	\Exception when Json cannot be decoded
-     * 			or the encoded data is deeper than the recursion limit.
-     * @throws	\Exception when response body contains error element
-     * @throws	\Exception when reponse status code is not 200
-     * @return	mixed
+     * @return    mixed
+     * @throws    \Exception when Json cannot be decoded
+     *            or the encoded data is deeper than the recursion limit.
+     * @throws    \Exception when response body contains error element
+     * @throws    \Exception when reponse status code is not 200
+     * @throws    \Exception when cURL us not installed
      */
     private function remoteJsonToArray($infoApiUrl)
     {
-        if (! function_exists('curl_init'))
+        if (!function_exists('curl_init')) {
             throw new \Exception('cURL is not installed!');
+        }
 
         $curlAdapterConfig = array(
-            'adapter'     => '\Zend\Http\Client\Adapter\Curl',
+            'adapter' => '\Zend\Http\Client\Adapter\Curl',
             'curloptions' => array(
-                CURLOPT_FOLLOWLOCATION 	=> true,
-                CURLOPT_USERAGENT		=> "Mozilla/5.0",
-                CURLOPT_HEADER			=> 0,
-                CURLOPT_RETURNTRANSFER	=> true,
-                CURLOPT_TIMEOUT			=> 120,
-                CURLOPT_SSL_VERIFYHOST	=> 0,
-                CURLOPT_SSL_VERIFYPEER	=> 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_USERAGENT => "Mozilla/5.0",
+                CURLOPT_HEADER => 0,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 120,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
             ),
         );
 
@@ -1860,20 +1908,23 @@ class AjaxController extends AjaxControllerBase
 
         // Response head error handling
         $responseStatusCode = $response->getStatusCode();
-        if($responseStatusCode !== 200)
-            throw new \Exception("Response status code: ".$responseStatusCode);
+        if ($responseStatusCode !== 200) {
+            throw new \Exception("Response status code: " . $responseStatusCode);
+        }
         //
 
-        $output	= $response->getBody();
+        $output = $response->getBody();
 
         // Response body error handling
         $dataArray = \Zend\Json\Json::decode($output, \Zend\Json\Json::TYPE_ARRAY);
 
-        if ($dataArray === NULL)
+        if ($dataArray === null) {
             throw new \Exception('Json cannot be decoded or the encoded data is deeper than the recursion limit.');
+        }
 
-        if ((isset($dataArray['result']) && ($dataArray['result'] == 'error')))
+        if ((isset($dataArray['result']) && ($dataArray['result'] == 'error'))) {
             throw new \Exception($dataArray['message']);
+        }
         //
 
         return $dataArray;
@@ -1945,7 +1996,7 @@ class AjaxController extends AjaxControllerBase
     /**
      * Return siblings of record
      *
-     * @param  string  $recordId
+     * @param string $recordId
      *
      * @return array
      */
@@ -1978,11 +2029,11 @@ class AjaxController extends AjaxControllerBase
 
     private function getAuthorityFromObalkyKnih($id)
     {
-        if (! isset($this->obalky)) {
+        if (!isset($this->obalky)) {
 
             $auth_id = $id;
 
-            if (! empty($auth_id)) {
+            if (!empty($auth_id)) {
                 try {
                     $cacheUrl = !isset($this->getConfig()->ObalkyKnih->cacheUrl)
                         ? 'https://cache.obalkyknih.cz' : $this->getConfig()->ObalkyKnih->cacheUrl;
@@ -1996,12 +2047,10 @@ class AjaxController extends AjaxControllerBase
                     $responseBody = $response->getBody();
                     $phpResponse = json_decode($responseBody, true);
                     $this->obalky = empty($phpResponse) ? null : $phpResponse;
-                }
-                catch (TimeoutException $e) {
+                } catch (TimeoutException $e) {
                     $this->obalky = null;
                 }
-            }
-            else {
+            } else {
                 $this->obalky = null;
             }
         }
@@ -2039,8 +2088,9 @@ class AjaxController extends AjaxControllerBase
 
         if (isset($phpResponse[0]['annotation'])) {
 
-            if ($phpResponse[0]['annotation']['html'] == null)
+            if ($phpResponse[0]['annotation']['html'] == null) {
                 return null;
+            }
 
             $anothtml = $phpResponse[0]['annotation']['html'];
             //obalky knih sends annotation html escaped, we have convert it to string, to be able to escape it
@@ -2067,6 +2117,7 @@ class AjaxController extends AjaxControllerBase
             ]);
         return $this->output($html, self::STATUS_OK);
     }
+
     public function getSummaryShortObalkyKnihAjax()
     {
         $bibinfo = $this->params()->fromQuery('bibinfo');
@@ -2080,7 +2131,6 @@ class AjaxController extends AjaxControllerBase
             ]);
         return $this->output($html, self::STATUS_OK);
     }
-
 
 
     /**
@@ -2179,7 +2229,7 @@ class AjaxController extends AjaxControllerBase
         $params->addFacet($facet, null, $operator === 'OR');
         $requestQuery = $this->getRequest()->getQuery();
         $requestQuery['filter'] = explode("|", \LZCompressor\LZString::decompressFromBase64(specialUrlDecode($requestQuery['filter'])));
-        if( empty($requestQuery['filter'][0])) {
+        if (empty($requestQuery['filter'][0])) {
             unset($requestQuery['filter']);
         }
         $params->initFromRequest($requestQuery);
@@ -2252,12 +2302,14 @@ class AjaxController extends AjaxControllerBase
             $current['record_number'] = array_search($current['id'], $ids);
             $current['full_status'] = $renderer->render('ajax/status-full.phtml',
                 array('status' => $current));
-            $message =  $messages['unavailable'];
+            $message = $messages['unavailable'];
             if (isset($current['absent_total']) && isset($current['present_total']) &&
                 $current['absent_total'] + $current['present_total'] == 0) {
                 $message = $messages['no-items'];
-            } else if ($current['availability']) {
-                $message = $messages['available'];
+            } else {
+                if ($current['availability']) {
+                    $message = $messages['available'];
+                }
             }
             $current['availability_message'] = $message;
             $statuses[] = $current;
@@ -2268,16 +2320,16 @@ class AjaxController extends AjaxControllerBase
         // If any IDs were missing, send back appropriate dummy data
         foreach ($missingIds as $missingId => $recordNumber) {
             $statuses[] = array(
-                'id'                   => $missingId,
-                'availability'         => 'false',
+                'id' => $missingId,
+                'availability' => 'false',
                 'availability_message' => $messages['unavailable'],
-                'location'             => $this->translate('Unknown'),
-                'locationList'         => false,
-                'reserve'              => 'false',
-                'reserve_message'      => $this->translate('Not On Reserve'),
-                'callnumber'           => '',
-                'missing_data'         => true,
-                'record_number'        => $recordNumber
+                'location' => $this->translate('Unknown'),
+                'locationList' => false,
+                'reserve' => 'false',
+                'reserve_message' => $this->translate('Not On Reserve'),
+                'callnumber' => '',
+                'missing_data' => true,
+                'record_number' => $recordNumber
             );
         }
 
@@ -2299,7 +2351,7 @@ class AjaxController extends AjaxControllerBase
         $issns = isset($recordData['issns']) ? explode(", ", $recordData['issns']) : [];
         $electronicIssns = isset($recordData['electronicIssns']) ? explode(", ", $recordData['electronicIssns']) : [];
         $issns = array_merge($issns, $electronicIssns);
-        $issns = (! empty($issns)) ? $issns : false;
+        $issns = (!empty($issns)) ? $issns : false;
 
         $isbns = isset($recordData['isbns']) ? explode(", ", $recordData['isbns']) : false;
         $publishDate = isset($recordData['publishDate']) ? $recordData['publishDate'] : false;
@@ -2307,32 +2359,32 @@ class AjaxController extends AjaxControllerBase
         $sourceTitle = isset($recordData['sourceTitle']) ? $recordData['sourceTitle'] : false;
 
         // build query
-        $url  = "$solrUrl/$solrCore/select?";
+        $url = "$solrUrl/$solrCore/select?";
         $url .= "q=recordtype:sfx";
 
         if ($issns || $isbns) {
 
             if ($issns) {
                 $url .= "%0A";
-                $url .= 'issn:("'.implode('"+OR+"', $issns).'")';
+                $url .= 'issn:("' . implode('"+OR+"', $issns) . '")';
             }
 
             if ($isbns) {
                 $url .= "%0A";
-                $url .= 'isbn:("'.implode('"+OR+"', $isbns).'")';
+                $url .= 'isbn:("' . implode('"+OR+"', $isbns) . '")';
             }
 
             if ($publishDate) {
                 $url .= "%0A";
-                $url .= 'publishDate_txt_mv:("'.$publishDate.'")';
+                $url .= 'publishDate_txt_mv:("' . $publishDate . '")';
             }
 
         } else {
             if ($sourceTitle && $authors) {
                 $url .= "%0A";
-                $url .= 'sfx_title_txt_mv:("'.$sourceTitle.'")';
+                $url .= 'sfx_title_txt_mv:("' . $sourceTitle . '")';
                 $url .= "%0A";
-                $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
+                $url .= 'author_txt_mv:("' . implode('"+OR+"', $authors) . '")';
             } else {
                 return $this->output(['url' => $url, 'message' => 'NO USABLE METADATA FOUND', 'not_ok_messages' => $not_ok_messages], self::STATUS_NOT_OK);
             }
@@ -2363,15 +2415,15 @@ class AjaxController extends AjaxControllerBase
         }
 
         foreach ($json['response']['docs'] as $record) {
-            if ( (! empty($record['sfx_source_txt'])) && (! empty($record['sfx_id_txt'])) ) {
+            if ((!empty($record['sfx_source_txt'])) && (!empty($record['sfx_id_txt']))) {
 
                 $sfxSource = $record['sfx_source_txt'];
-                $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
+                $embargo = (!empty($record['embargo_str']) ? ' ' . htmlspecialchars($record['embargo_str']) : '');
 
-                if (! empty($record['sfx_url_txt'])) {
+                if (!empty($record['sfx_url_txt'])) {
 
                     if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
-                        if (! isset($htmlLinks[$sfxSource])) {
+                        if (!isset($htmlLinks[$sfxSource])) {
                             $htmlLinks[$sfxSource] = [];
                         }
 
@@ -2381,14 +2433,14 @@ class AjaxController extends AjaxControllerBase
                             $anchor = $this->translate(strtoupper($sfxSource));
                         }
 
-                        $link = "<a href='".$record['sfx_url_txt']."' target='_blank' title='".$this->translate('Fulltext')."'>".$anchor."</a>";
+                        $link = "<a href='" . $record['sfx_url_txt'] . "' target='_blank' title='" . $this->translate('Fulltext') . "'>" . $anchor . "</a>";
                         if ($embargo) {
-                            $link .= " (".$this->translate(explode(' ', trim($embargo))[0])." ".explode(' ', trim($embargo))[1].")";
+                            $link .= " (" . $this->translate(explode(' ', trim($embargo))[0]) . " " . explode(' ', trim($embargo))[1] . ")";
                         }
 
                         $htmlLinks[$sfxSource][] = $link;
                     } else {
-                        $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
+                        $not_ok_messages[] = 'Record with sfx_id_txt: ' . $record['sfx_id_txt'] . ' contains link, but the link is INVALID.';
                     }
 
                 }
@@ -2428,7 +2480,7 @@ class AjaxController extends AjaxControllerBase
         $recordDriver = $recordLoader->load($recordId, 'EDS',
             true);
 
-        if (! $recordDriver) {
+        if (!$recordDriver) {
             return $this->output(['recordId' => $recordId, 'message' => 'RECORD NOT LOADED', 'not_ok_messages' => $not_ok_messages,], self::STATUS_NOT_OK);
         }
 
@@ -2446,7 +2498,7 @@ class AjaxController extends AjaxControllerBase
         $issns = $recordDriver->getIssns() != false ? $recordDriver->getIssns() : [];
         $electronicIssns = $recordDriver->getElectronicIssns() != false ? $recordDriver->getElectronicIssns() : [];
         $issns = array_merge($issns, $electronicIssns);
-        $issns = (! empty($issns)) ? $issns : false;
+        $issns = (!empty($issns)) ? $issns : false;
 
         $isbns = $recordDriver->getIsbns();
         $publishDate = $recordDriver->getPublishDate();
@@ -2454,32 +2506,32 @@ class AjaxController extends AjaxControllerBase
         $sourceTitle = $recordDriver->getSourceTitle();
 
         // build query
-        $url  = "$solrUrl/$solrCore/select?";
+        $url = "$solrUrl/$solrCore/select?";
         $url .= "q=recordtype:sfx";
 
         if ($issns || $isbns) {
 
             if ($issns) {
                 $url .= "%0A";
-                $url .= 'issn:("'.implode('"+OR+"', $issns).'")';
+                $url .= 'issn:("' . implode('"+OR+"', $issns) . '")';
 
                 if ($publishDate) {
                     $url .= "%0A";
-                    $url .= 'publishDate_txt_mv:("'.$publishDate.'")';
+                    $url .= 'publishDate_txt_mv:("' . $publishDate . '")';
                 }
             }
 
             if ($isbns) {
                 $url .= "%0A";
-                $url .= 'isbn:("'.implode('"+OR+"', $isbns).'")';
+                $url .= 'isbn:("' . implode('"+OR+"', $isbns) . '")';
             }
 
         } else {
             if ($sourceTitle && $authors) {
                 $url .= "%0A";
-                $url .= 'sfx_title_txt_mv:("'.$sourceTitle.'")';
+                $url .= 'sfx_title_txt_mv:("' . $sourceTitle . '")';
                 $url .= "%0A";
-                $url .= 'author_txt_mv:("'.implode('"+OR+"', $authors).'")';
+                $url .= 'author_txt_mv:("' . implode('"+OR+"', $authors) . '")';
             } else {
                 return $this->output([
                     'url' => $url,
@@ -2515,14 +2567,14 @@ class AjaxController extends AjaxControllerBase
 
         foreach ($json['response']['docs'] as $record) {
 
-            if ( (! empty($record['sfx_source_txt'])) && (! empty($record['sfx_id_txt'])) ) {
+            if ((!empty($record['sfx_source_txt'])) && (!empty($record['sfx_id_txt']))) {
                 $sfxSource = $record['sfx_source_txt'];
-                $embargo = (! empty($record['embargo_str']) ? ' '.htmlspecialchars($record['embargo_str']) : '');
+                $embargo = (!empty($record['embargo_str']) ? ' ' . htmlspecialchars($record['embargo_str']) : '');
 
-                if (! empty($record['sfx_url_txt'])) {
+                if (!empty($record['sfx_url_txt'])) {
 
                     if (filter_var($record['sfx_url_txt'], FILTER_VALIDATE_URL)) {
-                        if (! isset($htmlLinks[$sfxSource])) {
+                        if (!isset($htmlLinks[$sfxSource])) {
                             $htmlLinks[$sfxSource] = [];
                         }
 
@@ -2541,8 +2593,8 @@ class AjaxController extends AjaxControllerBase
                         );
 
                         if ($embargo) {
-                            $embargoText = $this->translate(explode(' ', trim($embargo))[0]).
-                                " ".explode(' ', trim($embargo))[1];
+                            $embargoText = $this->translate(explode(' ', trim($embargo))[0]) .
+                                " " . explode(' ', trim($embargo))[1];
                             $link .= sprintf(
                                 '<span class="eds-results-embargo" data-toggle="tooltip" title="%s">&nbsp;*</span>',
                                 $embargoText
@@ -2551,7 +2603,7 @@ class AjaxController extends AjaxControllerBase
 
                         $htmlLinks[$sfxSource][] = $link;
                     } else {
-                        $not_ok_messages[] = 'Record with sfx_id_txt: '.$record['sfx_id_txt'].' contains link, but the link is INVALID.';
+                        $not_ok_messages[] = 'Record with sfx_id_txt: ' . $record['sfx_id_txt'] . ' contains link, but the link is INVALID.';
                     }
 
                 }
@@ -2569,7 +2621,7 @@ class AjaxController extends AjaxControllerBase
 
         $output = [
             'links' => $htmlLinks,
-            'url'   => $url,
+            'url' => $url,
             'message' => '',
             'not_ok_messages' => $not_ok_messages,
         ];
@@ -2589,16 +2641,18 @@ class AjaxController extends AjaxControllerBase
 
             $user = $this->getUser();
 
-            if ($user instanceof \CPK\Db\Row\User)
+            if ($user instanceof \CPK\Db\Row\User) {
                 return $user->getNonDummyInstitutions();
-        } else
+            }
+        } else {
             return [];
+        }
     }
 
     /**
      * Sort links by my libraries
      *
-     * @param   array Associative array
+     * @param array Associative array
      *
      * @return  array
      */
@@ -2606,13 +2660,13 @@ class AjaxController extends AjaxControllerBase
     {
         $myLibs = $this->getUsersHomeLibraries();
         $available = isset($this->getConfig()->Preferred_Institutions->list);
-        $preferred = ($available)? $this->getConfig()->Preferred_Institutions->list->toArray() : [];
+        $preferred = ($available) ? $this->getConfig()->Preferred_Institutions->list->toArray() : [];
         $myLibs = array_merge($myLibs, $preferred);
 
-        if (! empty($myLibs)) {
+        if (!empty($myLibs)) {
             $preferredLinks = [];
             $otherLinks = [];
-            foreach($htmlLinks as $source => $links) {
+            foreach ($htmlLinks as $source => $links) {
                 if (in_array($source, $myLibs)) {
                     $preferredLinks[$source] = $links;
                 } else {
@@ -2638,7 +2692,7 @@ class AjaxController extends AjaxControllerBase
     /**
      * Return sfx institution shortcut by local library shortcut (source)
      *
-     * @param   string  $libShortcut
+     * @param string $libShortcut
      *
      * @return  string
      */
@@ -2651,7 +2705,7 @@ class AjaxController extends AjaxControllerBase
     /**
      * Return array with free link only, if free link is available, otherwise return full array
      *
-     * @param   array  $htmlLinks   Associative array
+     * @param array $htmlLinks Associative array
      *
      * @return  array               Associative array
      */
@@ -2661,7 +2715,7 @@ class AjaxController extends AjaxControllerBase
 
         $intersection = array_intersect_key($htmlLinks, array_flip($allowed));
 
-        return (! empty($intersection)) ? $intersection : $htmlLinks;
+        return (!empty($intersection)) ? $intersection : $htmlLinks;
     }
 
     public function createZiskejMessageAjax()
