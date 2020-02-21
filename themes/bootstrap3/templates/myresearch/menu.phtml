@@ -22,12 +22,12 @@
         <?= $this->transEsc('Holds and Recalls') ?>
         <span class="pull-right flip"><i class="pr-time-clockhour"></i></span>
       </a>
-      <? //@todo if ziskej is active ?>
-      <a href="<?= $this->url('myresearch-ziskej') ?>" class="list-group-item<?= $this->active == 'ziskej' ? ' active' : '' ?>">
-        <?= $this->transEsc('Služba Získej') ?>
-        <span class="pull-right flip"><i class="pr-document-book"></i></span>
-      </a>
-      <? //@todo /if ziskej is active ?>
+      <? if ($this->Ziskej()->isEnabled()): ?>
+        <a href="<?= $this->url('myresearch-ziskej') ?>" class="list-group-item<?= $this->active == 'ziskej' ? ' active' : '' ?>">
+          <?= $this->transEsc('Služba Získej') ?>
+          <span class="pull-right flip"><i class="pr-document-book"></i></span>
+        </a>
+      <? endif; ?>
       <? if ($this->ils()->checkFunction('StorageRetrievalRequests')): ?>
         <a href="<?= $this->url('myresearch-storageretrievalrequests') ?>" class="list-group-item<?= $this->active == 'storageRetrievalRequests' ? ' active' : '' ?>">
           <?= $this->transEsc('Storage Retrieval Requests') ?>
