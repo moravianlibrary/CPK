@@ -11,7 +11,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $this->ticket['h
     <ul class="breadcrumb hidden-print" style="padding: 0;">
       <li><a title="<?= $this->transEsc('Main page'); ?>" href="/Search"><?= $this->transEsc('Main page'); ?></a></li>
       <li><a href="<?= $this->url('myresearch-home'); ?>"><?= $this->transEsc('Your Account'); ?></a></li>
-      <li><a href="<?= $this->url('myresearch-holds'); ?>"><?= $this->transEsc('Holds and Recalls'); ?></a></li>
+      <li><a href="<?= $this->url('myresearch-ziskej'); ?>"><?= $this->transEsc('Služba Získej'); ?></a></li>
       <li class="active"><?= $this->transEsc('Objednávka Získej č. ') . $this->ticket['hid']; ?></li>
     </ul>
 
@@ -113,7 +113,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $this->ticket['h
 
 
   <div class="<?= $this->layoutClass('sidebar') ?>">
-    <?= $this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'holds')) ?>
+    <?= $this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'ziskej')) ?>
   </div>
 
 </div>

@@ -1411,6 +1411,96 @@ class MyResearchController extends MyResearchControllerBase
     }
 
     /**
+     * Ziskej tickets page
+     *
+     * @return mixed|\Zend\View\Model\ViewModel
+     * @throws \Http\Client\Exception
+     */
+    public function ziskejAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        $this->preSetAutocompleteParams();
+
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver($user)) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_holds']) &&
+            $config['General']['async_holds']) {
+            $isSynchronous = false;
+        } else {
+            $isSynchronous = true;
+        }
+
+        $viewVars = [];
+
+        $userTickets = [];
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
+        $request = $this->getRequest();
+        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
+        if ($ziskejCurrentMode != 'disabled') {
+            try {
+                /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+                $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+                $ilsDriver = $this->getILS()->getDriver();
+                $ziskejLibs = $ziskejApi->getLibraries();
+                $libraryIds = [];
+                foreach ($ziskejLibs as $sigla) {
+                    $libraryIds[] = $ilsDriver->siglaToSource($sigla);
+                }
+                if ($user) {
+                    $userSources = $user->getNonDummyInstitutions();
+                    $userLibCards = $user->getAllUserLibraryCards();
+
+                    $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+                        return in_array($userLib, $libraryIds);
+                    });
+                    $sourceEppn = [];
+                    foreach ($userLibCards as $userLibCard) {
+                        if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
+                            $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+                        }
+                    }
+                    $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
+
+                    foreach ($sourceEppn as $source => $eppn) {
+                        $reader = $ziskejApi->getReader($eppn);
+                        if ($reader && $reader->isActive()) {
+                            $userTickets[$source] = $ziskejApi->getTickets($eppn);
+                        }
+                    }
+                }
+            } catch (\Exception $ex) {
+                if ($ziskejCurrentMode != 'disabled') {
+                    $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
+                        'warning');  //@todo presunout
+                }
+                // do view pod nadpis ziskej
+            }
+        }
+
+        $viewVars['userTickets'] = $userTickets;
+        $viewVars['ziskejCurrentMode'] = $ziskejCurrentMode;
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions($this->flashMessenger());
+        return $view;
+    }
+
+    /**
      * Ziskej ticket detail
      *
      * @return mixed|\Zend\View\Model\ViewModel

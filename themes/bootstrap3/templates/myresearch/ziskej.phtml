@@ -1,0 +1,46 @@
+<?
+// Set up page title:
+$this->headTitle($this->translate('Služba Získej'));
+
+// Set up breadcrumbs:
+//@todo refactor
+$this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
+  '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Ziskej') . '</li>';
+
+$isSynchronous = $this->isSynchronous;
+if (!$isSynchronous) {
+  $this->headScript()->appendFile("async-holds.js");
+}
+?>
+<div class="row">
+  <div class="<?= $this->layoutClass('mainbody') ?>">
+    <h2>
+      <?= $this->transEsc('Služba Získej') ?>
+      <? //= $this->help()->getQuestionMarkHelp('holds') ?>
+      <img class="pull-right" height="32" src="<?= $this->imageLink('logo-ziskej.png') ?>"/>
+    </h2>
+
+
+    <?= $this->flashmessages() ?>
+
+    <?
+    if ($isSynchronous) {
+      exit('Error: $isSynchronous has to be false.'); //@todo
+    }
+    ?>
+
+    <div class="card">
+      <div class="card-body">
+        <div id="<?= $this->userTickets->cat_username ?? 'ziskejAjaxLoad' ?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+          <i class="fa fa-spinner fa-spin"></i> <span class="label label-info"><?= $this->transEsc('Loading') ?> ...</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="<?= $this->layoutClass('sidebar') ?>">
+    <?= $this->context($this)->renderInContext("myresearch/menu.phtml", array('active' => 'ziskej')) ?>
+  </div>
+
+</div>

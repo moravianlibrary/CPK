@@ -273,6 +273,7 @@ $staticRoutes = array(
     'MyResearch/FavoritesImport',
     'MyResearch/ProfileChange',
     'MyResearch/ChangeTitle',
+    'MyResearch/Ziskej',
 );
 
 foreach ($staticRoutes as $route) {
