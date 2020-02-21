@@ -58,6 +58,7 @@ $toRet = array(
             'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih',
             'notifications' => 'CPK\View\Helper\CPK\Factory::getNotifications',
             'feedback' => 'CPK\View\Helper\CPK\Factory::getFeedback',
+            'ziskej' => 'CPK\View\Helper\CPK\Factory::getZiskej',
         ),
         'invokables' => array(
             'highlight' => 'VuFind\View\Helper\Bootstrap3\Highlight',

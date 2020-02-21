@@ -179,4 +179,15 @@ class Factory
         return new Feedback($config);
     }
 
+    /**
+     * Get Ziskej view helper
+     *
+     * @param \Zend\ServiceManager\ServiceManager $sm
+     * @return \CPK\View\Helper\CPK\Ziskej
+     */
+    public static function getZiskej(ServiceManager $sm)
+    {
+        return new Ziskej($sm);
+    }
+
 }
