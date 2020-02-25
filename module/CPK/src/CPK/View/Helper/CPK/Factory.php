@@ -185,9 +185,16 @@ class Factory
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @return \CPK\View\Helper\CPK\Ziskej
      */
-    public static function getZiskej(ServiceManager $sm)
+    public static function getZiskej(ServiceManager $sm): Ziskej
     {
-        return new Ziskej($sm);
+        /** @var \Zend\Http\PhpEnvironment\Request $request */
+        $request = $sm->getServiceLocator()
+            ->get('Request');
+
+        /** @var \Zend\Http\Header\Cookie $cookie */
+        $cookie = $request->getCookie();
+
+        return new Ziskej($cookie);
     }
 
 }

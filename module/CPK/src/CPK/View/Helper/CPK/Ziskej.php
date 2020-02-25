@@ -2,9 +2,12 @@
 
 namespace CPK\View\Helper\CPK;
 
-use Zend\ServiceManager\ServiceManager;
+use Zend\Http\Header\Cookie;
 use Zend\View\Helper\AbstractHelper;
 
+/**
+ * Ziskej View Helper
+ */
 class Ziskej extends AbstractHelper
 {
 
@@ -13,15 +16,8 @@ class Ziskej extends AbstractHelper
      */
     private $mode;
 
-    public function __construct(ServiceManager $serviceManager)
+    public function __construct(Cookie $cookie)
     {
-        /** @var \Zend\Http\PhpEnvironment\Request $request */
-        $request = $serviceManager->getServiceLocator()
-            ->get('Request');
-
-        /** @var \Zend\Http\Header\Cookie $cookie */
-        $cookie = $request->getCookie();
-
         if (!empty($cookie->ziskej) && $cookie->ziskej != 'disabled') {
             $this->mode = $cookie->ziskej;
         }
