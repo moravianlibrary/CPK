@@ -8,13 +8,6 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $this->ticket['h
 <div class="row">
   <div class="<?= $this->layoutClass('mainbody'); ?>">
 
-    <ul class="breadcrumb hidden-print" style="padding: 0;">
-      <li><a title="<?= $this->transEsc('Main page'); ?>" href="/Search"><?= $this->transEsc('Main page'); ?></a></li>
-      <li><a href="<?= $this->url('myresearch-home'); ?>"><?= $this->transEsc('Your Account'); ?></a></li>
-      <li><a href="<?= $this->url('myresearch-ziskej'); ?>"><?= $this->transEsc('Služba Získej'); ?></a></li>
-      <li class="active"><?= $this->transEsc('Objednávka Získej č. ') . $this->ticket['hid']; ?></li>
-    </ul>
-
     <h2>
       <?= $this->transEsc('Objednávka Získej č. ') . $this->ticket['hid']; ?>
     </h2>
