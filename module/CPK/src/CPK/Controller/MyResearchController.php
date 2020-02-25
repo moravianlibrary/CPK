@@ -254,54 +254,6 @@ class MyResearchController extends MyResearchControllerBase
         $viewVars['isSynchronous'] = $isSynchronous;
 
         $request = $this->getRequest();
-        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
-        if ($ziskejCurrentMode != 'disabled') {
-            try {
-                /** @var \Mzk\ZiskejApi\Api $ziskejApi */
-                $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
-
-                $ilsDriver = $this->getILS()->getDriver();
-                $ziskejLibs = $ziskejApi->getLibraries();
-                $libraryIds = [];
-                foreach ($ziskejLibs as $sigla) {
-                    $libraryIds[] = $ilsDriver->siglaToSource($sigla);
-                }
-                if ($user) {
-                    $userSources = $user->getNonDummyInstitutions();
-                    $userLibCards = $user->getAllUserLibraryCards();
-
-                    $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
-                        return in_array($userLib, $libraryIds);
-                    });
-                    $sourceEppn = [];
-                    foreach ($userLibCards as $userLibCard) {
-                        if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
-                            $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
-                        }
-                    }
-                    $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
-
-                    $userTickets = [];
-                    foreach ($sourceEppn as $source => $eppn) {
-                        $reader = $ziskejApi->getReader($eppn);
-                        if ($reader && $reader->isActive()) {
-                            $userTickets[$source] = $ziskejApi->getTickets($eppn);
-                        }
-                    }
-                    $libraryIdentities['ziskej'] = $userTickets;
-                }
-            } catch (\Exception $ex) {
-                if ($ziskejCurrentMode != 'disabled') {
-                    $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
-                        'warning');  //@todo presunout
-                }
-                // do view pod nadpis ziskej
-            }
-        }
-        if (!empty($libraryIdentities)) {
-            $viewVars['libraryIdentities'] += $libraryIdentities;
-        }
-        $viewVars['ziskejCurrentMode'] = $ziskejCurrentMode;
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;

@@ -19,6 +19,7 @@ if (!$isSynchronous) {
     </h2>
 
     <?= $this->flashmessages() ?>
+
     <? if ($isSynchronous): ?>
       <? foreach ($this->libraryIdentities as $eppn => $libraryIdentity): // We have to detect whether is necessarry creating cancel btns?>
 
@@ -83,27 +84,37 @@ if (!$isSynchronous) {
       <? foreach ($this->libraryIdentities as $eppn => $libraryIdentity): ?>
         <div class="card">
           <div class="card-header">
-            <? if ($eppn == 'ziskej'): ?>
-              <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
-                <?= $this->translate('Ziskej') ?>
-                <img class="pull-right" height="32" src="<?= $this->imageLink('logo-ziskej.png') ?>"/>
-              </h3>
-            <? else: ?>
-              <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
-              <h3 class="well row" style="margin-bottom: 3px;" id="<?= $source ?>">
-                <?= $this->transEsc("source_$source", null, $source) ?>
-                <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($source) ?>"/>
-              </h3>
-            <? endif; ?>
+            <? $source = explode('.', $libraryIdentity->cat_username)[0]; ?>
+            <h3 class="well row" style="margin-bottom: 3px;" id="<?= $source ?>">
+              <?= $this->transEsc("source_$source", null, $source) ?>
+              <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($source) ?>"/>
+            </h3>
           </div>
           <div class="card-body">
-            <div id="<?= $libraryIdentity->cat_username ?? 'ziskejAjaxLoad' ?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
+            <div id="<?= $libraryIdentity->cat_username ?>" data-type="loadingDiv" class="row well" style="margin-bottom: 2px;">
               <i class="fa fa-spinner fa-spin"></i> <span class="label label-info"><?= $this->transEsc('Loading') ?> ...</span>
             </div>
           </div>
         </div>
       <? endforeach; ?>
     <? endif; ?>
+
+    <? if ($this->Ziskej()->isEnabled()): ?>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="well row blickable" style="margin-bottom: 3px;" id="ziskej">
+            <?= $this->translate('Ziskej') ?>
+            <img class="pull-right" height="32" src="<?= $this->imageLink('logo-ziskej.png') ?>"/>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="well text-center">
+            <a class="btn btn-warning" href="<?= $this->url('myresearch-ziskej') ?>">Rezervace a objednávky pro službu Získej</a>
+          </div>
+        </div>
+      </div>
+    <? endif; ?>
+
   </div>
 
   <div class="<?= $this->layoutClass('sidebar') ?>">
