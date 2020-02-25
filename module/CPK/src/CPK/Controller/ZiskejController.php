@@ -128,4 +128,20 @@ class ZiskejController extends AbstractBase
 
         return $view;
     }
+
+    /**
+     * @return \Zend\Http\Response
+     */
+    public function paymentAction()
+    {
+        $eppn = $this->params()->fromRoute('eppn');
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        $payment_transaction_id = $this->params()->fromRoute('payment_transaction_id');
+
+        return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+            'eppn' => $eppn,
+            'ticket_id' => $ticketId
+        ]);
+    }
+
 }
