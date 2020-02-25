@@ -49,7 +49,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $this->ticket['h
         <? endif; ?>
 
         <? if (!empty($this->ticket['date_return'])): ?>
-          <dt><?= $this->transEsc('date_return'); ?>:</dt>
+          <dt><?= $this->transEsc('ziskej_label_date_return'); ?>:</dt>
           <dd><?= date('j.n.Y H:i', strtotime($this->ticket['date_return'])); ?></dd>
         <? endif; ?>
 
