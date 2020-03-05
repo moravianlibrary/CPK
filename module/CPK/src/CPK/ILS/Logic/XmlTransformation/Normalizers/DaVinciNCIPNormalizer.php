@@ -34,14 +34,8 @@ use VuFind\Exception\ILS as ILSException;
 
 class DaVinciNCIPNormalizer extends NCIPNormalizer
 {
-    public function normalizeLookupUserBlocksAndTraps(JsonXML &$response)
-    {
-        throw new ILSException('driver_no_fines');
-    }
-
     public function normalizeLookupItemStatus(JsonXML &$response)
     {
-
         $status = $response->get('LookupItemResponse', 'ItemOptionalFields', 'CirculationStatus');
 
         $newStatus = $this->normalizeStatus($status);
@@ -88,7 +82,6 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
             $response->unsetDataValue(
                 'LookupItemResponse', 'ItemOptionalFields', 'Location', 'LocationType'
             );
-
             $response->setDataValue(
                 array(
                     array(
@@ -115,37 +108,112 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
         }
 
         // Update status only if it have changed
-        if ($newStatus !== null)
+        if ($newStatus !== null) {
             $response->setDataValue(
                 $newStatus,
                 'ns1:LookupItemResponse',
                 'ns1:ItemOptionalFields',
                 'ns1:CirculationStatus'
             );
-
-        // This condition is very weird ... it would be nice to find out what agency it belongs, to avoid misuse
-        if ($department == 'Podlesí') {
-
-            // Only append 'Not For Loan' to the end of item restriction
-            $itemRestriction = $response->getArray(
-                'LookupItemResponse',
-                'ItemOptionalFields',
-                'ItemUseRestrictionType'
-            );
-            $i = sizeof($itemRestriction);
-
-            $response->setDataValue(
-                'Not For Loan',
-                'ns1:LookupItemResponse',
-                'ns1:ItemOptionalFields',
-                "ns1:ItemUseRestrictionType[$i]"
-            );
         }
     }
 
     public function normalizeLookupItemSetStatus(JsonXML &$response)
     {
-        $this->normalizeLookupItemStatus($response);
+        $holdingSets = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet');
+        $namespace = array_key_exists('ns1:LookupItemSetResponse', $response->toJsonObject()) ? 'ns1:' : '';
+        $response->unsetDataValue(
+            $namespace . 'LookupItemSetResponse',
+            $namespace . 'BibInformation',
+            $namespace . 'HoldingsSet'
+        );
+
+        // Rewind holdingSets to ItemInformation ..
+        foreach ($holdingSets as $i => $holdingSet) {
+            $itemInformation = $response->getRelative($holdingSet, 'ItemInformation');
+            $callNumber = $response->getRelative($holdingSet, 'CallNumber');
+            $response->setDataValue(
+                $itemInformation,
+                $namespace . 'LookupItemSetResponse',
+                $namespace . 'BibInformation',
+                $namespace . 'HoldingsSet',
+                $namespace . 'ItemInformation',
+                $i
+            );
+            $response->setDataValue(
+                $callNumber,
+                $namespace . 'LookupItemSetResponse',
+                $namespace . 'BibInformation',
+                $namespace . 'HoldingsSet',
+                $namespace . 'ItemInformation',
+                $i,
+                $namespace . 'ItemOptionalFields',
+                $namespace . 'CallNumber'
+            );
+
+            $department = null;
+            $collection = '';
+            $location = $response->getRelative($holdingSet, 'Location');
+            $level = $response->getRelative(
+                $location,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameLevel'
+            );
+            $value = $response->getRelative(
+                $location,
+                'LocationName',
+                'LocationNameInstance',
+                'LocationNameValue'
+            );
+            if ($value !== null) {
+                if ($level == '1') {
+                    // We're only looking for the department ..
+                    $department = $value;
+                }
+            }
+
+            if ($department !== null) {
+                if($this->source != "rkka") {
+                    $parts = explode("@", $department);
+                    $translate = $this->translator->translate(
+                        isset($parts[0]) ? $this->source . '_location_' . $parts[0]
+                            : ''
+                    );
+                    $parts = explode(" ", $translate, 2);
+                    $department = $parts[0] ?? '';
+                    $collection = $parts[1] ?? '';
+                }
+
+                $response->setDataValue(
+                    [
+                        [
+                            $namespace . 'LocationName' => [
+                                $namespace . 'LocationNameInstance' => [
+                                    $namespace . 'LocationNameLevel' => '1',
+                                    $namespace . 'LocationNameValue' => $department
+                                ]
+                            ]
+                        ],
+                        [
+                            $namespace . 'LocationName' => [
+                                $namespace . 'LocationNameInstance' => [
+                                    $namespace . 'LocationNameLevel' => '2',
+                                    $namespace . 'LocationNameValue' => $collection
+                                ]
+                            ]
+                        ]
+                    ],
+                    $namespace . 'LookupItemSetResponse',
+                    $namespace . 'BibInformation',
+                    $namespace . 'HoldingsSet',
+                    $namespace . 'ItemInformation',
+                    $i,
+                    $namespace . 'ItemOptionalFields',
+                    $namespace . 'Location'
+                );
+            }
+        }
     }
 
     public function normalizeRequestedItems(JsonXML &$response)
@@ -270,12 +338,14 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
             );
 
             if ($location !== null) {
-                $parts = explode("@", $location);
-                $location = $this->translator->translate(
-                    isset($parts[0])
-                        ? $this->source . '_location_' . $parts[0]
-                        : ''
-                );
+                if($this->source != "rkka") {
+                    $parts = explode("@", $location);
+                    $location = $this->translator->translate(
+                        isset($parts[0])
+                            ? $this->source . '_location_' . $parts[0]
+                            : ''
+                    );
+                }
 
                 $response->setDataValue(
                     $location,
@@ -284,6 +354,23 @@ class DaVinciNCIPNormalizer extends NCIPNormalizer
                     'ns1:PickupLocation'
                 );
             }
+        }
+    }
+
+    public function normalizeLookupUserLoanedItems(JsonXML &$response)
+    {
+        parent::normalizeLookupUserLoanedItems($response);
+        $namespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject()) ? 'ns1:' : '';
+        $loanedItems = $response->getArray('LookupUserResponse', 'LoanedItem');
+        foreach ($loanedItems as $i => $loanedItem) {
+            $response->setDataValue(
+                '',
+                $namespace . 'LookupUserResponse',
+                $namespace . 'LoanedItem',
+                $i,
+                $namespace . 'Ext',
+                $namespace . 'RenewalNotPermitted'
+            );
         }
     }
 }

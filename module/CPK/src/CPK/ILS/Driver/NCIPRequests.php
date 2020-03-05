@@ -109,8 +109,7 @@ class NCIPRequests {
     }
 
     public function cancelRequestItemUsingItemId($patron, $itemId) {
-        $requestType = "Estimate";
-        if ($this->ilsType === 'clavius') $requestType = "Hold";
+        $requestType = $this->getHoldRequestType();
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -123,8 +122,7 @@ class NCIPRequests {
     }
 
     public function cancelRequestItemUsingRequestId($patron, $requestId) {
-        $requestType = "Estimate";
-        if ($this->ilsType === 'clavius') $requestType = "Hold";
+        $requestType = $this->getHoldRequestType();
         $body =
         "<ns1:CancelRequestItem>" .
         $this->insertInitiationHeader($patron) .
@@ -476,5 +474,13 @@ class NCIPRequests {
             }
         }
         return $body;
+    }
+
+    protected function getHoldRequestType()
+    {
+        if ($this->ilsType === 'clavius' ||  $this->ilsType === 'davinci') {
+            return "Hold";
+        }
+        return "Estimate";
     }
 }

@@ -503,7 +503,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
         }
         if ($holdDetails['item_id'] == 'N/A')
             $holdDetails['item_id'] = '';
-        return empty($holdDetails['reqnum']) ? $holdDetails['item_id'] : $holdDetails['reqnum'];
+        return empty($holdDetails['item_id']) ? $holdDetails['reqnum'] : $holdDetails['item_id'];
     }
 
     /**
@@ -879,7 +879,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
                 'hold_type' => isset($holdQueue) && intval($holdQueue) > 0 ? 'Recall This' : 'Place a Hold',
                 'restrictions' => '',
                 'duedate' => empty($dueDate) ? '' : $dueDate,
-                'next_item_token' => empty($nextItemToken) ? '' : $nextItemToken,
+                'next_item_token' => is_string($nextItemToken) ? $nextItemToken : null,
                 'addLink' => $addLink
             );
         }
@@ -1257,7 +1257,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $available = false;
             if ($requestStatusType === 'Available For Pickup') {
                 $available = true;
-                $cannotCancel = true;
             }
 
             $retVal[] = array(
