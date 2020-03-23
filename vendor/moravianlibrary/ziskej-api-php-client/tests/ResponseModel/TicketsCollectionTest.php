@@ -26,6 +26,8 @@ final class TicketsCollectionTest extends TestCase
             'date_return' => null,
             'count_messages' => 5,
             'count_messages_unread' => 2,
+            'created_datetime' => '2020-01-01T12:32:44+01:00',
+            'updated_datetime' => '2020-12-31T15:18:20+01:00',
         ],
         [
             'ticket_id' => 'abc0000000000002',
@@ -42,6 +44,8 @@ final class TicketsCollectionTest extends TestCase
             'date_return' => '2020-02-28',
             'count_messages' => 1,
             'count_messages_unread' => 0,
+            'created_datetime' => '2020-01-01T12:32:44+01:00',
+            'updated_datetime' => '2020-12-31T15:18:20+01:00',
         ],
         [
         ],
@@ -59,7 +63,7 @@ final class TicketsCollectionTest extends TestCase
         $ticketsCollection = TicketsCollection::fromArray($this->input);
         $tickets = $ticketsCollection->getAll();
 
-        $this->assertCount(3, $tickets);
+        $this->assertCount(2, $tickets);
         //@todo more tests
     }
 

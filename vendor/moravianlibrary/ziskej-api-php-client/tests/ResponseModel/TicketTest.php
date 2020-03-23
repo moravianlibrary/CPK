@@ -3,7 +3,6 @@
 namespace Mzk\ZiskejApi\ResponseModel;
 
 use DateTimeImmutable;
-use DateTimeZone;
 use Mzk\ZiskejApi\TestCase;
 
 final class TicketTest extends TestCase
@@ -27,13 +26,17 @@ final class TicketTest extends TestCase
         'date_return' => null,
         'count_messages' => 5,
         'count_messages_unread' => 2,
+        'created_datetime' => '2020-01-01T12:32:44+01:00',
+        'updated_datetime' => '2020-12-31T15:18:20+01:00',
     ];
 
     public function testCreateEmptyObject(): void
     {
-        $ticket = new Ticket();
+        $ticket = new Ticket('ticket_1', new DateTimeImmutable('2019-12-31 13:30:00'));
 
-        $this->assertNull($ticket->getId());
+        $this->assertEquals('ticket_1', $ticket->getId());
+        $this->assertEquals('2019-12-31 13:30:00', $ticket->getCreatedAt()->format('Y-m-d H:i:s'));
+
         $this->assertNull($ticket->getType());
         $this->assertNull($ticket->getHid());
         $this->assertNull($ticket->getSigla());
@@ -42,9 +45,8 @@ final class TicketTest extends TestCase
         $this->assertNull($ticket->isOpen());
         $this->assertNull($ticket->getPaymentId());
         $this->assertNull($ticket->getPaymentUrl());
-        $this->assertNull($ticket->getDateCreated());
-        $this->assertNull($ticket->getDateRequested());
-        $this->assertNull($ticket->getDateReturn());
+        $this->assertNull($ticket->getRequestedAt());
+        $this->assertNull($ticket->getReturnAt());
         $this->assertEquals(0, $ticket->getCountMessages());
         $this->assertEquals(0, $ticket->getCountMessagesUnread());
     }
@@ -62,15 +64,27 @@ final class TicketTest extends TestCase
         $this->assertEquals($this->input['is_open'], $ticket->isOpen());
         $this->assertEquals($this->input['payment_id'], $ticket->getPaymentId());
         $this->assertEquals($this->input['payment_url'], $ticket->getPaymentUrl());
-        $this->assertEquals(
-            new DateTimeImmutable($this->input['date_created'], new DateTimeZone('UTC')),
-            $ticket->getDateCreated()
-        );
-        $this->assertEquals(
-            new DateTimeImmutable($this->input['date_requested'], new DateTimeZone('UTC')),
-            $ticket->getDateRequested()
-        );
+
+        $this->assertEquals($this->input['created_datetime'], $ticket->getCreatedAt()->format("Y-m-d\TH:i:sP"));
+
+        if (!empty($ticket->getUpdatedAt())) {
+            $this->assertEquals($this->input['updated_datetime'], $ticket->getUpdatedAt()->format("Y-m-d\TH:i:sP"));
+        }
+
+        if (!empty($ticket->getRequestedAt())) {
+            $this->assertEquals($this->input['date_requested'], $ticket->getRequestedAt()->format('Y-m-d'));
+        }
+
+        if (!empty($ticket->getCreatedAt())) {
+            $this->assertEquals($this->input['date_created'], $ticket->getCreatedAt()->format('Y-m-d'));
+        }
+
+        if (!empty($ticket->getRequestedAt())) {
+            $this->assertEquals($this->input['date_requested'], $ticket->getRequestedAt()->format('Y-m-d'));
+        }
+
         $this->assertEquals($this->input['date_return'], null);
+
         $this->assertEquals($this->input['count_messages'], $ticket->getCountMessages());
         $this->assertEquals($this->input['count_messages_unread'], $ticket->getCountMessagesUnread());
     }

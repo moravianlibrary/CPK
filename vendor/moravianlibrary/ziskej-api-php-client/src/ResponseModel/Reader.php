@@ -2,6 +2,8 @@
 
 namespace Mzk\ZiskejApi\ResponseModel;
 
+use SmartEmailing\Types\PrimitiveTypes;
+
 class Reader
 {
 
@@ -109,31 +111,31 @@ class Reader
 
 
     /**
-     * @param mixed[] $input
+     * @param mixed[] $data
      * @return \Mzk\ZiskejApi\ResponseModel\Reader
      */
-    public static function fromArray(array $input): self
+    public static function fromArray(array $data): Reader
     {
-        $model = new self(
-            (string)$input['reader_id'],
-            (bool)$input['is_active'],
-            (bool)$input['is_gdpr_reg'],
-            (bool)$input['is_gdpr_data']
+        $self = new self(
+            PrimitiveTypes::extractString($data, 'reader_id'),
+            PrimitiveTypes::extractBool($data, 'is_active'),
+            PrimitiveTypes::extractBool($data, 'is_gdpr_reg'),
+            PrimitiveTypes::extractBool($data, 'is_gdpr_data')
         );
 
-        $model->firstName = !empty($input['first_name']) ? (string)$input['first_name'] : null;
-        $model->lastName = !empty($input['last_name']) ? (string)$input['last_name'] : null;
-        $model->email = !empty($input['email']) ? (string)$input['email'] : null;
-        $model->isNotificationEnabled = !empty($input['notification_enabled'])
-            ? (bool)$input['notification_enabled'] : null;
-        $model->sigla = !empty($input['sigla']) ? (string)$input['sigla'] : null;
-        $model->countTickets = !empty($input['count_tickets']) ? (int)$input['count_tickets'] : null;
-        $model->countTicketsOpen = !empty($input['count_tickets_open']) ? (int)$input['count_tickets_open'] : null;
-        $model->countMessages = !empty($input['count_messages']) ? (int)$input['count_messages'] : null;
-        $model->countMessagesUnread = !empty($input['count_messages_unread'])
-            ? (int)$input['count_messages_unread'] : null;
-
-        return $model;
+        $self->firstName = PrimitiveTypes::extractStringOrNull($data, 'first_name', true);
+        $self->lastName = PrimitiveTypes::extractStringOrNull($data, 'last_name', true);
+        $self->email = PrimitiveTypes::extractStringOrNull($data, 'email', true);
+        //@todo make not null:
+        $self->isNotificationEnabled
+            = PrimitiveTypes::extractBoolOrNull($data, 'notification_enabled', true);
+        $self->sigla = PrimitiveTypes::extractStringOrNull($data, 'sigla', true);
+        $self->countTickets = PrimitiveTypes::extractIntOrNull($data, 'count_tickets', true);
+        $self->countTicketsOpen = PrimitiveTypes::extractIntOrNull($data, 'count_tickets_open', true);
+        $self->countMessages = PrimitiveTypes::extractIntOrNull($data, 'count_messages', true);
+        $self->countMessagesUnread
+            = PrimitiveTypes::extractIntOrNull($data, 'count_messages_unread', true);
+        return $self;
     }
 
     public function getReaderId(): string

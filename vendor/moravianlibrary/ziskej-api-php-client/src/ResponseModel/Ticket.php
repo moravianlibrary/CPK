@@ -3,7 +3,8 @@
 namespace Mzk\ZiskejApi\ResponseModel;
 
 use DateTimeImmutable;
-use Mzk\ZiskejApi\DateImmutable;
+use SmartEmailing\Types\DatesImmutable;
+use SmartEmailing\Types\PrimitiveTypes;
 
 class Ticket
 {
@@ -11,9 +12,9 @@ class Ticket
     /**
      * Ticket id
      *
-     * @var string|null
+     * @var string
      */
-    private $id = null;
+    private $id;
 
     /**
      * Ticket type
@@ -72,25 +73,32 @@ class Ticket
     private $paymentUrl = null;
 
     /**
-     * Ticket creation date
+     * Created datetime
      *
-     * @var \DateTimeImmutable|null
+     * @var \DateTimeImmutable
      */
-    private $dateCreated = null;
+    private $createdAt;
 
     /**
-     * Latest delivery date
+     * Last updated datetime
      *
      * @var \DateTimeImmutable|null
      */
-    private $dateRequested = null;
+    private $updatedAt = null;
 
     /**
-     * Return date
+     * Date to return
      *
      * @var \DateTimeImmutable|null
      */
-    private $dateReturn = null;
+    private $returnAt = null;
+
+    /**
+     * Delivery to date
+     *
+     * @var \DateTimeImmutable|null
+     */
+    private $requestedAt = null;
 
     /**
      * Number of ticket's messagess
@@ -105,57 +113,52 @@ class Ticket
      */
     private $countMessagesUnread = 0;
 
-    /**
-     * @param string[] $item
-     * @return \Mzk\ZiskejApi\ResponseModel\Ticket
-     */
-    public static function fromArray(array $item): Ticket
+    public function __construct(string $id, DateTimeImmutable $createdAt)
     {
-        $ticket = new self();
-        $ticket->id = !empty($item['ticket_id']) ? $item['ticket_id'] : null;
-        $ticket->type = !empty($item['ticket_type']) ? $item['ticket_type'] : null;
-        $ticket->hid = !empty($item['hid']) ? (string)$item['hid'] : null;
-        $ticket->sigla = !empty($item['sigla']) ? $item['sigla'] : null;
-        $ticket->documentId = !empty($item['doc_id']) ? $item['doc_id'] : null;
-        $ticket->status = !empty($item['status_reader']) ? $item['status_reader'] : null;
-        $ticket->isOpen = !empty($item['is_open']) ? (bool)$item['is_open'] : null;
-        $ticket->paymentId = !empty($item['payment_id']) ? $item['payment_id'] : null;
-        $ticket->paymentUrl = !empty($item['payment_url']) ? $item['payment_url'] : null;
-        $ticket->dateCreated = !empty($item['date_created'])
-            ? DateImmutable::createFrom($item['date_created'])
+        $this->id = $id;
+        $this->createdAt = $createdAt;
+    }
+
+
+    /**
+     * @param string[] $data
+     * @return \Mzk\ZiskejApi\ResponseModel\Ticket
+     *
+     * @throws \Exception
+     */
+    public static function fromArray(array $data): Ticket
+    {
+        $ticket = new self(
+            PrimitiveTypes::extractString($data, 'ticket_id'),
+            new DateTimeImmutable(PrimitiveTypes::extractString($data, 'created_datetime'))
+        );
+        $ticket->type = PrimitiveTypes::extractStringOrNull($data, 'ticket_type', true);
+        $ticket->hid = PrimitiveTypes::extractStringOrNull($data, 'hid', true);
+        $ticket->sigla = PrimitiveTypes::extractStringOrNull($data, 'sigla', true);
+        $ticket->documentId = PrimitiveTypes::extractStringOrNull($data, 'doc_id', true);
+        $ticket->status = PrimitiveTypes::extractStringOrNull($data, 'status_reader', true);
+        $ticket->isOpen = PrimitiveTypes::extractBoolOrNull($data, 'is_open', true);
+        $ticket->paymentId = PrimitiveTypes::extractStringOrNull($data, 'payment_id', true);
+        $ticket->paymentUrl = PrimitiveTypes::extractStringOrNull($data, 'payment_url', true);
+
+        $ticket->updatedAt = PrimitiveTypes::extractStringOrNull($data, 'updated_datetime', true)
+            ? new DateTimeImmutable(PrimitiveTypes::extractStringOrNull($data, 'updated_datetime', true))
             : null;
-        $ticket->dateRequested = !empty($item['date_requested'])
-            ? DateImmutable::createFrom($item['date_requested'])
-            : null;
-        $ticket->dateReturn = !empty($item['date_return'])
-            ? DateImmutable::createFrom($item['date_return'])
-            : null;
-        $ticket->countMessages = !empty($item['count_messages']) ? (int)$item['count_messages'] : 0;
-        $ticket->countMessagesUnread = !empty($item['count_messages_unread']) ? (int)$item['count_messages_unread'] : 0;
+
+        $ticket->requestedAt = DatesImmutable::extractOrNull($data, 'date_requested', true);
+        $ticket->returnAt = DatesImmutable::extractOrNull($data, 'date_return', true);
+
+
+        $ticket->countMessages
+            = PrimitiveTypes::extractIntOrNull($data, 'count_messages', true)
+            ?? 0;
+        $ticket->countMessagesUnread
+            = PrimitiveTypes::extractIntOrNull($data, 'count_messages_unread', true)
+            ?? 0;
         return $ticket;
     }
 
-    public function toArray()
-    {
-        return [
-            'id' => $this->getId(),
-            'type' => $this->getType(),
-            'hid' => $this->getHid(),
-            'sigla' => $this->getSigla(),
-            'document_id' => $this->getDocumentId(),
-            'status' => $this->getStatus(),
-            'is_open' => $this->isOpen(),
-            'payment_id' => $this->getPaymentId(),
-            'payment_url' => $this->getPaymentUrl(),
-            'date_created' => !empty($this->getDateCreated()) ? $this->getDateCreated()->format('Y-m-d H:i:s') : null,
-            'date_requested' => !empty($this->getDateRequested()) ? $this->getDateRequested()->format('Y-m-d H:i:s') : null,
-            'date_return' => !empty($this->getDateReturn()) ? $this->getDateReturn()->format('Y-m-d H:i:s') : null,
-            'count_messages' => $this->getCountMessages(),
-            'count_messages_unread' => $this->getCountMessagesUnread(),
-        ];
-    }
-
-    public function getId(): ?string
+    public function getId(): string
     {
         return $this->id;
     }
@@ -200,19 +203,24 @@ class Ticket
         return $this->paymentUrl;
     }
 
-    public function getDateCreated(): ?DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
-        return $this->dateCreated;
+        return $this->createdAt;
     }
 
-    public function getDateRequested(): ?DateTimeImmutable
+    public function getUpdatedAt(): ?DateTimeImmutable
     {
-        return $this->dateRequested;
+        return $this->updatedAt;
     }
 
-    public function getDateReturn(): ?DateTimeImmutable
+    public function getReturnAt(): ?DateTimeImmutable
     {
-        return $this->dateReturn;
+        return $this->returnAt;
+    }
+
+    public function getRequestedAt(): ?DateTimeImmutable
+    {
+        return $this->requestedAt;
     }
 
     public function getCountMessages(): int

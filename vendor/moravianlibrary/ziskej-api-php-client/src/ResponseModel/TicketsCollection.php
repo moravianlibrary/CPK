@@ -2,8 +2,12 @@
 
 namespace Mzk\ZiskejApi\ResponseModel;
 
+use SmartEmailing\Types\Arrays;
+
 class TicketsCollection
 {
+
+    //@todo rename to TicketCollection
 
     /**
      * @var \Mzk\ZiskejApi\ResponseModel\Ticket[]
@@ -11,16 +15,18 @@ class TicketsCollection
     private $items = [];
 
     /**
-     * @param string[][] $array
+     * @param string[][] $data
      * @return \Mzk\ZiskejApi\ResponseModel\TicketsCollection
      */
-    public static function fromArray(array $array): TicketsCollection
+    public static function fromArray(array $data): TicketsCollection
     {
-        $tickets = new self();
-        foreach ($array as $subarray) {
-            $tickets->addTicket(Ticket::fromArray($subarray));
+        $self = new self();
+        foreach ($data as $subarray) {
+            if (Arrays::getArrayOrNull($subarray, true)) {
+                $self->addTicket(Ticket::fromArray($subarray));
+            }
         }
-        return $tickets;
+        return $self;
     }
 
     public function addTicket(Ticket $ticket): void

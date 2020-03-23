@@ -5,50 +5,55 @@ namespace Mzk\ZiskejApi\Object;
 class TicketStatuses
 {
 
+    /**
+     * @var string[][]
+     */
     private static $statuses = [
-        // podána žádost o objednávku, zatím nezaplacena ani nepřijata
+        // podana zadost o objednavku, zatim nezaplacena ani neprijata
         'created' => [
             'title' => 'Nová, nezaplacená',
-            'status' => 'info',
+            'status' => 'warning',
         ],
-        // platba zaplacena, objednávka zatím nepřijata
+        // platba zaplacena, objednavka zatim neprijata
         'paid' => [
             'title' => 'Nová, zaplacená',
             'status' => 'success',
         ],
-        // žádost přijata
+        // zadost prijata
         'accepted' => [
             'title' => 'Ve zpracování',
             'status' => 'success',
         ],
-        // objednávka připravena k vyzvednutí
+        // objednavka pripravena k vyzvednuti
         'prepared' => [
             'title' => 'Vyřízena',
             'status' => 'success',
         ],
-        // objednávka pujcena (vyzvednuta, zatím nevrácena)
+        // objednavka pujcena (vyzvednuta, zatim nevracena)
         'lent' => [
             'title' => 'Vypůjčena',
             'status' => 'success',
         ],
-        // objednávka vrácena
+        // objednavka vracena
         'closed' => [
             'title' => 'Uzavřena',
             'status' => 'default',
         ],
-        // žádost o objednávku / objednávka stornována
+        // zadost o objednavku / objednavka stornovana
         'cancelled' => [
             'title' => 'Stornována',
-            'status' => 'warning',
+            'status' => 'danger',
         ],
-        // žádost o objednávku zamítnuta
+        // zadost o objednavku zamitnuta
         'rejected' => [
             'title' => 'Zamítnuta',
             'status' => 'danger',
         ],
     ];
 
-
+    /**
+     * @return string[][]
+     */
     public static function getAll(): array
     {
         return self::$statuses;
