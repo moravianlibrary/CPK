@@ -1,0 +1,55 @@
+ul.nav-wizard {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li.part {
+  width: 16%;
+  display: inline-block;
+  padding-top: 40px;
+  color: gray;
+  vertical-align: top;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+li.part:before {
+  content: '×';
+  position: absolute;
+  top: 2px;
+  left: calc(50% - 14px);
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  color: white;
+  border: 2px solid white;
+  border-radius: 17px;
+  line-height: 30px;
+  background: #bfbfbf;
+}
+.status-bar {
+  height: 2px;
+  background: gray;
+  position: relative;
+  top: 20px;
+  margin: 0 auto;
+}
+.current-status {
+  height: 2px;
+  width: 0;
+  border-radius: 1px;
+  background: #e5004b;
+}
+
+li.part.visited:before {
+  content: '\2714';
+  background: #e5004b;
+}
+
+li.part.visited.current:before {
+  box-shadow: 0 0 0 2px #e5004b;
+}

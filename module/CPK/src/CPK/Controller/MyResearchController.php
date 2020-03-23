@@ -29,10 +29,11 @@
 namespace CPK\Controller;
 
 use CPK\Auth\Manager as AuthManager;
+use CPK\Controller\Exception\TicketNotFoundException;
+use Mzk\ZiskejApi\RequestModel\Message;
 use VuFind\Controller\MyResearchController as MyResearchControllerBase;
 use VuFind\Exception\Auth as AuthException;
 use Zend\Session\Container as SessionContainer;
-use Zend\Json\Json;
 
 /**
  * Controller for the user account area.
@@ -1404,22 +1405,31 @@ class MyResearchController extends MyResearchControllerBase
         $request = $this->getRequest();
         $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
         if ($ziskejCurrentMode != 'disabled') {
+
+            /** @var \CPK\ILS\Driver\MultiBackend $multiBackend */
+            $multiBackend = $this->getILS()->getDriver();
+
             try {
+
                 /** @var \Mzk\ZiskejApi\Api $ziskejApi */
                 $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
 
-                $ilsDriver = $this->getILS()->getDriver();
+                /** @var string[] $ziskejLibsCodes */
+                $ziskejLibsCodes = [];
+
                 $ziskejLibs = $ziskejApi->getLibraries();
-                $libraryIds = [];
-                foreach ($ziskejLibs as $sigla) {
-                    $libraryIds[] = $ilsDriver->siglaToSource($sigla);
+                foreach ($ziskejLibs->getAll() as $ziskejLib) {
+                    $id = $multiBackend->siglaToSource($ziskejLib->getSigla());
+                    if (!empty($id)) {
+                        $ziskejLibsCodes[] = $id;
+                    }
                 }
                 if ($user) {
                     $userSources = $user->getNonDummyInstitutions();
                     $userLibCards = $user->getAllUserLibraryCards();
 
-                    $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
-                        return in_array($userLib, $libraryIds);
+                    $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($ziskejLibsCodes) {
+                        return in_array($userLib, $ziskejLibsCodes);
                     });
                     $sourceEppn = [];
                     foreach ($userLibCards as $userLibCard) {
@@ -1430,8 +1440,8 @@ class MyResearchController extends MyResearchControllerBase
                     $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
 
                     foreach ($sourceEppn as $source => $eppn) {
-                        $reader = $ziskejApi->getReader($eppn);
-                        if ($reader && $reader->isActive()) {
+                        $ziskejReader = $ziskejApi->getReader($eppn);
+                        if ($ziskejReader && $ziskejReader->isActive()) {
                             $userTickets[$source] = $ziskejApi->getTickets($eppn);
                         }
                     }
@@ -1439,9 +1449,8 @@ class MyResearchController extends MyResearchControllerBase
             } catch (\Exception $ex) {
                 if ($ziskejCurrentMode != 'disabled') {
                     $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
-                        'warning');  //@todo presunout
+                        'warning');  //@todo presunout do view pod nadpis ziskej
                 }
-                // do view pod nadpis ziskej
             }
         }
 
@@ -1454,29 +1463,44 @@ class MyResearchController extends MyResearchControllerBase
 
     /**
      * Ziskej ticket detail
+     * url: /MyResearch/ZiskejTicket/<eppn>/<ticket_id>
      *
      * @return mixed|\Zend\View\Model\ViewModel
      *
      * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
      */
     public function ziskejTicketAction()
     {
-        //url: /MyResearch/ZiskejTicket/1185@mzk.cz/014464b904c44223
+        $eppn = $this->params()->fromRoute('eppn');
+        if (!$eppn) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
 
         if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
 
-        $eppn = $this->params()->fromRoute('eppn');
-        if (!$eppn) {
-            //@todo
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppn == $card->eppn) {
+                $userCard = $card;
+            }
         }
 
-        $ticketId = $this->params()->fromRoute('ticket_id');
-        if (!$ticketId) {
-            //@todo
+        if (!$userCard) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
         }
 
         /** @var \Mzk\ZiskejApi\Api $ziskejApi */
@@ -1484,21 +1508,150 @@ class MyResearchController extends MyResearchControllerBase
 
         $ticket = $ziskejApi->getTicket($eppn, $ticketId);
 
-        $messages = $ziskejApi->getMessages($eppn, $ticketId);  //@todo dat metodu get messages do tridy Ticket
+        $messages = $ziskejApi->getMessages($eppn, $ticketId);
 
         $recordLoader = $this->getRecordLoader();
         /** @var \CPK\RecordDriver\SolrMarcLocal $record */
-        $record = $recordLoader->load($ticket['doc_id'], 'VuFind');
-
-        $viewVars = [];
+        $record = $recordLoader->load($ticket->getDocumentId(), 'VuFind');
 
         $view = $this->createViewModel();
+        $view->setVariable('user', $user);
+        $view->setVariable('userCard', $userCard);
         $view->setVariable('ticket', $ticket);
-        $view->setVariable('messages', $messages);
+        $view->setVariable('messages', $messages->getAll());
         $view->setVariable('driver', $record);
         //$this->flashExceptions($this->flashMessenger());  //@todo???
         return $view;
 
+    }
+
+    /**
+     * Cancel Ziskej ticket
+     * url: /MyResearch/ZiskejTicketCancel/<eppn>/<ticket_id>
+     *
+     * @return mixed|\Zend\Http\Response
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     */
+    public function ziskejTicketCancelAction()
+    {
+        $eppn = $this->params()->fromRoute('eppn');
+        if (!$eppn) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppn == $card->eppn) {
+                $userCard = $card;
+            }
+        }
+
+        if (!$userCard) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        $deleted = $ziskejApi->deleteTicket($eppn, $ticketId);
+
+        if ($deleted) {
+            $this->flashMessenger()->addMessage('Objednávka byla úspěšně stornována.', 'success');
+        } else {
+            $this->flashMessenger()->addMessage('Objednávku se nepodařilo stornovat, zkuste to prosím znovu.', 'error');
+        }
+
+        return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+            'eppn' => $eppn,
+            'ticket_id' => $ticketId,
+        ]);
+
+    }
+
+    /**
+     * Send form: Create new message
+     *
+     * @return mixed|\Zend\Http\Response
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     */
+    public function ziskejTicketCreateMessageFormAction()
+    {
+        //@todo if method != POST
+
+        $eppn = $this->params()->fromRoute('eppn');
+        if (!$eppn) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppn == $card->eppn) {
+                $userCard = $card;
+            }
+        }
+
+        if (!$userCard) {
+            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+        }
+
+        $params = $this->params()->fromPost();
+        if (empty($params['ticketMessage'])) {
+            $this->flashMessenger()->addMessage('Je třeba vyplnit text zprávy.', 'error');
+
+            return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+                'eppn' => $eppn,
+                'ticket_id' => $ticketId,
+            ]);
+        }
+
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        $message = new Message((string)$params['ticketMessage']);
+
+        $creaded = $ziskejApi->createMessage($eppn, $ticketId, $message);
+        if ($creaded) {
+            $this->flashMessenger()->addMessage('Zpráva byla úspěšně odeslána.', 'success');
+        } else {
+            $this->flashMessenger()->addMessage('Zprávu se nepodařilo odeslat, zkuste to prosím znovu.', 'error');
+        }
+
+        return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+            'eppn' => $eppn,
+            'ticket_id' => $ticketId,
+        ]);
     }
 
 }

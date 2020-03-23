@@ -57,6 +57,8 @@
 //contain styling for suggested browsers block
 @import "parts/suggested-browsers";
 
+@import "bootstrap-nav-wizard";
+
 body {
   font-weight: 300;
 }
@@ -186,30 +188,27 @@ a:hover, a:focus, .btn-link:hover, .btn-link:focus {
   color: @link-hover-color;
 }
 
-// invert labels
-.label-variant(@color) {
-  color: @color;
-  background-color: transparent;
-  border: 1px solid @color;
+.label {
+  font-weight: normal;
+  padding: .3em .6em .2em;
 }
 
-
 .label-warning {
-  background-color: transparent;
+  background-color: #F0A618;
   border: 1px solid #F0A618;
-  color: #F0A618;
+  color: #ffffff;
 }
 
 .label-success {
-  background-color: transparent;
+  background-color: #12B03B;
   border: 1px solid #12B03B;
-  color: #12B03B;
+  color: #ffffff;
 }
 
 .label-unknown {
-  background-color: transparent;
-  border: 1px solid #888888;
-  color: #888888;
+  background-color: #444444;
+  border: 1px solid #444444;
+  color: #ffffff;
 }
 
 .library-detail > h2 > i {
@@ -453,4 +452,11 @@ ul.media-list {
 
 .breadcrumb > li + li:before {
   color: #999;
+}
+
+
+.well {
+  dl:last-child {
+    margin-bottom: 0;
+  }
 }

@@ -2,11 +2,6 @@
 // Set up page title:
 $this->headTitle($this->translate('Služba Získej'));
 
-// Set up breadcrumbs:
-//@todo refactor
-$this->layout()->breadcrumbs = '<li><a title="' . $this->transEsc('Main page') . '" href="/Search">' . $this->transEsc('Main page') . '</a></li> ' .
-  '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('Ziskej') . '</li>';
-
 $isSynchronous = $this->isSynchronous;
 if (!$isSynchronous) {
   $this->headScript()->appendFile("async-holds.js");

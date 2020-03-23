@@ -350,6 +350,8 @@ $config['router']['routes']['ziskej-payment'] = [
 $dynamicRoutes = [
     'MyResearch' => [
         'MyResearch-ziskejTicket' => 'ZiskejTicket/[:eppn]/[:ticket_id]',
+        'MyResearch-ziskejTicketCancel' => 'ZiskejTicketCancel/[:eppn]/[:ticket_id]',
+        'MyResearch-ziskejTicketCreateMessageForm' => 'ZiskejTicketCreateMessageForm/[:eppn]/[:ticket_id]',
     ]
 ];
 
