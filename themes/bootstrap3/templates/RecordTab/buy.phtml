@@ -2,7 +2,9 @@
   // Set page title.
   $this->headTitle($this->driver->getBreadcrumb());
 ?>
-
+<span class="loading">
+  <i class="fa fa-spinner fa-spin"></i> <?=$this->transEsc('Loading')?>...
+</span>
 <div class="list-group">
 
     <div id='google-books-link' class='hidden'>
@@ -20,6 +22,7 @@
     <script>
     	function displayBuyLinks( buyLinks )
     	{
+        $('.loading').hide();
     		if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
     			$( "#google-books-link" ).removeClass( 'hidden' );
     			$( "#google-books-link a" ).attr( 'href', buyLinks.data[0]['gBooksLink'] );
