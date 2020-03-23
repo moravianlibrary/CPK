@@ -720,14 +720,6 @@ class AjaxController extends AjaxControllerBase
                         $ticketsCollection = $ziskejApi->getTickets($userCard->eppn);
                         /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
                         foreach ($ticketsCollection->getAll() as $ticket) {
-//                    if (in_array($ticket->getStatus(), [
-//                        //@todo
-//                        'created',
-//                        'accepted',
-//                        'prepared',
-//                        'cancelled',
-//                        'rejected',
-//                    ])) {
                             $i++;
                             $resource = $this->getDriverForILSRecordZiskej($ticket);
 
