@@ -311,12 +311,12 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                         $ilsDriver = $this->getILS()->getDriver();
 
                         // list of ziskej libraries sigla
-                        $ziskejLibsSiglas = $ziskejApi->getLibraries();
+                        $ziskejLibs = $ziskejApi->getLibraries()->getAll();
 
                         /** @var array $ziskejLibsIds */
                         $ziskejLibsIds = [];
-                        foreach ($ziskejLibsSiglas as $sigla) {
-                            $id = $ilsDriver->siglaToSource($sigla);
+                        foreach ($ziskejLibs as $ziskejLib) {
+                            $id = $ilsDriver->siglaToSource($ziskejLib->getSigla());
                             if (!empty($id)) {
                                 $ziskejLibsIds[] = $id;
                             }
@@ -416,15 +416,14 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $ticketNew->setDocumentAltIds($params['doc_alt_ids']);
             $ticketNew->setNote($params['text']);
 
-            $tickeId = $ziskejApi->createTicket($eppn, $ticketNew);
-            //$ticket = $ziskejApi->getTicket($eppn, $tickeId);
+            $ticket = $ziskejApi->createTicket($eppn, $ticketNew);
 
             $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');
             $this->flashMessenger()->addMessage('Objednávka nyní čeká na úhradu.', 'warning');
 
             return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
                 'eppn' => $eppn,
-                'ticket_id' => $tickeId,
+                'ticket_id' => $ticket->getId(),
             ]);
 
         } catch (\Exception $ex) {
