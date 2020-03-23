@@ -97,7 +97,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
 
     <div class="text-center well border" style="margin-bottom: 1em;">
       <? if (in_array($ticket->getStatus(), ['created'])): ?>
-        <a class="btn btn-primary" href="<?= $ticket->getPaymentUrl() ?>" title="Uhradit objednávku">
+        <a class="btn btn-primary" href="<?= $ticket->getPaymentUrl(); ?>?lang=<?= $this->layout()->userLang; ?>" title="Uhradit objednávku">
           <i class="fa fa-shopping-cart"></i> Uhradit objednávku
         </a>
       <? endif; ?>
