@@ -17,14 +17,9 @@
     	<a title='<?= $this->translate('Zboží.cz') ?>' class="list-group-item" target='_blank'><?= $this->translate('Zboží.cz') ?></a>
     </div>
 
-    <script src="/themes/bootstrap3/js/ajax-record-tabs.js"></script>
     <script>
-
     	function displayBuyLinks( buyLinks )
     	{
-    		if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-    			$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-
     		if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
     			$( "#google-books-link" ).removeClass( 'hidden' );
     			$( "#google-books-link a" ).attr( 'href', buyLinks.data[0]['gBooksLink'] );
@@ -39,17 +34,11 @@
     		}
     	}
 
-    	jQuery( document ).ready( function( $ ) {
+      jQuery( document ).ready( function( $ ) {
+        var recordID = '<?= $this->driver->getUniqueID() ?>';
+        getBuyLinks(recordID, displayBuyLinks);
+      });
 
-    		if (buyLinks === undefined || buyLinks.length == 0) {
-
-    			var recordID = '<?= $this->driver->getUniqueID() ?>';
-    			var parentRecordID = '<?= $this->driver->getParentRecordID() ?>';
-    			var buyLinks = getBuyLinks( recordID, parentRecordID, displayBuyLinks );
-
-    		}
-
-    	});
     </script>
 
 </div>

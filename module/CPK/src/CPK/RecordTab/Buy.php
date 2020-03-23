@@ -67,6 +67,16 @@ class Buy extends AbstractBase
     }
 
     /**
+     * Is this tab in disabled state by default?
+     *
+     * @return bool
+     */
+    public function isDisabledByDefault()
+    {
+        return true;
+    }
+
+    /**
      * Get the on-screen description for this tab.
      *
      * @return string

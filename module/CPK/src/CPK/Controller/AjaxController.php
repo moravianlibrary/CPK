@@ -1117,13 +1117,12 @@ class AjaxController extends AjaxControllerBase
     protected function getBuyLinksAjax()
     {
         // Antikvariaty
-        $parentRecordID = $this->params()->fromQuery('parentRecordID');
         $recordID = $this->params()->fromQuery('recordID');
 
         $recordLoader = $this->getServiceLocator()->get('VuFind\RecordLoader');
 
-        $parentRecordDriver = $recordLoader->load($parentRecordID);
         $recordDriver = $recordLoader->load($recordID);
+        $parentRecordDriver = $recordLoader->load($recordDriver->getParentRecordID());
 
         $antikvariatyLink = $parentRecordDriver->getAntikvariatyLink();
 

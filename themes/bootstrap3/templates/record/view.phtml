@@ -224,6 +224,7 @@
                       }
                       if (!$obj->isVisible()) { $tab_classes[] = 'hidden'; }
                       if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
+                      if ($obj->isDisabledByDefault()) { $tab_classes[] = 'disabled'; }
                     ?>
                     <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
                       <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav">
@@ -429,6 +430,22 @@
 </div>
 
 </div>
+<?php
+$recordId = $this->driver->getUniqueID();
+$buyLinksScript = <<<EOT
+function setBuyTabStatus( response ) {
+	if ( response.data[0]['buyLinksCount'] >= 0 ) {
+		jQuery('#buy').parent().removeClass( 'disabled' );
+		jQuery('#buy').data('links', response);
+	}
+}
 
+jQuery( document ).ready( function( \$ ) {
+    var recordID = '$recordId';
+    getBuyLinks( recordID, setBuyTabStatus );
+});
+EOT;
+?>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET'); ?>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $buyLinksScript, 'SET'); ?>
 

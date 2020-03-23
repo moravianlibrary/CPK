@@ -2,15 +2,14 @@
  * Gets Buy Links via AjaxController
  * 
  * @param	{string}	recordID
- * @param	{string}	parentRecordID
  * @param	{function}	callback
  * @return	{undefined}
  */
-function getBuyLinks( recordID, parentRecordID, callback ) {
+function getBuyLinks( recordID, callback ) {
 	$.ajax({
 		dataType: 'json',
 		url: '/AJAX/JSON?method=getBuyLinks',
-		data: { recordID: recordID, parentRecordID: parentRecordID },
+		data: { recordID: recordID },
 		async: true,
 		success: function( response ) {
 			if( response.status !== 'OK' ) {
