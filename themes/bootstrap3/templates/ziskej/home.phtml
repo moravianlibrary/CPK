@@ -43,24 +43,24 @@ $this->layout()->searchbox = false;
       <h3 class="panel-title"><?= $this->translate('ziskej_settings_title_user') ?></h3>
     </div>
     <div class="panel-body">
-      <? if (!empty($this->userData)): ?>
+      <? if (!empty($this->user)): ?>
         <div class="row">
           <div class="col-md-6">
             <dl class="dl-horizontal">
               <dt>Username:</dt>
-              <dd><?= $this->userData['username']; ?></dd>
+              <dd><?= $this->user->username; ?></dd>
               <dt>Home library:</dt>
-              <dd><?= $this->userData['home_library']; ?></dd>
+              <dd><?= $this->user->home_library; ?></dd>
             </dl>
           </div>
           <div class="col-md-6">
             <dl class="dl-horizontal">
               <dt>First name:</dt>
-              <dd><?= $this->userData['firstname']; ?></dd>
+              <dd><?= $this->user->firstname; ?></dd>
               <dt>Last name:</dt>
-              <dd><?= $this->userData['lastname']; ?></dd>
+              <dd><?= $this->user->lastname; ?></dd>
               <dt>Email:</dt>
-              <dd><?= $this->userData['email']; ?></dd>
+              <dd><?= $this->user->email; ?></dd>
             </dl>
           </div>
         </div>
@@ -74,12 +74,12 @@ $this->layout()->searchbox = false;
   <!-- /user data -->
 
   <!-- ziskej data -->
-  <? if (!empty($this->ziskejData)): ?>
+  <? if (!empty($this->data)): ?>
     <div>
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
         <? $i = 1; ?>
-        <? foreach ($this->ziskejData as $eppn => $row): ?>
+        <? foreach ($this->data as $eppn => $row): ?>
           <li role="presentation" class="<? if ($i === 1): ?>active<? endif; ?>">
             <a href="#tab_<?= $i; ?>" role="tab" data-toggle="tab"><?= $eppn; ?></a>
           </li>
@@ -89,7 +89,7 @@ $this->layout()->searchbox = false;
       <!-- Tab panes -->
       <div class="tab-content">
         <? $i = 1; ?>
-        <? foreach ($this->ziskejData as $eppn => $row): ?>
+        <? foreach ($this->data as $eppn => $row): ?>
           <div class="tab-pane <? if ($i === 1): ?>active<? endif; ?>" id="tab_<?= $i; ?>">
             <? if ($row['library_in_ziskej']): ?>
               <?
@@ -143,48 +143,61 @@ $this->layout()->searchbox = false;
                     <div class="panel-body">
                       <? if (count($tickets)): ?>
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                          <? foreach ($tickets as $ticket): ?>
+                          <? /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
+                          foreach ($tickets as $ticketDuo):
+                            $ticket = $ticketDuo['ticket'];
+                            ?>
                             <div class="panel panel-default">
                               <div class="panel-heading" role="tab">
                                 <h4 class="panel-title">
-                                  <a role="button" data-toggle="collapse" href="#ticket_<?= $ticket['hid']; ?>">
-                                    <?= $ticket['date_created']; ?> | <?= $ticket['id']; ?>
+                                  <a role="button" data-toggle="collapse" href="#ticket_<?= $ticket->getHid(); ?>">
+                                    <?= $ticket->getCreatedAt()->format('Y-m-d H:i'); ?> | <?= $ticket->getId(); ?>
                                     <span class="pull-right">
-                              <? if (count($ticket['messages'])): ?>
-                                <span class="badge"><?= count($ticket['messages']); ?> messages</span>
+                              <? if (count($ticketDuo['messages'])): ?>
+                                <span class="badge"><?= count($ticketDuo['messages']); ?> messages</span>
                               <? endif; ?>
                             </span>
                                   </a>
                                 </h4>
                               </div>
-                              <div id="ticket_<?= $ticket['hid']; ?>" class="panel-collapse collapse out"
+                              <div id="ticket_<?= $ticket->getHid(); ?>" class="panel-collapse collapse out"
                                    role="tabpanel">
                                 <div class="panel-body">
                                   <div class="row">
                                     <div class="col-md-6">
                                       <dl class="dl-horizontal">
                                         <dt>ID:</dt>
-                                        <dd><?= $ticket['id']; ?></dd>
+                                        <dd><?= $ticket->getId(); ?></dd>
                                         <dt>HID:</dt>
-                                        <dd><?= $ticket['hid']; ?></dd>
+                                        <dd><?= $ticket->getHid(); ?></dd>
                                         <dt>is_open:</dt>
-                                        <dd><?= $ticket['is_open']; ?></dd>
+                                        <dd><?= $ticket->isOpen(); ?></dd>
                                         <dt>doc_id:</dt>
-                                        <dd><?= $ticket['document_id']; ?></dd>
+                                        <dd><?= $ticket->getDocumentId(); ?></dd>
                                         <dt>sigla:</dt>
-                                        <dd><?= $ticket['sigla']; ?></dd>
+                                        <dd><?= $ticket->getSigla(); ?></dd>
                                         <dt>status_reader :</dt>
-                                        <dd><?= $ticket['status']; ?></dd>
+                                        <dd><?= $ticket->getStatus(); ?></dd>
                                       </dl>
                                     </div>
                                     <div class="col-md-6">
                                       <dl class="dl-horizontal">
                                         <dt>date_created:</dt>
-                                        <dd><?= $ticket['date_created']; ?></dd>
+                                        <dd><?= $ticket->getCreatedAt()->format('Y-m-d H:i'); ?></dd>
                                         <dt>date_requested:</dt>
-                                        <dd><?= $ticket['date_requested']; ?></dd>
+                                        <dd>
+                                          <?= !empty($ticket->getRequestedAt())
+                                            ? $ticket->getRequestedAt()->format('Y-m-d')
+                                            : '';
+                                          ?>
+                                        </dd>
                                         <dt>date_return:</dt>
-                                        <dd><?= $ticket['date_return']; ?></dd>
+                                        <dd>
+                                          <?= !empty($ticket->getReturnAt()) ?
+                                            $ticket->getReturnAt()->format('Y-m-d')
+                                            : '';
+                                          ?>
+                                        </dd>
                                       </dl>
                                     </div>
                                   </div>

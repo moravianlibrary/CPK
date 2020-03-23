@@ -38,28 +38,28 @@ class ZiskejController extends AbstractBase
      */
     public function homeAction()
     {
+        /** @var \Zend\View\Model\ViewModel $view */
         $view = $this->createViewModel();
-        //$view->setTemplate('ziskej/ziskej');
 
+        /** @var string[] $ziskejModes */
         $ziskejModes = array_keys($this->getConfig()->Ziskej->toArray());
-        /** @var array ziskejModes */
-        $view->ziskejModes = $ziskejModes;
+        $view->setVariable('ziskejModes', $ziskejModes);
 
         $request = $this->getRequest();
         if ($this->getRequest()->isPost()) {
-            $data = in_array($this->getRequest()->getPost('ziskej'), $ziskejModes)
+            $postZiskejStatus = in_array($this->getRequest()->getPost('ziskej'), $ziskejModes)
                 ? $this->getRequest()->getPost('ziskej')
                 : 'disabled';
-            setcookie('ziskej', $data, 0, '/');
+            setcookie('ziskej', $postZiskejStatus, 0, '/');
             if ($this->getRequest()->getPost('ziskej')) {
                 $this->flashMessenger()->addMessage('message_ziskej_mode_saved', 'success');
             }
             return $this->redirect()->refresh();
         }
 
-        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
         /** @var string ziskejCurrentMode */
-        $view->ziskejCurrentMode = $ziskejCurrentMode;
+        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
+        $view->setVariable('ziskejCurrentMode', $ziskejCurrentMode);
 
         if ($ziskejCurrentMode === 'disabled') {
             return $view;
@@ -70,57 +70,59 @@ class ZiskejController extends AbstractBase
         if (!$user) {
             return $view;
         }
+        $view->setVariable('user', $user);
 
-        $userData = $user->toArray();
-        /** @var array userData */
-        $view->userData = $userData;
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
 
+        /** @var \CPK\ILS\Driver\MultiBackend $multiBackend */
         $multiBackend = $this->getILS()->getDriver();
 
         try {
             /** @var \Mzk\ZiskejApi\Api $ziskejApi */
             $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
 
-            $libraryIds = [];
-            $ziskejLibraries = $ziskejApi->getLibraries();
-            foreach ($ziskejLibraries as $sigla) {
-                $id = $multiBackend->siglaToSource($sigla);
+            /** @var string[] $ziskejLibsCodes */
+            $ziskejLibsCodes = [];
+
+            $ziskejLibs = $ziskejApi->getLibraries();
+            foreach ($ziskejLibs->getAll() as $ziskejLib) {
+                $id = $multiBackend->siglaToSource($ziskejLib->getSigla());
                 if (!empty($id)) {
-                    $libraryIds[] = $id;
+                    $ziskejLibsCodes[] = $id;
                 }
             }
 
-            $userCards = $user->getAllUserLibraryCards();
-
-            $allData = [];
+            $data = [];
 
             /** @var \VuFind\Db\Row\UserCard $userCard */
             foreach ($userCards as $userCard) {
                 $eppn = $userCard['eppn'];
 
-                $allData[$eppn]['home_library'] = $userCard['home_library'];
+                $data[$eppn]['home_library'] = $userCard['home_library'];   //@todo
 
-                $inZiskej = in_array($userCard['home_library'], $libraryIds);
-                $allData[$eppn]['library_in_ziskej'] = $inZiskej;
+                $inZiskej = in_array($userCard['home_library'], $ziskejLibsCodes);
+                $data[$eppn]['library_in_ziskej'] = $inZiskej;  //@todo
 
                 if ($inZiskej) {
-                    $reader = $ziskejApi->getReader($eppn);
-                    $allData[$eppn]['reader'] = $reader;
+                    /** @var \Mzk\ZiskejApi\ResponseModel\Reader $ziskejReader */
+                    $ziskejReader = $ziskejApi->getReader($eppn);
+                    $data[$eppn]['reader'] = $ziskejReader;
 
-                    if ($reader && $reader->isActive()) {
-                        $tickets = $ziskejApi->getTickets($eppn);
-                        /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
-                        foreach ($tickets->getAll() as $ticket) {
-                            $ticketArray = $ticket->toArray();
-                            $ticketArray['messages'] = $ziskejApi->getMessages($eppn, $ticket->getId());
-                            $allData[$eppn]['tickets'][$ticket->getHid()] = $ticketArray;
+                    if ($ziskejReader && $ziskejReader->isActive()) {
+                        /** @var \Mzk\ZiskejApi\ResponseModel\TicketsCollection $ziskejTickets */
+                        $ziskejTickets = $ziskejApi->getTickets($eppn)->getAll();
+                        /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ziskejTicket */
+                        foreach ($ziskejTickets as $ziskejTicket) {
+                            $data[$eppn]['tickets'][$ziskejTicket->getId()]['ticket'] = $ziskejTicket;
+                            $data[$eppn]['tickets'][$ziskejTicket->getId()]['messages'] = $ziskejApi->getMessages($eppn, $ziskejTicket->getId())->getAll();
                         }
                     }
                 }
             }
 
             /** @var array ziskejData */
-            $view->ziskejData = $allData;
+            $view->setVariable('data', $data);
         } catch (\Exception $ex) {
             $this->flashMessenger()->addMessage($ex->getMessage(), 'warning');
             //$this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');    //@todo zapnout na produkci
