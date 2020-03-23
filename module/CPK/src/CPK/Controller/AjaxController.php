@@ -677,10 +677,11 @@ class AjaxController extends AjaxControllerBase
         /** @var \CPK\ILS\Driver\MultiBackend $cpkMultibackend */
         $cpkMultibackend = $this->getILS()->getDriver();
 
-        $ziskejLibs = $ziskejApi->getLibraries();
+        $ziskejLibs = $ziskejApi->getLibraries()->getAll();
         $libraryIds = [];
-        foreach ($ziskejLibs as $sigla) {
-            $libraryIds[] = $cpkMultibackend->siglaToSource($sigla);
+        foreach ($ziskejLibs as $ziskejLib) {
+            $libraryIds[] = $cpkMultibackend->siglaToSource($ziskejLib->getSigla());
+            //@todo! zjistit proc se ids opakuji
         }
 
         /** @var \VuFind\Db\Row\User $user */
@@ -690,32 +691,35 @@ class AjaxController extends AjaxControllerBase
             //@todo
         }
 
+        $data = [];
+
         $userSources = $user->getNonDummyInstitutions();
-        $userLibCards = $user->getAllUserLibraryCards();
-        $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
+        $ziskejConnectedLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
             return in_array($userLib, $libraryIds);
         });
 
-        $sourceEppn = [];
-        foreach ($userLibCards as $userLibCard) {
-            if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
-                $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
-            }
-        }
-
         $i = 0;
         $obalky = [];
-        foreach ($sourceEppn as $key => $eppn) {
-            $data[$key] = [
-                'key' => $key,
-                'eppn' => $eppn,
-                'items' => [],
-            ];
-            $reader = $ziskejApi->getReader($eppn);
-            if ($reader && $reader->isActive()) {
-                $ticketsCollection = $ziskejApi->getTickets($eppn);
-                /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
-                foreach ($ticketsCollection->getAll() as $ticket) {
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($user->getAllUserLibraryCards() as $userCard) {
+            if (in_array($userCard->home_library, $ziskejConnectedLibs)) {
+                $key = $userCard->home_library;
+
+                $data[$userCard->home_library] = [
+                    'userCard' => $userCard,
+                    'eppn' => $userCard->eppn,
+                    'items' => [],
+                    'ziskejReader' => null,
+                ];
+
+                $ziskejReader = $ziskejApi->getReader($userCard->eppn);
+                if ($ziskejReader) {
+                    $data[$userCard->home_library]['ziskejReader'] = $ziskejReader;
+
+                    if ($ziskejReader->isActive()) {
+                        $ticketsCollection = $ziskejApi->getTickets($userCard->eppn);
+                        /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
+                        foreach ($ticketsCollection->getAll() as $ticket) {
 //                    if (in_array($ticket->getStatus(), [
 //                        //@todo
 //                        'created',
@@ -724,8 +728,8 @@ class AjaxController extends AjaxControllerBase
 //                        'cancelled',
 //                        'rejected',
 //                    ])) {
-                    $i++;
-                    $resource = $this->getDriverForILSRecordZiskej($ticket);
+                            $i++;
+                            $resource = $this->getDriverForILSRecordZiskej($ticket);
 
                     // obalky
                     $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
@@ -742,8 +746,11 @@ class AjaxController extends AjaxControllerBase
                     $data[$key]['items'][] = $resource;
 //                    }
 
+                        }
                 }
+
             }
+        }
         }
 
         $html = [];

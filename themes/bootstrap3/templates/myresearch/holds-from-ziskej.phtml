@@ -4,12 +4,22 @@ $i = 0;
 ?>
 <? if (!empty($this->data)): ?>
   <? foreach ($this->data as $item): ?>
-  <? $libraryId = $item['key']; ?>
-  <? $resources = $item['items']; ?>
+    <?
+    $resources = $item['items'];
+    /** @var \VuFind\Db\Row\UserCard $userCard */
+    $userCard = $item['userCard'];
+    /** @var \Mzk\ZiskejApi\ResponseModel\Reader $ziskejReader */
+    $ziskejReader = $item['ziskejReader'];
+    $libraryId = $userCard->home_library;
+    ?>
     <h3 class="well row blickable" style="margin-bottom: 3px;">
       <?= $this->transEsc("source_$libraryId", null, $libraryId) ?>
       <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($libraryId) ?>"/>
     </h3>
+    <div class="well">
+      <?= $ziskejReader->getFirstName(); ?> <?= $ziskejReader->getLastName(); ?>
+      | <?= $ziskejReader->getEmail(); ?>
+    </div>
     <? if (count($resources)): ?>
       <ul class="media-list">
         <?
@@ -73,19 +83,19 @@ $i = 0;
                     <dd><?= $this->record($resource)->getFormatList() ?></dd>
                   <? endif; ?>
 
-                  <? if ($ticket->getDateCreated()): ?>
+                  <? if ($ticket->getCreatedAt()): ?>
                     <dt><?= $this->transEsc('ziskej_label_date_order') ?>:</dt>
-                    <dd><?= date($this->config->Site->displayDateFormat, $ticket->getDateCreated()->getTimestamp()); ?></dd>
+                    <dd><?= $ticket->getCreatedAt()->format('j. n. Y H:i'); ?></dd>
                   <? endif; ?>
 
-                  <? if ($ticket->getDateRequested()): ?>
+                  <? if ($ticket->getRequestedAt()): ?>
                     <dt><?= $this->transEsc('ziskej_label_date_deliver') ?>:</dt>
-                    <dd><?= date($this->config->Site->displayDateFormat, $ticket->getDateRequested()->getTimestamp()); ?></dd>
+                    <dd><?= $ticket->getRequestedAt()->format('j. n. Y'); ?></dd>
                   <? endif; ?>
 
-                  <? if ($ticket->getDateReturn()): ?>
+                  <? if ($ticket->getReturnAt()): ?>
                     <dt><?= $this->transEsc('ziskej_label_date_return') ?>:</dt>
-                    <dd><?= date($this->config->Site->displayDateFormat, $ticket->getDateReturn()->getTimestamp()); ?></dd>
+                    <dd><?= $ticket->getReturnAt()->format('j. n. Y'); ?></dd>
                   <? endif; ?>
 
                   <? if ($ticket->getStatus()): ?>
@@ -106,7 +116,7 @@ $i = 0;
                       <i class="fa fa-shopping-cart"></i> Uhradit objednávku
                     </a>
                   <? endif; ?>
-                  <a class="btn btn-sm btn-primary" href="/MyResearch/ZiskejTicket/<?= $item['eppn']; ?>/<?= $ticket->getId() ?>" title="Detail objednávku">
+                  <a class="btn btn-sm btn-primary" href="/MyResearch/ZiskejTicket/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>" title="Detail objednávku">
                     <i class="fa fa-search"></i> Detail
                   </a>
                 </div>
