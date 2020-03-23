@@ -225,7 +225,6 @@
                       if (!$obj->isVisible()) { $tab_classes[] = 'hidden'; }
                       if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
                     ?>
-                    <? if ($desc !== 'Buy'): /* temporary hide Buy tab */ ?>
                     <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
                       <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav">
                           <? ?>
@@ -234,7 +233,6 @@
 
                       </a>
                     </li>
-                    <? endif; ?>
                     <? endforeach; ?>
                   </ul>
               </div>
