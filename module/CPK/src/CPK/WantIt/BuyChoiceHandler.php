@@ -52,30 +52,32 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	 */
 	public function getGoogleBooksVolumeLink()
 	{
-		$isbn = (! empty($isbns = $this->recordDriver->getISBNs())) ? $isbns[0] : null;
+        $isbn = (!empty($isbns = $this->recordDriver->getISBNs())) ? $isbns[0] : null;
 		$lccn = $this->recordDriver->getLCCN();
 		$oclc = $this->recordDriver->getCleanOCLCNum();
 
-		if ((! $isbn) && (! $lccn) && (! $oclc))
-			return false;
+		if (empty($isbn) && empty($lccn) && empty($oclc)) {
+            return null;
+        }
 
 		$url = 'https://www.googleapis.com/books/v1/volumes';
 
-		if ($isbn)
-			$params = array ('q' => 'isbn:'.str_replace("-", "", $isbn));
-
-		if ($lccn)
-			$params = array ('q' => 'lccn:'.str_replace("-", "", $lccn));
-
-		if ($oclc)
-			$params = array ('q' => 'oclc:'.str_replace("-", "", $oclc));
+		if (!empty($isbn)) {
+            $params = ['q' => 'isbn:' . str_replace("-", "", $isbn)];
+        }
+		if (!empty($lccn)) {
+            $params = ['q' => 'lccn:' . $lccn];
+        }
+		if (!empty($oclc)) {
+            $params = ['q' => 'oclc:' . $oclc];
+        }
 
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 
-		$link = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'];
-
-		if (! isset($link) || empty($link))
-			return null;
+		$link = null;
+		if($dataArray['totalItems'] >= 1) {
+            $link = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'] ?? null;
+        }
 
 		return $link;
 	}
@@ -84,26 +86,31 @@ class BuyChoiceHandler extends AbstractHttpClient implements BuyChoiceHandlerInt
 	 * {@inheritdoc}
 	 */
 	public function getZboziLink()
-	{
-		$isbn = (! empty($isbns = $this->recordDriver->getISBNs())) ? $isbns[0] : null;
-		if (! $isbn)
-			return false;
+    {
+        $isbn = (!empty($isbns = $this->recordDriver->getISBNs())) ? $isbns[0] : null;
 
-		$url = 'http://www.zbozi.cz/api/v1/search';
-		$params = array (
-				'groupByCategory' => 1,
-				'loadTopProducts' => 'true',
-				'page' => 1,
-				'query' => str_replace("-", "", $isbn),
-		);
+        if (empty($isbn)) {
+            return null;
+        }
+
+		$url = 'https://www.zbozi.cz/api/v1/search';
+		$params = [
+		    'groupByCategory' => 0,
+            'loadTopProducts' => 'true',
+            'page' => 1,
+            'query' => str_replace("-", "", $isbn),
+		];
 
 		$dataArray = $this->getRequestDataResponseAsArray($url, $params);
 
-		$link = '';
-		if (isset($dataArray['status']) && $dataArray['status'] === 200)
-			if (isset($dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName']) && $dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'] !== '')
-				$link = 'http://www.zbozi.cz/vyrobek/'.$dataArray['productsGroupedByCategories'][0]['products'][0]['normalizedName'].'/';
+		$link = null;
 
+		if (isset($dataArray['status']) && $dataArray['status'] === 200) {
+            $productUrl = $dataArray['products'][0]['normalizedName'] ?? null;
+            if ($productUrl !== null) {
+                $link = 'https://www.zbozi.cz/vyrobek/' . urlencode($productUrl) . '/';
+            }
+        }
 		return $link;
 	}
 }
