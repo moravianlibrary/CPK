@@ -434,7 +434,7 @@
 $recordId = $this->driver->getUniqueID();
 $buyLinksScript = <<<EOT
 function setBuyTabStatus( response ) {
-	if ( response.data[0]['buyLinksCount'] >= 0 ) {
+	if ( response.data[0]['buyLinksCount'] > 0 ) {
 		jQuery('#buy').parent().removeClass( 'disabled' );
 		jQuery('#buy').data('links', response);
 	}
