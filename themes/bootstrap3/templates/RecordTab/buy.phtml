@@ -2,46 +2,46 @@
   // Set page title.
   $this->headTitle($this->driver->getBreadcrumb());
 ?>
+<h3><?=$this->translate('Compare prices via');?></h3>
 <span class="loading">
   <i class="fa fa-spinner fa-spin"></i> <?=$this->transEsc('Loading')?>...
 </span>
-<div class="list-group">
 
-    <div id='google-books-link' class='hidden'>
-    	<a title='<?= $this->translate('Google Books') ?>' class="list-group-item" target='_blank'><?= $this->translate('Google Books') ?></a>
-    </div>
-
-    <div id='antikvariaty-link' class='hidden'>
-    	<a title='<?= $this->translate('Antikvariat') ?>' class="list-group-item" target='_blank'><?= $this->translate('Antikvariat') ?></a>
-    </div>
-
-    <div id='zbozi-link' class='hidden'>
-    	<a title='<?= $this->translate('Zboží.cz') ?>' class="list-group-item" target='_blank'><?= $this->translate('Zboží.cz') ?></a>
-    </div>
-
-    <script>
-    	function displayBuyLinks( buyLinks )
-    	{
-        $('.loading').hide();
-    		if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
-    			$( "#google-books-link" ).removeClass( 'hidden' );
-    			$( "#google-books-link a" ).attr( 'href', buyLinks.data[0]['gBooksLink'] );
-    		}
-    		if ( buyLinks.data[0]['zboziLink'] !== '' ) {
-    			$( "#zbozi-link" ).removeClass( 'hidden' );
-    			$( "#zbozi-link a" ).attr( 'href' , buyLinks.data[0]['zboziLink'] );
-    		}
-    		if ( buyLinks.data[0]['antikvariatyLink'] !== '' ) {
-    			$( "#antikvariaty-link ").removeClass( 'hidden' );
-    			$( "#antikvariaty-link a ").attr( 'href', buyLinks.data[0]['antikvariatyLink'] );
-    		}
-    	}
-
-      jQuery( document ).ready( function( $ ) {
-        var recordID = '<?= $this->driver->getUniqueID() ?>';
-        getBuyLinks(recordID, displayBuyLinks);
-      });
-
-    </script>
-
+<div class="buy-links">
+<?php $links = [
+    'google-books' => 'Google Books',
+    'antikvariaty' => 'Antikvariat',
+    'zbozi' => 'Zboží.cz',
+  ];
+  foreach($links as $id => $label): ?>
+    <span id='<?=$id;?>-link' class='hidden'>
+      <a title='<?=$this->translate($label) ?>' class="btn btn-default" target='_blank'>
+        <?=$this->translate($label) ?></a>
+    </span>
+  <?php endforeach; ?>
 </div>
+
+<script>
+  function displayBuyLinks( buyLinks )
+  {
+    $('.loading').hide();
+    if ( buyLinks.data[0]['gBooksLink'] !== '' ) {
+      $( "#google-books-link" ).removeClass( 'hidden' );
+      $( "#google-books-link a" ).attr( 'href', buyLinks.data[0]['gBooksLink'] );
+    }
+    if ( buyLinks.data[0]['zboziLink'] !== '' ) {
+      $( "#zbozi-link" ).removeClass( 'hidden' );
+      $( "#zbozi-link a" ).attr( 'href' , buyLinks.data[0]['zboziLink'] );
+    }
+    if ( buyLinks.data[0]['antikvariatyLink'] !== '' ) {
+      $( "#antikvariaty-link ").removeClass( 'hidden' );
+      $( "#antikvariaty-link a ").attr( 'href', buyLinks.data[0]['antikvariatyLink'] );
+    }
+  }
+
+  jQuery( document ).ready( function( $ ) {
+    var recordID = '<?= $this->driver->getUniqueID() ?>';
+    getBuyLinks(recordID, displayBuyLinks);
+  });
+
+</script>
