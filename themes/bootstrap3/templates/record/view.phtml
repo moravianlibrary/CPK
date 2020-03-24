@@ -210,7 +210,7 @@
 
                   <a name="tabnav"></a>
                   <ul class="recordTabs nav nav-tabs">
-
+                    <?php $disabledTabs = []; ?>
                     <? foreach ($this->tabs as $tab => $obj): ?>
                     <? if($tab == 'Ziskej' && !$this->ziskejEnabled) continue; ?>
                     <? // add current tab to breadcrumbs if applicable:
@@ -224,7 +224,7 @@
                       }
                       if (!$obj->isVisible()) { $tab_classes[] = 'hidden'; }
                       if (!$obj->supportsAjax()) { $tab_classes[] = 'noajax'; }
-                      if ($obj->isDisabledByDefault()) { $tab_classes[] = 'disabled'; }
+                      if ($obj->isDisabledByDefault()) { $disabledTabs[] = strtolower($tab); }
                     ?>
                     <li<?=count($tab_classes) > 0 ? ' class="' . implode(' ', $tab_classes) . '"' : ''?>>
                       <a id="<?=strtolower($tab) ?>" href="<?=$this->recordLink()->getTabUrl($this->driver, $tab)?><?="?referer=".$this->referer?>#tabnav">
@@ -297,21 +297,34 @@
                     </div>
                   </div>
                 </div>
+                <?php
+                  // Disable eversion tab
+                  if (!$this->eVersionLinksCount) {
+                    $disabledTabs[] = 'eversion';
+                  }
+                  // Disable holdings tab
+                  if (count($holdings = $this->driver->getRealTimeHoldings()) < 1) {
+                    $disabledTabs[] = 'holdings';
+                  }
+                  $tabsToCheck = [
+                    'addinfo' => 'AddInfoItemsCount',
+                    'contacts' => 'ContactsItemsCount',
+                    'services' => 'ServicesItemsCount',
+                    'branches' => 'BranchesItemsCount'
+                  ];
+                  foreach ($tabsToCheck as $id => $method) {
+                    if (($this->driver->tryMethod($method) ?? 0) < 1) {
+                      $disabledTabs[] = $id;
+                    }
+                  }
 
+                  // Disable ziskej tab
+                  if (!$this->ziskejEnabled) {
+                    $disabledTabs[] = 'ziskej';
+                  }
+                ?>
             <script src="/themes/bootstrap3/js/ajax-record-tabs.js"></script>
             <script>
-
-            /**
-             * Removes active state from Buy Link when there are no buyLinks
-             *
-             * @param {array} buyLinks
-             * @return {void}
-             */
-            function disableBuyTab( buyLinks )
-            {
-            	if ( buyLinks.data[0]['buyLinksCount'] === 0 )
-            		$( '#buy' ).parent().removeClass( 'active' ).addClass( 'disabled' );
-            }
 
             /**
              * Disables tab
@@ -327,66 +340,9 @@
             }
 
             jQuery( document ).ready( function( $ ) {
-
-                // Disable eversion tab
-                <?if($this->eVersionLinksCount):?>
-                    var eVersionLinksCount = <?=$this->eVersionLinksCount?>;
-                <?endif;?>
-                if (typeof eVersionLinksCount === 'undefined' || !eVersionLinksCount) {
-                    disableTab($( '#eversion' ));
-                    //hide table inside the tab
-                    $( "#e-version-table" ).addClass( 'hidden' );
-                }
-
-                // Disable holdings tab
-                var holdingsCount = <?= count($holdings = $this->driver->getRealTimeHoldings()) ?>;
-                if (!holdingsCount) {
-                    disableTab($( '#holdings' ));
-                }
-
-                // Disable AddInfo tab
-                <?   $addInfoItemsCount = 1;
-                if(method_exists($this->driver, "AddInfoItemsCount"))
-                    $addInfoItemsCount = $this->driver->AddInfoItemsCount();
-                ?>
-                var addInfoItemsCount = <?=$addInfoItemsCount?>;
-                if (!addInfoItemsCount) {
-                    disableTab($( '#addinfo' ));
-                }
-
-                // Disable Contacts tab
-                <?   $ContactsItemsCount = 1;
-                if(method_exists($this->driver, "ContactsItemsCount"))
-                    $ContactsItemsCount = $this->driver->ContactsItemsCount();
-                ?>
-                var ContactsItemsCount = <?=$ContactsItemsCount?>;
-                if (!ContactsItemsCount) {
-                    disableTab($( '#contacts' ));
-                }
-
-                // Disable Services tab
-                <?   $ServicesItemsCount = 1;
-                if(method_exists($this->driver, "ServicesItemsCount"))
-                    $ServicesItemsCount = $this->driver->ServicesItemsCount();
-                ?>
-                var ServicesItemsCount = <?=$ServicesItemsCount?>;
-                if (!ServicesItemsCount) {
-                    disableTab($( '#services' ));
-                }
-
-                // Disable Branches tab
-                <?   $BranchesItemsCount = 1;
-                if(method_exists($this->driver, "BranchesItemsCount"))
-                    $BranchesItemsCount = $this->driver->BranchesItemsCount();
-                ?>
-                var BranchesItemsCount = <?=$BranchesItemsCount?>;
-                if (!BranchesItemsCount) {
-                    disableTab($( '#branches' ));
-                }
-
-                <? if(!$this->ziskejEnabled): ?>
-                    disableTab($( '#ziskej' ));
-                <? endif; ?>
+                <?php foreach($disabledTabs as $disabledTab): ?>
+                    <?="disableTab($('#$disabledTab'));";?>
+                <?php endforeach; ?>
 
                 var recordID = '<?= $this->driver->getUniqueID() ?>';
                 var parentRecordID = '<?= method_exists($this->driver, "getParentRecordID") ? $this->driver->getParentRecordID() : null ?>';
