@@ -98,6 +98,9 @@ $i = 0;
                     <dd><?= $ticket->getReturnAt()->format('j. n. Y'); ?></dd>
                   <? endif; ?>
 
+                  <dt>Číslo objednávky:</dt>
+                  <dd><?= $ticket->getHid(); ?></dd>
+                  
                   <? if ($ticket->getStatus()): ?>
                     <dt><?= $this->transEsc('ziskej_label_order_status') ?>:</dt>
                     <dd>
