@@ -15,7 +15,7 @@
   ];
   foreach($links as $id => $label): ?>
     <span id='<?=$id;?>-link' class='hidden'>
-      <a title='<?=$this->translate($label) ?>' class="btn btn-default" target='_blank'>
+      <a title='<?=$this->translate($label) ?>' class="btn" target='_blank'>
         <?=$this->translate($label) ?></a>
     </span>
   <?php endforeach; ?>
