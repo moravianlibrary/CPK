@@ -77,8 +77,8 @@ class BuyChoiceHandler extends AbstractHttpClient implements
 
         $link = null;
         if ($dataArray['totalItems'] >= 1) {
-            $link = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'] ??
-                null;
+            $canonicalLink = $dataArray['items'][0]['volumeInfo']['canonicalVolumeLink'] ?? null;
+            $link = isset($canonicalLink) ? $canonicalLink . '&sitesec=buy' : null;
         }
 
         return $link;
