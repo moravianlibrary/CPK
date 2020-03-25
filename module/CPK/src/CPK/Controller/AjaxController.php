@@ -1112,7 +1112,7 @@ class AjaxController extends AjaxControllerBase
      *
      * @author Martin Kravec <Martin.Kravec@mzk.cz>
      *
-     * @return array
+     * @return \Zend\Http\Response
      */
     protected function getBuyLinksAjax()
     {
