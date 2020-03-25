@@ -102,7 +102,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
         </a>
       <? endif; ?>
       <? if (in_array($ticket->getStatus(), ['created', 'paid'])): ?>
-        <a class="btn btn-default" href="/MyResearch/ZiskejTicketCancel/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>"
+        <a class="btn btn-info" href="/MyResearch/ZiskejTicketCancel/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>"
            title="Stornovat objednávku"
            onclick="return confirm('<?= sprintf("Opravdu chcete stornovat objednávku číslo %s?", $ticket->getHid()); ?>')">
           <i class="fa fa-times"></i> Stornovat objednávku
@@ -111,6 +111,10 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
       <? if (in_array($ticket->getStatus(), ['cancelled'])): ?>
         <div class="alert alert-info">Objednávka byla stornována.</div>
       <? endif; ?>
+      <a class="btn btn-default" href="https://ziskej-info.techlib.cz/reklamace" target="_blank" title="Reklamovat objednávku">
+        <i class="fa fa-exclamation-triangle"></i>
+        Reklamovat objednávku
+      </a>
     </div>
 
     <h3>Detail objednávky</h3>
