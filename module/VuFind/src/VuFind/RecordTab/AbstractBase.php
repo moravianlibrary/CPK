@@ -107,6 +107,16 @@ abstract class AbstractBase implements TabInterface,
     }
 
     /**
+     * Is this tab in disabled state by default?
+     *
+     * @return bool
+     */
+    public function isDisabledByDefault()
+    {
+        return false;
+    }
+
+    /**
      * Set the record driver
      *
      * @param \VuFind\RecordDriver\AbstractBase $driver Record driver
