@@ -12,7 +12,7 @@ class TicketStatuses
         // podana zadost o objednavku, zatim nezaplacena ani neprijata
         'created' => [
             'title' => 'Nová, nezaplacená',
-            'status' => 'warning',
+            'status' => 'info',
         ],
         // platba zaplacena, objednavka zatim neprijata
         'paid' => [
@@ -42,7 +42,7 @@ class TicketStatuses
         // zadost o objednavku / objednavka stornovana
         'cancelled' => [
             'title' => 'Stornována',
-            'status' => 'danger',
+            'status' => 'warning',
         ],
         // zadost o objednavku zamitnuta
         'rejected' => [

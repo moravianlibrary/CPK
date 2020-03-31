@@ -18,6 +18,16 @@ final class TicketTest extends TestCase
         'sigla' => 'BOA001',
         'doc_id' => 'mzk.MZK01-000000001',
         'status_reader' => 'created',
+        'status_reader_history' => [
+            [
+                "date" => "2020-03-09",
+                "id" => "created",
+            ],
+            [
+                "date" => "2020-03-10",
+                "id" => "accepted",
+            ],
+        ],
         'is_open' => true,
         'payment_id' => '662d6dcc-50bb-43b0-8fb8-a30854737d62',
         'payment_url' => 'https://ziskej-test.techlib.cz/platebator/662d6dcc-50bb-43b0-8fb8-a30854737d62',
@@ -61,6 +71,7 @@ final class TicketTest extends TestCase
         $this->assertEquals($this->input['sigla'], $ticket->getSigla());
         $this->assertEquals($this->input['doc_id'], $ticket->getDocumentId());
         $this->assertEquals($this->input['status_reader'], $ticket->getStatus());
+        //@todo test $ticket->getStatusHistory();
         $this->assertEquals($this->input['is_open'], $ticket->isOpen());
         $this->assertEquals($this->input['payment_id'], $ticket->getPaymentId());
         $this->assertEquals($this->input['payment_url'], $ticket->getPaymentUrl());

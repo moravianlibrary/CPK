@@ -1569,7 +1569,7 @@ class MyResearchController extends MyResearchControllerBase
         /** @var \Mzk\ZiskejApi\Api $ziskejApi */
         $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
 
-        $deleted = $ziskejApi->deleteTicket($eppn, $ticketId);
+        $deleted = $ziskejApi->cancelTicket($eppn, $ticketId);
 
         if ($deleted) {
             $this->flashMessenger()->addMessage('Objednávka byla úspěšně stornována.', 'success');

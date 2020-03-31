@@ -15,6 +15,7 @@ class MessageCollection
     /**
      * @param string[][] $data
      * @return \Mzk\ZiskejApi\ResponseModel\MessageCollection
+     * @throws \Exception
      */
     public static function fromArray(array $data): MessageCollection
     {

@@ -3,6 +3,7 @@
 namespace Mzk\ZiskejApi\ResponseModel;
 
 use DateTimeImmutable;
+use SmartEmailing\Types\Arrays;
 use SmartEmailing\Types\DatesImmutable;
 use SmartEmailing\Types\PrimitiveTypes;
 
@@ -50,6 +51,13 @@ class Ticket
      * @var string|null
      */
     private $status = null;
+
+    /**
+     * History of ticket statuses
+     *
+     * @var \Mzk\ZiskejApi\ResponseModel\Status[]
+     */
+    private $statusHistory = [];
 
     /**
      * Is ticket open
@@ -136,7 +144,13 @@ class Ticket
         $ticket->hid = PrimitiveTypes::extractStringOrNull($data, 'hid', true);
         $ticket->sigla = PrimitiveTypes::extractStringOrNull($data, 'sigla', true);
         $ticket->documentId = PrimitiveTypes::extractStringOrNull($data, 'doc_id', true);
+
         $ticket->status = PrimitiveTypes::extractStringOrNull($data, 'status_reader', true);
+
+        foreach (Arrays::extractArray($data, 'status_reader_history') as $statusHistory) {
+            $ticket->statusHistory[] = Status::fromArray($statusHistory);
+        }
+
         $ticket->isOpen = PrimitiveTypes::extractBoolOrNull($data, 'is_open', true);
         $ticket->paymentId = PrimitiveTypes::extractStringOrNull($data, 'payment_id', true);
         $ticket->paymentUrl = PrimitiveTypes::extractStringOrNull($data, 'payment_url', true);
@@ -186,6 +200,14 @@ class Ticket
     public function getStatus(): ?string
     {
         return $this->status;
+    }
+
+    /**
+     * @return \Mzk\ZiskejApi\ResponseModel\Status[]
+     */
+    public function getStatusHistory(): array
+    {
+        return $this->statusHistory;
     }
 
     public function isOpen(): ?bool

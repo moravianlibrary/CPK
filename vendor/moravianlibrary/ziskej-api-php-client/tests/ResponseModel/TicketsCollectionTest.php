@@ -18,6 +18,12 @@ final class TicketsCollectionTest extends TestCase
             'sigla' => 'BOA001',
             'doc_id' => 'mzk.MZK01-000000001',
             'status_reader' => 'created',
+            'status_reader_history' => [
+                [
+                    "date" => "2020-03-09",
+                    "id" => "created",
+                ],
+            ],
             'is_open' => true,
             'payment_id' => '662d6dcc-50bb-43b0-8fb8-a30854737d62',
             'payment_url' => 'https://ziskej-test.techlib.cz/platebator/662d6dcc-50bb-43b0-8fb8-a30854737d62',
@@ -36,6 +42,16 @@ final class TicketsCollectionTest extends TestCase
             'sigla' => 'BOA001',
             'doc_id' => 'mzk.MZK01-000000002',
             'status_reader' => 'accepted',
+            'status_reader_history' => [
+                [
+                    "date" => "2020-03-09",
+                    "id" => "created",
+                ],
+                [
+                    "date" => "2020-03-10",
+                    "id" => "accepted",
+                ],
+            ],
             'is_open' => true,
             'payment_id' => 'f628af4b-4be9-4521-9245-69494c0c670b',
             'payment_url' => 'https://ziskej-test.techlib.cz/platebator/f628af4b-4be9-4521-9245-69494c0c670b',

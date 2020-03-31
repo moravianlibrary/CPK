@@ -17,6 +17,7 @@ class TicketsCollection
     /**
      * @param string[][] $data
      * @return \Mzk\ZiskejApi\ResponseModel\TicketsCollection
+     * @throws \Exception
      */
     public static function fromArray(array $data): TicketsCollection
     {
