@@ -49,20 +49,20 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
       <ul class="nav-wizard row">
         <li class="part col-md-2">
           <? if (isset($historyArray['created'])): ?>
-            <span class="text-success"><i class="fa fa-check"></i></span>
+            <span class="text-icon text-success"><i class="fa fa-check"></i></span>
           <? else: ?>
-            <span class="text-muted"><i class="fa fa-times"></i></span>
+            <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
           <? endif; ?>
           Vytvořena
           <? if (isset($historyArray['created'])): ?>
-            <br><small><?= $historyArray['created']; ?></small>
+            <small><?= $historyArray['created']; ?></small>
           <? endif; ?>
         </li>
         <li class="part col-md-2">
           <? if (isset($historyArray['paid'])): ?>
-            <span class="text-success"><i class="fa fa-check"></i></span>
+            <span class="text-icon text-success"><i class="fa fa-check"></i></span>
           <? else: ?>
-            <span class="text-muted"><i class="fa fa-times"></i></span>
+            <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
           <? endif; ?>
           Uhrazena
           <? if (isset($historyArray['paid'])): ?>
@@ -72,9 +72,9 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
         <? if (in_array($ticket->getStatus(), ['created', 'paid', 'accepted', 'prepared', 'lent', 'closed'])) : ?>
           <li class="part col-md-2">
             <? if (isset($historyArray['accepted'])): ?>
-              <span class="text-success"><i class="fa fa-check"></i></span>
+              <span class="text-icon text-success"><i class="fa fa-check"></i></span>
             <? else: ?>
-              <span class="text-muted"><i class="fa fa-times"></i></span>
+              <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
             <? endif; ?>
             Ve&nbsp;zpracování
             <? if (isset($historyArray['accepted'])): ?>
@@ -83,9 +83,9 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
           </li>
           <li class="part col-md-2">
             <? if (isset($historyArray['prepared'])): ?>
-              <span class="text-success"><i class="fa fa-check"></i></span>
+              <span class="text-icon text-success"><i class="fa fa-check"></i></span>
             <? else: ?>
-              <span class="text-muted"><i class="fa fa-times"></i></span>
+              <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
             <? endif; ?>
             Připravena
             <? if (isset($historyArray['prepared'])): ?>
@@ -94,9 +94,9 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
           </li>
           <li class="part col-md-2">
             <? if (isset($historyArray['lent'])): ?>
-              <span class="text-success"><i class="fa fa-check"></i></span>
+              <span class="text-icon text-success"><i class="fa fa-check"></i></span>
             <? else: ?>
-              <span class="text-muted"><i class="fa fa-times"></i></span>
+              <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
             <? endif; ?>
             Vypůjčena
             <? if (isset($historyArray['lent'])): ?>
@@ -105,9 +105,9 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
           </li>
           <li class="part col-md-2">
             <? if (isset($historyArray['closed'])): ?>
-              <span class="text-success"><i class="fa fa-check"></i></span>
+              <span class="text-icon text-success"><i class="fa fa-check"></i></span>
             <? else: ?>
-              <span class="text-muted"><i class="fa fa-times"></i></span>
+              <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
             <? endif; ?>
             Vrácena
             <? if (isset($historyArray['closed'])): ?>
@@ -118,9 +118,9 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
         <? if (in_array($ticket->getStatus(), ['cancelled'])) : ?>
           <li class="part col-md-2">
             <? if (isset($historyArray['cancelled'])): ?>
-              <span class="text-success"><i class="fa fa-check"></i></span>
+              <span class="text-icon text-success"><i class="fa fa-check"></i></span>
             <? else: ?>
-              <span class="text-muted"><i class="fa fa-times"></i></span>
+              <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
             <? endif; ?>
             Stornována
             <? if (isset($historyArray['cancelled'])): ?>
@@ -131,9 +131,9 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
         <? if (in_array($ticket->getStatus(), ['rejected'])) : ?>
           <li class="part col-md-2">
             <? if (isset($historyArray['rejected'])): ?>
-              <span class="text-success"><i class="fa fa-check"></i></span>
+              <span class="text-icon text-success"><i class="fa fa-check"></i></span>
             <? else: ?>
-              <span class="text-muted"><i class="fa fa-times"></i></span>
+              <span class="text-icon text-muted"><i class="fa fa-times"></i></span>
             <? endif; ?>
             Zamítnuta
             <? if (isset($historyArray['rejected'])): ?>

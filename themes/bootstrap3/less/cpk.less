@@ -57,8 +57,6 @@
 //contain styling for suggested browsers block
 @import "parts/suggested-browsers";
 
-@import "bootstrap-nav-wizard";
-
 body {
   font-weight: 300;
 }
@@ -458,5 +456,23 @@ ul.media-list {
 .well {
   dl:last-child {
     margin-bottom: 0;
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  ul.nav-wizard {
+    list-style: none;
+
+    .part {
+      text-align: center;
+
+      small {
+        display: block;
+      }
+
+      .text-icon {
+        display: block;
+      }
+    }
   }
 }
