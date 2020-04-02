@@ -21,7 +21,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
       </h2>
 
       <div class="pull-left" style="margin-top: 23px; padding-left: 1em;">
-        <span class="label label-<?= \Mzk\ZiskejApi\Object\TicketStatuses::getStatus($ticket->getStatus()) ?>" style="font-size: 18px;">
+        <span class="label <?= $this->transEsc(sprintf('ziskej_order_status_label_class_%s', $ticket->getStatus())); ?>" style="font-size: 18px;">
           <?= $this->translate('ziskej_order_status_' . $ticket->getStatus()) ?>
         </span>
       </div>
@@ -32,6 +32,12 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
 
     <?
     $status = $ticket->getStatus();
+    $histories = $ticket->getStatusHistory();
+    $historyArray = [];
+    /** @var \Mzk\ZiskejApi\ResponseModel\Status $history */
+    foreach ($histories as $history) {
+      $historyArray[$history->getName()] = $history->getCreatedAt()->format('j. n. Y');
+    }
 
     $classDone = 'visited';
     $classActive = 'visited current';
@@ -40,58 +46,101 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
     ?>
 
     <div class="well">
-      <ul class="nav-wizard">
-        <? if ($status == 'created'): ?>
-          <li class="part <?= $classActive; ?>">Vytvořena</li>
-          <li class="part <?= $classWaiting; ?>">Uhrazena</li>
-          <li class="part <?= $classWaiting; ?>">Ve zpracování</li>
-          <li class="part <?= $classWaiting; ?>">Připravena</li>
-          <li class="part <?= $classWaiting; ?>">Vypůjčena</li>
-          <li class="part <?= $classWaiting; ?>">Uzavřena</li>
-        <? elseif ($status == 'paid'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <li class="part <?= $classActive; ?>">Uhrazena</li>
-          <li class="part <?= $classWaiting; ?>">Ve zpracování</li>
-          <li class="part <?= $classWaiting; ?>">Připravena</li>
-          <li class="part <?= $classWaiting; ?>">Vypůjčena</li>
-          <li class="part <?= $classWaiting; ?>">Uzavřena</li>
-        <? elseif ($status == 'accepted'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <li class="part <?= $classDone; ?>">Uhrazena</li>
-          <li class="part <?= $classActive; ?>">Ve zpracování</li>
-          <li class="part <?= $classWaiting; ?>">Připravena</li>
-          <li class="part <?= $classWaiting; ?>">Vypůjčena</li>
-          <li class="part <?= $classWaiting; ?>">Uzavřena</li>
-        <? elseif ($status == 'prepared'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <li class="part <?= $classDone; ?>">Uhrazena</li>
-          <li class="part <?= $classDone; ?>">Ve zpracování</li>
-          <li class="part <?= $classActive; ?>">Připravena</li>
-          <li class="part <?= $classWaiting; ?>">Vypůjčena</li>
-          <li class="part <?= $classWaiting; ?>">Uzavřena</li>
-        <? elseif ($status == 'lent'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <li class="part <?= $classDone; ?>">Uhrazena</li>
-          <li class="part <?= $classDone; ?>">Ve zpracování</li>
-          <li class="part <?= $classDone; ?>">Připravena</li>
-          <li class="part <?= $classActive; ?>">Vypůjčena</li>
-          <li class="part <?= $classWaiting; ?>">Uzavřena</li>
-        <? elseif ($status == 'closed'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <li class="part <?= $classDone; ?>">Uhrazena</li>
-          <li class="part <?= $classDone; ?>">Ve zpracování</li>
-          <li class="part <?= $classDone; ?>">Připravena</li>
-          <li class="part <?= $classDone; ?>">Vypůjčena</li>
-          <li class="part <?= $classActive; ?>">Uzavřena</li>
-        <? elseif ($status == 'cancelled'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <? /*<li class="part <?= $classDone; ?>">Uhrazena</li> //@todo */ ?>
-          <li class="part <?= $classActive; ?>">Zrušena</li>
-        <? elseif ($status == 'rejected'): ?>
-          <li class="part <?= $classDone; ?>">Vytvořena</li>
-          <li class="part <?= $classActive; ?>">Zamítnuta</li>
+      <ul class="nav-wizard row">
+        <li class="part col-md-2">
+          <? if (isset($historyArray['created'])): ?>
+            <span class="text-success"><i class="fa fa-check"></i></span>
+          <? else: ?>
+            <span class="text-muted"><i class="fa fa-times"></i></span>
+          <? endif; ?>
+          Vytvořena
+          <? if (isset($historyArray['created'])): ?>
+            <br><small><?= $historyArray['created']; ?></small>
+          <? endif; ?>
+        </li>
+        <li class="part col-md-2">
+          <? if (isset($historyArray['paid'])): ?>
+            <span class="text-success"><i class="fa fa-check"></i></span>
+          <? else: ?>
+            <span class="text-muted"><i class="fa fa-times"></i></span>
+          <? endif; ?>
+          Uhrazena
+          <? if (isset($historyArray['paid'])): ?>
+            <small><?= $historyArray['paid']; ?></small>
+          <? endif; ?>
+        </li>
+        <? if (in_array($ticket->getStatus(), ['created', 'paid', 'accepted', 'prepared', 'lent', 'closed'])) : ?>
+          <li class="part col-md-2">
+            <? if (isset($historyArray['accepted'])): ?>
+              <span class="text-success"><i class="fa fa-check"></i></span>
+            <? else: ?>
+              <span class="text-muted"><i class="fa fa-times"></i></span>
+            <? endif; ?>
+            Ve&nbsp;zpracování
+            <? if (isset($historyArray['accepted'])): ?>
+              <small><?= $historyArray['accepted']; ?></small>
+            <? endif; ?>
+          </li>
+          <li class="part col-md-2">
+            <? if (isset($historyArray['prepared'])): ?>
+              <span class="text-success"><i class="fa fa-check"></i></span>
+            <? else: ?>
+              <span class="text-muted"><i class="fa fa-times"></i></span>
+            <? endif; ?>
+            Připravena
+            <? if (isset($historyArray['prepared'])): ?>
+              <small><?= $historyArray['prepared']; ?></small>
+            <? endif; ?>
+          </li>
+          <li class="part col-md-2">
+            <? if (isset($historyArray['lent'])): ?>
+              <span class="text-success"><i class="fa fa-check"></i></span>
+            <? else: ?>
+              <span class="text-muted"><i class="fa fa-times"></i></span>
+            <? endif; ?>
+            Vypůjčena
+            <? if (isset($historyArray['lent'])): ?>
+              <small><?= $historyArray['lent']; ?></small>
+            <? endif; ?>
+          </li>
+          <li class="part col-md-2">
+            <? if (isset($historyArray['closed'])): ?>
+              <span class="text-success"><i class="fa fa-check"></i></span>
+            <? else: ?>
+              <span class="text-muted"><i class="fa fa-times"></i></span>
+            <? endif; ?>
+            Vrácena
+            <? if (isset($historyArray['closed'])): ?>
+              <small><?= $historyArray['closed']; ?></small>
+            <? endif; ?>
+          </li>
         <? endif; ?>
-        <? //rejected ?>
+        <? if (in_array($ticket->getStatus(), ['cancelled'])) : ?>
+          <li class="part col-md-2">
+            <? if (isset($historyArray['cancelled'])): ?>
+              <span class="text-success"><i class="fa fa-check"></i></span>
+            <? else: ?>
+              <span class="text-muted"><i class="fa fa-times"></i></span>
+            <? endif; ?>
+            Stornována
+            <? if (isset($historyArray['cancelled'])): ?>
+              <small><?= $historyArray['cancelled']; ?></small>
+            <? endif; ?>
+          </li>
+        <? endif; ?>
+        <? if (in_array($ticket->getStatus(), ['rejected'])) : ?>
+          <li class="part col-md-2">
+            <? if (isset($historyArray['rejected'])): ?>
+              <span class="text-success"><i class="fa fa-check"></i></span>
+            <? else: ?>
+              <span class="text-muted"><i class="fa fa-times"></i></span>
+            <? endif; ?>
+            Zamítnuta
+            <? if (isset($historyArray['rejected'])): ?>
+              <small><?= $historyArray['rejected']; ?></small>
+            <? endif; ?>
+          </li>
+        <? endif; ?>
       </ul>
     </div>
 
@@ -164,13 +213,13 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
       </div>
     </div>
 
+    <div>
     <h3>
       Zprávy k objednávce
       <? if ($ticket->getCountMessages() > 0): ?>
         <span class="badge"><?= $ticket->getCountMessages(); ?></span>
       <? endif; ?>
     </h3>
-
     <div class="well border">
       <? if (count($this->messages)): ?>
         <?
@@ -211,6 +260,7 @@ $this->headTitle($this->translate('Objednávka Získej č. ') . $ticket->getHid(
           <button type="submit" class="btn btn-primary">Odeslat zprávu</button>
         </form>
       </div>
+    </div>
     </div>
 
   </div>

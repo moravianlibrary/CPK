@@ -16,10 +16,12 @@ $i = 0;
       <?= $this->transEsc("source_$libraryId", null, $libraryId) ?>
       <img class="pull-right" height="32" src="<?= $this->logos()->getLogo($libraryId) ?>"/>
     </h3>
+    <? if (!empty($ziskejReader)): ?>
     <div class="well">
       <?= $ziskejReader->getFirstName(); ?> <?= $ziskejReader->getLastName(); ?>
       | <?= $ziskejReader->getEmail(); ?>
     </div>
+    <? endif; ?>
     <? if (count($resources)): ?>
       <ul class="media-list">
         <?
@@ -104,12 +106,9 @@ $i = 0;
                   <? if ($ticket->getStatus()): ?>
                     <dt><?= $this->transEsc('ziskej_label_order_status') ?>:</dt>
                     <dd>
-                      <span class="label label-<?= \Mzk\ZiskejApi\Object\TicketStatuses::getStatus($ticket->getStatus()) ?>">
+                      <span class="label <?= $this->transEsc(sprintf('ziskej_order_status_label_class_%s', $ticket->getStatus())); ?>">
                         <?= $this->translate('ziskej_order_status_' . $ticket->getStatus()) ?>
                       </span>
-                      <? if (!$ticket->isOpen()): ?>
-                        (<?= $this->transEsc('ziskej_order_status_not_open') ?>)
-                      <? endif; ?>
                     </dd>
                   <? endif; ?>
                 </dl>
