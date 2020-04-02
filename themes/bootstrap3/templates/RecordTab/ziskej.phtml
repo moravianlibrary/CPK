@@ -41,10 +41,17 @@
           <? if (!empty($this->connectedLibs)): ?>
             <ul class="list-group">
               <? foreach ($this->connectedLibs as $libId => $data): ?>
+                <?
+                /** @var \VuFind\Db\Row\UserCard $userCard */
+                $userCard = $data['userCard'];
+                /** @var \Mzk\ZiskejApi\ResponseModel\Reader $ziskejReader */
+                $ziskejReader = $data['ziskejReader'];
+                ?>
                 <li class="list-group-item clearfix">
                   <?= $this->translate('source_' . $libId) ?>
                   <span class="pull-right">
-                  <button class="btn btn-default ziskej-order-btn" id="<?= $libId ?>" data-eppn="<?= $data['reader']['eppn'] ?>">
+                  <button class="btn btn-default ziskej-order-btn" id="<?= $libId ?>"
+                          data-eppn="<?= $userCard->eppn; ?>" data-email="<?= !empty($ziskejReader) ? $ziskejReader->getEmail() : ''; ?>">
                     <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("ziskej_btn_order") ?>
                   </button>
                 </span>
@@ -104,6 +111,11 @@
                     <?= $this->escapeHtml($this->user['firstname']) ?>
                     <?= $this->escapeHtml($this->user['lastname']) ?>
                   </p>
+
+                  <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" class="form-control">
+                  </div>
 
                   <div class="form-group">
                     <label for="text"><?= $this->transEsc("label_note") ?>:</label>

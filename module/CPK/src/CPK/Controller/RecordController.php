@@ -326,12 +326,13 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                         if ($user) {
                             /** @var array $connectedLibs */
                             $connectedLibs = [];
-                            /** @var \VuFind\Db\Row\UserCard $libraryCard */
-                            foreach ($user->getLibraryCards() as $libraryCard) {
+                            /** @var \VuFind\Db\Row\UserCard $userCard */
+                            foreach ($user->getLibraryCards() as $userCard) {
                                 //@todo refactor to array_filter
-                                if (!empty($libraryCard->home_library)) {
-                                    if (in_array($libraryCard->home_library, $ziskejLibsIds)) {
-                                        $connectedLibs[$libraryCard->home_library]['reader'] = $libraryCard->toArray();
+                                if (!empty($userCard->home_library)) {
+                                    if (in_array($userCard->home_library, $ziskejLibsIds)) {
+                                        $connectedLibs[$userCard->home_library]['userCard'] = $userCard;
+                                        $connectedLibs[$userCard->home_library]['ziskejReader'] = $ziskejApi->getReader($userCard->eppn);
                                     }
                                 }
                             }
@@ -380,6 +381,10 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             /** @var string $eppn */
             $eppn = $params['eppn'];
 
+            /** @var string $email */
+            $email = $params['email'];
+            //@todo test email format and !null
+
             if (!$params['is_conditions']) {
                 $this->flashMessenger()->addMessage('ziskej_error_is_conditions', 'error');
                 return $this->redirectToRecord('', 'Ziskej');
@@ -394,12 +399,20 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $userData = $user->toArray();
 
             //try {
-            $reader = $ziskejApi->getReader($eppn);
-            if (!$reader) {
+            if ($ziskejApi->getReader($eppn)) {
+                $reader = $ziskejApi->updateReader($eppn, new Reader(
+                    $userData['firstname'],
+                    $userData['lastname'],
+                    $email,
+                    $driver->sourceToSigla($user->home_library),
+                    true,
+                    true
+                ));
+            } else {
                 $reader = $ziskejApi->createReader($eppn, new Reader(
                     $userData['firstname'],
                     $userData['lastname'],
-                    $userData['email'],
+                    $email,
                     $driver->sourceToSigla($user->home_library),
                     true,
                     true
@@ -427,7 +440,8 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             ]);
 
         } catch (\Exception $ex) {
-            $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');
+            //$this->flashMessenger()->addMessage('ziskej_warning_api_disconnected code 813', 'warning');
+            $this->flashMessenger()->addMessage($ex->getMessage(), 'error');
         }
 
         return $this->redirectToRecord('', 'Ziskej');
