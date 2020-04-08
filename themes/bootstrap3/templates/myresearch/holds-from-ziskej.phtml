@@ -18,8 +18,9 @@ $i = 0;
     </h3>
     <? if (!empty($ziskejReader)): ?>
     <div class="well">
-      <?= $ziskejReader->getFirstName(); ?> <?= $ziskejReader->getLastName(); ?>
-      | <?= $ziskejReader->getEmail(); ?>
+      <i class="fa fa-fw fa-user text-muted"></i> <?= $ziskejReader->getFirstName(); ?> <?= $ziskejReader->getLastName(); ?>
+      <br>
+      <i class="fa fa-fw fa-envelope text-muted"></i> <?= $ziskejReader->getEmail(); ?>
     </div>
     <? endif; ?>
     <? if (count($resources)): ?>
