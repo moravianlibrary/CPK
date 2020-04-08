@@ -62,6 +62,11 @@ class ApiRequest
         return $this->method;
     }
 
+    public function getEndpoint(): string
+    {
+        return $this->endpoint;
+    }
+
     /**
      * @return string[]
      */

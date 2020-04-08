@@ -91,7 +91,7 @@ final class ApiClient
     {
         $messageFactory = MessageFactoryDiscovery::find();
 
-        if ($requestObject->getMethod() === 'POST' && !empty($requestObject->getParamsData())) {
+        if ($requestObject->getEndpoint() === '/login') {
             // POST request with form values
             $streamFactory = StreamFactoryDiscovery::find();
             $builder = new MultipartStreamBuilder($streamFactory);
@@ -112,16 +112,7 @@ final class ApiClient
                 'Content-Type' => 'multipart/form-data; boundary="' . $boundary . '"',
             ];
             $body = $builder->build();
-        } elseif ($requestObject->getMethod() === 'DELETE') {
-            $streamFactory = StreamFactoryDiscovery::find();
-            $builder = new MultipartStreamBuilder($streamFactory);
-            $boundary = $builder->getBoundary();
-            $headers = [
-                'Content-Type' => 'multipart/form-data; boundary="' . $boundary . '"',
-            ];
-            $body = $builder->build();
         } else {
-            // other requests
             $headers = [
                 'Content-Type' => 'application/json',
             ];
