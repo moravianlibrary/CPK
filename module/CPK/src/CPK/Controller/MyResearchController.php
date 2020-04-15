@@ -305,23 +305,21 @@ class MyResearchController extends MyResearchControllerBase
                 } else {
                     $this->flashMessenger()->setNamespace('error')->addMessage('email_empty_error');
                 }
-            } else {
-                if ($op == 'password') {
-                    $oldPassword = $this->params()->fromPost('old_password');
-                    $newPassword = $this->params()->fromPost('new_password');
-                    $newPasswordCheck = $this->params()->fromPost('new_password_repeat');
-                    if (empty($oldPassword) || empty($newPassword) || empty($newPasswordCheck)) {
-                        $this->flashMessenger()->setNamespace('error')->addMessage('password_empty_error');
-                    } elseif ($newPassword != $newPasswordCheck) {
-                        $this->flashMessenger()->setNamespace('error')->addMessage('password_check_error');
-                    } else {
-                        try {
-                            $catalog->changeUserPassword($patron, $oldPassword, $newPassword);
-                            $this->flashMessenger()->setNamespace('info')->addMessage('password_change_successful');
-                            return $this->redirect()->toRoute('myresearch-profile');
-                        } catch (\VuFind\Exception\ILS $ex) {
-                            $this->flashMessenger()->setNamespace('error')->addMessage('password_change_error');
-                        }
+            } elseif ($op == 'password') {
+                $oldPassword = $this->params()->fromPost('old_password');
+                $newPassword = $this->params()->fromPost('new_password');
+                $newPasswordCheck = $this->params()->fromPost('new_password_repeat');
+                if (empty($oldPassword) || empty($newPassword) || empty($newPasswordCheck)) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('password_empty_error');
+                } elseif ($newPassword != $newPasswordCheck) {
+                    $this->flashMessenger()->setNamespace('error')->addMessage('password_check_error');
+                } else {
+                    try {
+                        $catalog->changeUserPassword($patron, $oldPassword, $newPassword);
+                        $this->flashMessenger()->setNamespace('info')->addMessage('password_change_successful');
+                        return $this->redirect()->toRoute('myresearch-profile');
+                    } catch (\VuFind\Exception\ILS $ex) {
+                        $this->flashMessenger()->setNamespace('error')->addMessage('password_change_error');
                     }
                 }
             }
@@ -351,14 +349,10 @@ class MyResearchController extends MyResearchControllerBase
         $status = $this->params()->fromQuery('status');
         if ($status == 'ok') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_successful');
-        } else {
-            if ($status == 'nok') {
-                $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_failed');
-            } else {
-                if ($status == 'error') {
-                    $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_error');
-                }
-            }
+        } elseif ($status == 'nok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_failed');
+        } elseif ($status == 'error') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_error');
         }
         return $this->redirect()->toRoute('myresearch-fines');
     }
@@ -368,14 +362,10 @@ class MyResearchController extends MyResearchControllerBase
         $status = $this->params()->fromQuery('status');
         if ($status == 'ok') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_successful');
-        } else {
-            if ($status == 'nok') {
-                $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_failed');
-            } else {
-                if ($status == 'error') {
-                    $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_error');
-                }
-            }
+        } elseif ($status == 'nok') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_failed');
+        } elseif ($status == 'error') {
+            $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_error');
         }
         return $this->redirect()->toRoute('myresearch-profile');
     }
@@ -569,14 +559,12 @@ class MyResearchController extends MyResearchControllerBase
             } else {
                 $selectedView = $defaultView;
             }
+        } elseif (!empty($lastView)) {
+            // if there is nothing in the URL, check the Session
+            $selectedView = $lastView;
         } else {
-            if (!empty($lastView)) {
-                // if there is nothing in the URL, check the Session
-                $selectedView = $lastView;
-            } else {
-                // otherwise load the default
-                $selectedView = $defaultView;
-            }
+            // otherwise load the default
+            $selectedView = $defaultView;
         }
 
         $views = array();
@@ -1262,13 +1250,11 @@ class MyResearchController extends MyResearchControllerBase
             $row->populate($rowData, true);
             $row->save();
             $this->flashMessenger()->addMessage('search_save_success', 'success');
+        } elseif (($id = $this->params()->fromQuery('delete', false)) !== false) {
+            $search->setSavedFlag($id, false);
+            $this->flashMessenger()->addMessage('search_unsave_success', 'success');
         } else {
-            if (($id = $this->params()->fromQuery('delete', false)) !== false) {
-                $search->setSavedFlag($id, false);
-                $this->flashMessenger()->addMessage('search_unsave_success', 'success');
-            } else {
-                throw new \Exception('Missing save and delete parameters.');
-            }
+            throw new \Exception('Missing save and delete parameters.');
         }
 
         // Forward to the appropriate place:
