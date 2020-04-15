@@ -1,7 +1,6 @@
 <?
 // Get source of the record to print it to h3 header
-$id = $this->driver->getUniqueID();
-$source = explode(".", $id)[0];
+$source = $this->driver->getSourceId();
 ?>
 
 <div class="clearfix table-core" vocab="http://schema.org/" resource="#record" typeof="<?= $this->driver->getSchemaOrgFormats() ?> Product">
