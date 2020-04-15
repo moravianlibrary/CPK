@@ -192,13 +192,13 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
         $view->isLoggedIn = $user ? true : false;
 
         if ($user) {
-        $userSettingsTable = $this->getTable("usersettings");
+            $userSettingsTable = $this->getTable("usersettings");
             $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
         }
 
-        $selectedCitationStyle = (! empty($preferedCitationStyle))
-        ? $preferedCitationStyle
-        : $defaultCitationStyle;
+        $selectedCitationStyle = (!empty($preferedCitationStyle))
+            ? $preferedCitationStyle
+            : $defaultCitationStyle;
 
         $view->selectedCitationStyle = $selectedCitationStyle;
 
@@ -209,11 +209,11 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
         $view->maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 
         /* Handle view template */
-	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
-	        $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
-	    } else {
-	        $view->searchTypeTemplate = 'basic';
-	    }
+        if (!empty($this->params()->fromQuery('searchTypeTemplate'))) {
+            $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
+        } else {
+            $view->searchTypeTemplate = 'basic';
+        }
 
         //set username for comments if user have come from social network and don`t have firstname and lastname
         if($this->getUser()
