@@ -680,8 +680,11 @@ class AjaxController extends AjaxControllerBase
         $ziskejLibs = $ziskejApi->getLibraries()->getAll();
         $libraryIds = [];
         foreach ($ziskejLibs as $ziskejLib) {
-            $libraryIds[] = $cpkMultibackend->siglaToSource($ziskejLib->getSigla());
-            //@todo! zjistit proc se ids opakuji
+            $libraryId = $cpkMultibackend->siglaToSource($ziskejLib->getSigla());
+            if(in_array($libraryId, $libraryIds)){
+                continue;
+            }
+            $libraryIds[] = $libraryId;
         }
 
         /** @var \VuFind\Db\Row\User $user */
@@ -715,34 +718,30 @@ class AjaxController extends AjaxControllerBase
                 $ziskejReader = $ziskejApi->getReader($userCard->eppn);
                 if ($ziskejReader) {
                     $data[$userCard->home_library]['ziskejReader'] = $ziskejReader;
-
                     if ($ziskejReader->isActive()) {
                         $ticketsCollection = $ziskejApi->getTickets($userCard->eppn);
                         /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
                         foreach ($ticketsCollection->getAll() as $ticket) {
                             $i++;
                             $resource = $this->getDriverForILSRecordZiskej($ticket);
-
-                    // obalky
-                    $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
-                    $bibInfo = $zendRenderer->record($resource)->getObalkyKnihJSONV3();
-                    if ($bibInfo) {
-                        $recordId = "#cover_$recordId";
-                        $bibInfo = json_decode($bibInfo);
-                        $recordId = preg_replace("/[\.:]/", "", $recordId);
-                        $obalky[$recordId] = [
-                            'bibInfo' => $bibInfo,
-                            'advert' => $zendRenderer->record($resource)->getObalkyKnihAdvert('checkedout')
-                        ];
-                    }
-                    $data[$key]['items'][] = $resource;
-//                    }
-
+                            // obalky
+                            $recordId = $resource->getUniqueId() . $i; //adding order to id (as suffix) to be able to show more covers with same id
+                            $bibInfo = $zendRenderer->record($resource)->getObalkyKnihJSONV3();
+                            if ($bibInfo) {
+                                $recordId = "#cover_$recordId";
+                                $bibInfo = json_decode($bibInfo);
+                                $recordId = preg_replace("/[\.:]/", "", $recordId);
+                                $obalky[$recordId] = [
+                                    'bibInfo' => $bibInfo,
+                                    'advert' => $zendRenderer->record($resource)->getObalkyKnihAdvert('checkedout')
+                                ];
+                            }
+                            $data[$key]['items'][] = $resource;
                         }
+                    }
                 }
 
             }
-        }
         }
 
         $html = [];
@@ -1369,14 +1368,12 @@ class AjaxController extends AjaxControllerBase
             }
             $response->setContent(json_encode($output));
             return $response;
-        } else {
-            if ($this->outputMode == 'plaintext') {
+        } elseif($this->outputMode == 'plaintext') {
                 $headers->addHeaderLine('Content-type', 'text/plain');
                 $response->setContent($data ? $status . " $data" : $status);
                 return $response;
-            } else {
-                throw new \Exception('Unsupported output mode: ' . $this->outputMode);
-            }
+        } else {
+            throw new \Exception('Unsupported output mode: ' . $this->outputMode);
         }
     }
 
