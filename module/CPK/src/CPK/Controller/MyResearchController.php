@@ -1461,12 +1461,12 @@ class MyResearchController extends MyResearchControllerBase
     {
         $eppn = $this->params()->fromRoute('eppn');
         if (!$eppn) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         $ticketId = $this->params()->fromRoute('ticket_id');
         if (!$ticketId) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         if (!$user = $this->getAuthManager()->isLoggedIn()) {
@@ -1486,7 +1486,7 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         if (!$userCard) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         /** @var \Mzk\ZiskejApi\Api $ziskejApi */
@@ -1524,12 +1524,12 @@ class MyResearchController extends MyResearchControllerBase
     {
         $eppn = $this->params()->fromRoute('eppn');
         if (!$eppn) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         $ticketId = $this->params()->fromRoute('ticket_id');
         if (!$ticketId) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         if (!$user = $this->getAuthManager()->isLoggedIn()) {
@@ -1549,7 +1549,7 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         if (!$userCard) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         /** @var \Mzk\ZiskejApi\Api $ziskejApi */
@@ -1558,9 +1558,9 @@ class MyResearchController extends MyResearchControllerBase
         $deleted = $ziskejApi->cancelTicket($eppn, $ticketId);
 
         if ($deleted) {
-            $this->flashMessenger()->addMessage('Objednávka byla úspěšně stornována.', 'success');
+            $this->flashMessenger()->addMessage('message_ziskej_order_cancel_success', 'success');
         } else {
-            $this->flashMessenger()->addMessage('Objednávku se nepodařilo stornovat, zkuste to prosím znovu.', 'error');
+            $this->flashMessenger()->addMessage('message_ziskej_order_cancel_fail', 'error');
         }
 
         return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
@@ -1584,12 +1584,12 @@ class MyResearchController extends MyResearchControllerBase
 
         $eppn = $this->params()->fromRoute('eppn');
         if (!$eppn) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         $ticketId = $this->params()->fromRoute('ticket_id');
         if (!$ticketId) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         if (!$user = $this->getAuthManager()->isLoggedIn()) {
@@ -1609,12 +1609,12 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         if (!$userCard) {
-            throw new TicketNotFoundException('Požadovaná objednávka nebyla nalezena.');    //@todo translate
+            throw new TicketNotFoundException('The requested order was not found');
         }
 
         $params = $this->params()->fromPost();
         if (empty($params['ticketMessage'])) {
-            $this->flashMessenger()->addMessage('Je třeba vyplnit text zprávy.', 'error');
+            $this->flashMessenger()->addMessage('message_ziskej_message_required_ticketMessage', 'error');
 
             return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
                 'eppn' => $eppn,
@@ -1629,9 +1629,9 @@ class MyResearchController extends MyResearchControllerBase
 
         $creaded = $ziskejApi->createMessage($eppn, $ticketId, $message);
         if ($creaded) {
-            $this->flashMessenger()->addMessage('Zpráva byla úspěšně odeslána.', 'success');
+            $this->flashMessenger()->addMessage('message_ziskej_message_send_success', 'success');
         } else {
-            $this->flashMessenger()->addMessage('Zprávu se nepodařilo odeslat, zkuste to prosím znovu.', 'error');
+            $this->flashMessenger()->addMessage('message_ziskej_message_send_fail', 'error');
         }
 
         return $this->redirect()->toRoute('MyResearch-ziskejTicket', [

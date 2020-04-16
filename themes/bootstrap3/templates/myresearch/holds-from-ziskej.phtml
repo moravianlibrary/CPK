@@ -115,12 +115,12 @@ $i = 0;
                 </dl>
                 <div class="text-right">
                   <? if ($ticket->getStatus() == 'created' && !empty($ticket->getPaymentUrl())): ?>
-                    <a class="btn btn-sm btn-warning" href="<?= $ticket->getPaymentUrl() ?>" target="_blank" title="Uhradit objednávku">
-                      <i class="fa fa-shopping-cart"></i> Uhradit objednávku
+                    <a class="btn btn-sm btn-warning" href="<?= $ticket->getPaymentUrl() ?>" target="_blank" title="<?= $this->transEsc("btn_order_pay_title"); ?>">
+                      <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("btn_order_pay"); ?>
                     </a>
                   <? endif; ?>
-                  <a class="btn btn-sm btn-primary" href="/MyResearch/ZiskejTicket/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>" title="Detail objednávku">
-                    <i class="fa fa-search"></i> Detail
+                  <a class="btn btn-sm btn-primary" href="/MyResearch/ZiskejTicket/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>" title="<?= $this->transEsc("btn_order_detail_title"); ?>">
+                    <i class="fa fa-search"></i> <?= $this->transEsc("btn_order_detail"); ?>
                   </a>
                 </div>
               </div>
