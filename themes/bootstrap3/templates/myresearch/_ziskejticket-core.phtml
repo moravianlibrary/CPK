@@ -236,14 +236,14 @@ $source = $this->driver->getSourceId();
                    name.  We should account for both cases to maximize compatibility. */ ?>
                 <? if (is_array($field)): ?>
                   <? if (!empty($field['name'])): ?>
-                    <a href="<?= $this->record($this->driver)->getLink('series', $field['name']) ?>"><?= $this->escapeHtml($field['name']) ?></a>
+                    <?= $this->escapeHtml($field['name']) ?>
                     <? if (!empty($field['number'])): ?>
                       <?= $this->escapeHtml($field['number']) ?>
                     <? endif; ?>
                     <br/>
                   <? endif; ?>
                 <? else: ?>
-                  <a href="<?= $this->record($this->driver)->getLink('series', $field) ?>"><?= $this->escapeHtml($field) ?></a><br/>
+                  <?= $this->escapeHtml($field) ?><br/>
                 <? endif; ?>
               <? endforeach; ?>
             </td>
