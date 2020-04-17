@@ -151,7 +151,8 @@ $this->layout()->searchbox = false;
                               <div class="panel-heading" role="tab">
                                 <h4 class="panel-title">
                                   <a role="button" data-toggle="collapse" href="#ticket_<?= $ticket->getHid(); ?>">
-                                    <?= $ticket->getCreatedAt()->format('Y-m-d H:i'); ?> | <?= $ticket->getId(); ?>
+                                    <?= $this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()); ?>
+                                    | <?= $ticket->getId(); ?>
                                     <span class="pull-right">
                               <? if (count($ticketDuo['messages'])): ?>
                                 <span class="badge"><?= count($ticketDuo['messages']); ?> messages</span>
@@ -183,18 +184,18 @@ $this->layout()->searchbox = false;
                                     <div class="col-md-6">
                                       <dl class="dl-horizontal">
                                         <dt>date_created:</dt>
-                                        <dd><?= $ticket->getCreatedAt()->format('Y-m-d H:i'); ?></dd>
+                                        <dd><?= $this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()); ?></dd>
                                         <dt>date_requested:</dt>
                                         <dd>
                                           <?= !empty($ticket->getRequestedAt())
-                                            ? $ticket->getRequestedAt()->format('Y-m-d')
+                                            ? $this->Datetime()->convertToDisplayDate('U', $ticket->getRequestedAt()->getTimestamp())
                                             : '';
                                           ?>
                                         </dd>
                                         <dt>date_return:</dt>
                                         <dd>
-                                          <?= !empty($ticket->getReturnAt()) ?
-                                            $ticket->getReturnAt()->format('Y-m-d')
+                                          <?= !empty($ticket->getReturnAt())
+                                            ? $this->Datetime()->convertToDisplayDate('U', $ticket->getReturnAt()->getTimestamp())
                                             : '';
                                           ?>
                                         </dd>

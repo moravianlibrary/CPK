@@ -36,7 +36,7 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
     $historyArray = [];
     /** @var \Mzk\ZiskejApi\ResponseModel\Status $history */
     foreach ($histories as $history) {
-      $historyArray[$history->getName()] = $history->getCreatedAt()->format('j. n. Y');
+      $historyArray[$history->getName()] = $this->Datetime()->convertToDisplayDate('U', $history->getCreatedAt()->getTimestamp());
     }
 
     $classDone = 'visited';
@@ -172,23 +172,23 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
       <dl class="dl-horizontal dl-left">
         <? if (!empty($ticket->getCreatedAt())): ?>
           <dt><?= $this->transEsc('date_ordered'); ?>:</dt>
-          <dd><?= $ticket->getCreatedAt()->format('j. n. Y H:i'); ?></dd>
+          <dd><?= $this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()); ?></dd>
         <? endif; ?>
 
         <? if (!empty($ticket->getUpdatedAt())
           && ($ticket->getUpdatedAt()->getTimestamp() != $ticket->getCreatedAt()->getTimestamp())): ?>
           <dt><?= $this->transEsc('date_updated'); ?>:</dt>
-          <dd><?= $ticket->getUpdatedAt()->format('j. n. Y H:i'); ?></dd>
+          <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getUpdatedAt()->getTimestamp()); ?></dd>
         <? endif; ?>
 
         <? if (!empty($ticket->getRequestedAt())): ?>
           <dt><?= $this->transEsc('date_requested'); ?>:</dt>
-          <dd><?= $ticket->getRequestedAt()->format('j. n. Y'); ?></dd>
+          <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getRequestedAt()->getTimestamp()); ?></dd>
         <? endif; ?>
 
         <? if (!empty($ticket->getReturnAt())): ?>
           <dt><?= $this->transEsc('ziskej_label_date_return'); ?>:</dt>
-          <dd><?= $ticket->getReturnAt()->format('j. n. Y'); ?></dd>
+          <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getReturnAt()->getTimestamp()); ?></dd>
         <? endif; ?>
 
         <? /*
@@ -234,7 +234,7 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
                   <? else: ?>
                       <?= $this->transEsc("label_library"); ?>
                   <? endif; ?>
-                  <?= $message->getCreatedAt()->format('j. n. Y H:i'); ?>
+                  <?= $this->Datetime()->convertToDisplayDateAndTime('U', $message->getCreatedAt()->getTimestamp()); ?>
                 </p>
                 <div>
                   <?= $message->getText(); ?>

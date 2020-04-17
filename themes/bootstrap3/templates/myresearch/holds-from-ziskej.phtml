@@ -88,17 +88,17 @@ $i = 0;
 
                   <? if ($ticket->getCreatedAt()): ?>
                     <dt><?= $this->transEsc('ziskej_label_date_order') ?>:</dt>
-                    <dd><?= $ticket->getCreatedAt()->format('j. n. Y H:i'); ?></dd>
+                    <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getCreatedAt()->getTimestamp()); ?></dd>
                   <? endif; ?>
 
                   <? if ($ticket->getRequestedAt()): ?>
                     <dt><?= $this->transEsc('ziskej_label_date_deliver') ?>:</dt>
-                    <dd><?= $ticket->getRequestedAt()->format('j. n. Y'); ?></dd>
+                    <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getRequestedAt()->getTimestamp()); ?></dd>
                   <? endif; ?>
 
                   <? if ($ticket->getReturnAt()): ?>
                     <dt><?= $this->transEsc('ziskej_label_date_return') ?>:</dt>
-                    <dd><?= $ticket->getReturnAt()->format('j. n. Y'); ?></dd>
+                    <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getReturnAt()->getTimestamp()); ?></dd>
                   <? endif; ?>
 
                   <dt>Číslo objednávky:</dt>
