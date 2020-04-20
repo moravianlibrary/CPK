@@ -21,7 +21,7 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
       </h2>
 
       <div class="pull-left" style="margin-top: 23px; padding-left: 1em;">
-        <span class="label <?= $this->transEsc(sprintf('ziskej_order_status_label_class_%s', $ticket->getStatus())); ?>" style="font-size: 18px;">
+        <span class="label label-<?= $this->Order()->getStatusClass($ticket->getStatus()); ?>" style="font-size: 18px;">
           <?= $this->translate('ziskej_order_status_' . $ticket->getStatus()) ?>
         </span>
       </div>

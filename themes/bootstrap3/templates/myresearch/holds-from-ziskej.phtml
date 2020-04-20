@@ -107,7 +107,7 @@ $i = 0;
                   <? if ($ticket->getStatus()): ?>
                     <dt><?= $this->transEsc('ziskej_label_order_status') ?>:</dt>
                     <dd>
-                      <span class="label <?= $this->transEsc(sprintf('ziskej_order_status_label_class_%s', $ticket->getStatus())); ?>">
+                      <span class="label label-<?= $this->Order()->getStatusClass($ticket->getStatus()); ?>">
                         <?= $this->translate('ziskej_order_status_' . $ticket->getStatus()) ?>
                       </span>
                     </dd>
