@@ -197,4 +197,14 @@ class Factory
         return new Ziskej($cookie);
     }
 
+    /**
+     * Get Order view helper
+     *
+     * @return \CPK\View\Helper\CPK\Order
+     */
+    public static function getOrder(): Order
+    {
+        return new Order();
+    }
+
 }
