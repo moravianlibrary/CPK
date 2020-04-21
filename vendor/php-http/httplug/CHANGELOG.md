@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.1.0] - 2019-12-27
+
+### Changed
+
+- `Http\Client\Exception\NetworkException` no longer extends `Http\Client\Exception\RequestException`,
+  in accordance with [PSR-18](https://www.php-fig.org/psr/psr-18/)
 
 ## [2.0.0] - 2018-10-31
 

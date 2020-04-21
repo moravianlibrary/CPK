@@ -17,12 +17,12 @@
             <? foreach ($this->tabs['DedupedRecords']->getRecordsInGroup() as $record): ?>
               <input type="hidden" name="doc_alt_ids[]" value="<?= $this->escapeHtmlAttr($record['id']) ?>">
             <? endforeach; ?>
-            <input type="image" src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+            <input type="image" src="<?= $this->imageLink('logo-ziskej.png') ?>" alt="<?= $this->translate('ziskej') ?>">
           </form>
         <? else: ?>
           <? if (!empty($this->ziskejMinUrl)): ?>
             <a href="<?= $this->ziskejMinUrl ?>" target="_blank">
-              <img src="/themes/bootstrap3/images/ziskejlogo.png" alt="<?= $this->translate('ziskej') ?>">
+              <img src="<?= $this->imageLink('logo-ziskej.png') ?>" alt="<?= $this->translate('ziskej') ?>">
             </a>
           <? endif; ?>
         <? endif; ?>
@@ -41,10 +41,18 @@
           <? if (!empty($this->connectedLibs)): ?>
             <ul class="list-group">
               <? foreach ($this->connectedLibs as $libId => $data): ?>
+                <?
+                /** @var \VuFind\Db\Row\UserCard $userCard */
+                $userCard = $data['userCard'];
+                /** @var \Mzk\ZiskejApi\ResponseModel\Reader $ziskejReader */
+                $ziskejReader = $data['ziskejReader'];
+                ?>
                 <li class="list-group-item clearfix">
                   <?= $this->translate('source_' . $libId) ?>
                   <span class="pull-right">
-                  <button class="btn btn-default ziskej-order-btn" id="<?= $libId ?>" data-eppn="<?= $data['reader']['eppn'] ?>">
+                  <button class="btn btn-default ziskej-order-btn" id="<?= $libId ?>"
+                          data-eppn="<?= $userCard->eppn; ?>"
+                          data-email="<?= !empty($ziskejReader) ? $ziskejReader->getEmail() : (!empty($this->user->email) ? $this->user->email : ''); ?>">
                     <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("ziskej_btn_order") ?>
                   </button>
                 </span>
@@ -106,6 +114,11 @@
                   </p>
 
                   <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" class="form-control" required>
+                  </div>
+
+                  <div class="form-group">
                     <label for="text"><?= $this->transEsc("label_note") ?>:</label>
                     <textarea name="text" class="form-control"></textarea>
                     <span class="help-block"><?= $this->transEsc("help_note") ?></span>
@@ -117,17 +130,13 @@
                 <div class="checkbox">
                   <label>
                     <input type="checkbox" name="is_conditions" required>
-                    <?= $this->translate('checbox_is_conditions', [
-                      '%%url1%%' => 'https://www.techlib.cz/default/files/download/id/86400/vzor-smlouva-o-vyuzivani-sluzeb-integrovane-knihovny.pdf',
-                      '%%url2%%' => 'https://www.techlib.cz/cs/2732-knihovni-rad'
-                    ]); ?>
+                    <?= $this->translate('checbox_is_conditions'); ?>
                   </label>
                 </div>
                 <div class="checkbox">
                   <label>
                     <input type="checkbox" name="is_price" required>
-                    <?= $this->translate('checbox_is_price',
-                      ['%%url%%' => 'https://ziskej-info.techlib.cz/dokumentace/pro-ctenare/cenik-ctenar.docx/view']); ?>
+                    <?= $this->translate('checbox_is_price'); ?>
                   </label>
                 </div>
                 <p class="text-center">

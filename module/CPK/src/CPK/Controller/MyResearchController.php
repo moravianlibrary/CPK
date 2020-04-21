@@ -29,10 +29,11 @@
 namespace CPK\Controller;
 
 use CPK\Auth\Manager as AuthManager;
+use CPK\Controller\Exception\TicketNotFoundException;
+use Mzk\ZiskejApi\RequestModel\Message;
 use VuFind\Controller\MyResearchController as MyResearchControllerBase;
 use VuFind\Exception\Auth as AuthException;
 use Zend\Session\Container as SessionContainer;
-use Zend\Json\Json;
 
 /**
  * Controller for the user account area.
@@ -48,7 +49,7 @@ class MyResearchController extends MyResearchControllerBase
 {
     use ExceptionsTrait, LoginTrait;
 
-	/**
+    /**
      * Login Action
      *
      * @return mixed
@@ -72,7 +73,7 @@ class MyResearchController extends MyResearchControllerBase
     public function profileAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -100,10 +101,11 @@ class MyResearchController extends MyResearchControllerBase
         $config = $catalog->getDriverConfig();
 
         if (isset($config['General']['async_profile']) &&
-             $config['General']['async_profile'])
+            $config['General']['async_profile']) {
             $isSynchronous = false;
-        else
+        } else {
             $isSynchronous = true;
+        }
 
         $viewVars['isSynchronous'] = $isSynchronous;
 
@@ -112,7 +114,7 @@ class MyResearchController extends MyResearchControllerBase
             // Begin building view object:
             $currentIdentityView = $this->createViewModel();
 
-            if (! $isSynchronous) {
+            if (!$isSynchronous) {
 
                 // We only need to let AJAX handle itself with the right data
                 $profile = $user->libCardToPatronArray($identity);
@@ -149,7 +151,7 @@ class MyResearchController extends MyResearchControllerBase
     public function holdsAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -167,10 +169,11 @@ class MyResearchController extends MyResearchControllerBase
         $config = $catalog->getDriverConfig();
 
         if (isset($config['General']['async_holds']) &&
-             $config['General']['async_holds'])
+            $config['General']['async_holds']) {
             $isSynchronous = false;
-        else
+        } else {
             $isSynchronous = true;
+        }
 
         $viewVars = $patrons = [];
 
@@ -188,7 +191,7 @@ class MyResearchController extends MyResearchControllerBase
             $patron['cancelResults'] = $cancelStatus ? $this->holds()->cancelHolds(
                 $catalog, $patron, $isSynchronous) : [];
             // If we need to confirm
-            if (! is_array($patron['cancelResults'])) {
+            if (!is_array($patron['cancelResults'])) {
                 return $patron['cancelResults'];
             }
 
@@ -219,8 +222,8 @@ class MyResearchController extends MyResearchControllerBase
                     $current = $this->holds()->addCancelDetails($catalog, $current,
                         $cancelStatus);
                     if ($cancelStatus &&
-                         $cancelStatus['function'] != "getCancelHoldLink" &&
-                         isset($current['cancel_details'])) {
+                        $cancelStatus['function'] != "getCancelHoldLink" &&
+                        isset($current['cancel_details'])) {
                         // Enable cancel form if necessary:
                         $currentIdentityView->cancelForm = true;
                     }
@@ -239,7 +242,9 @@ class MyResearchController extends MyResearchControllerBase
                 }
                 $currentIdentityView->recordList = $recordList;
             } else // This means we have async deal ..
+            {
                 $currentIdentityView->cat_username = $patron['cat_username'];
+            }
 
             // Unknown purpose .. copied from parent MZKCommon ..
             $currentIdentityView = $this->addViews($currentIdentityView);
@@ -250,60 +255,12 @@ class MyResearchController extends MyResearchControllerBase
         $viewVars['isSynchronous'] = $isSynchronous;
 
         $request = $this->getRequest();
-        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
-        if ($ziskejCurrentMode != 'disabled') {
-            try {
-                /** @var \Mzk\ZiskejApi\Api $ziskejApi */
-                $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
-
-                $ilsDriver = $this->getILS()->getDriver();
-                $ziskejLibs = $ziskejApi->getLibraries();
-                $libraryIds = [];
-                foreach ($ziskejLibs as $sigla) {
-                    $libraryIds[] = $ilsDriver->siglaToSource($sigla);
-                }
-                if ($user) {
-                    $userSources = $user->getNonDummyInstitutions();
-                    $userLibCards = $user->getAllUserLibraryCards();
-
-                    $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($libraryIds) {
-                        return in_array($userLib, $libraryIds);
-                    });
-                    $sourceEppn = [];
-                    foreach ($userLibCards as $userLibCard) {
-                        if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
-                            $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
-                        }
-                    }
-                    $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
-
-                    $userTickets = [];
-                    foreach ($sourceEppn as $source => $eppn) {
-                        $reader = $ziskejApi->getReader($eppn);
-                        if ($reader && $reader->isActive()) {
-                            $userTickets[$source] = $ziskejApi->getTicketsDetails($eppn);
-                        }
-                    }
-                    $libraryIdentities['ziskej'] = $userTickets;
-                }
-            } catch (\Exception $ex) {
-                if ($ziskejCurrentMode != 'disabled') {
-                    $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
-                        'warning');  //@todo presunout
-                }
-                // do view pod nadpis ziskej
-            }
-        }
-        if (!empty($libraryIdentities)) {
-            $viewVars['libraryIdentities'] += $libraryIdentities;
-        }
-        $viewVars['ziskejCurrentMode'] = $ziskejCurrentMode;
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
-	public function profileChangeAction()
+    public function profileChangeAction()
     {
         $user = $this->getUser();
         if (!$user) {
@@ -348,7 +305,7 @@ class MyResearchController extends MyResearchControllerBase
                 } else {
                     $this->flashMessenger()->setNamespace('error')->addMessage('email_empty_error');
                 }
-            } else if ($op == 'password') {
+            } elseif ($op == 'password') {
                 $oldPassword = $this->params()->fromPost('old_password');
                 $newPassword = $this->params()->fromPost('new_password');
                 $newPasswordCheck = $this->params()->fromPost('new_password_repeat');
@@ -369,10 +326,10 @@ class MyResearchController extends MyResearchControllerBase
         }
         $view = $this->createViewModel(
             array(
-                'label'         => 'change_' . $op,
-                'hmac'          => $this->getHMAC(),
+                'label' => 'change_' . $op,
+                'hmac' => $this->getHMAC(),
                 'profileChange' => true,
-                'op'            => $op,
+                'op' => $op,
             )
         );
         if ($op == 'nickname') {
@@ -387,14 +344,14 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
-	public function finesPaymentAction()
+    public function finesPaymentAction()
     {
         $status = $this->params()->fromQuery('status');
         if ($status == 'ok') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_successful');
-        } else if ($status == 'nok') {
+        } elseif ($status == 'nok') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_failed');
-        } else if ($status == 'error') {
+        } elseif ($status == 'error') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_fine_payment_error');
         }
         return $this->redirect()->toRoute('myresearch-fines');
@@ -405,9 +362,9 @@ class MyResearchController extends MyResearchControllerBase
         $status = $this->params()->fromQuery('status');
         if ($status == 'ok') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_successful');
-        } else if ($status == 'nok') {
+        } elseif ($status == 'nok') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_failed');
-        } else if ($status == 'error') {
+        } elseif ($status == 'error') {
             $this->flashMessenger()->setNamespace('info')->addMessage('online_prolongation_payment_error');
         }
         return $this->redirect()->toRoute('myresearch-profile');
@@ -417,7 +374,7 @@ class MyResearchController extends MyResearchControllerBase
     public function checkedoutAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -439,10 +396,11 @@ class MyResearchController extends MyResearchControllerBase
         $config = $catalog->getDriverConfig();
 
         if (isset($config['General']['async_checkedout']) &&
-             $config['General']['async_checkedout'])
+            $config['General']['async_checkedout']) {
             $isSynchronous = false;
-        else
+        } else {
             $isSynchronous = true;
+        }
 
         $viewVars['isSynchronous'] = $isSynchronous;
 
@@ -501,8 +459,8 @@ class MyResearchController extends MyResearchControllerBase
                     // Add renewal details if appropriate:
                     $current = $this->renewals()->addRenewDetails($catalog, $current,
                         $renewStatus);
-                    if ($renewStatus && ! isset($current['renew_link']) &&
-                         $current['renewable']) {
+                    if ($renewStatus && !isset($current['renew_link']) &&
+                        $current['renewable']) {
                         // Enable renewal form if necessary:
                         $renewForm = true;
                     }
@@ -524,7 +482,7 @@ class MyResearchController extends MyResearchControllerBase
                 foreach ($currentIdentityView['transactions'] as $resource) {
                     $ilsDetails = $resource->getExtraDetail('ils_details');
                     if (isset($ilsDetails['dueStatus']) &&
-                         $ilsDetails['dueStatus'] == "overdue") {
+                        $ilsDetails['dueStatus'] == "overdue") {
                         $showOverdueMessage = true;
                         break;
                     }
@@ -535,8 +493,9 @@ class MyResearchController extends MyResearchControllerBase
                         ->addMessage('overdue_error_message');
                 }
                 $currentIdentityView['history'] = false;
-            } else
+            } else {
                 $currentIdentityView['cat_username'] = $patron['cat_username'];
+            }
 
             $currentIdentityView = $this->addViews($currentIdentityView);
             // End of MZKCommon/MyResearch/checkedoutAction
@@ -551,7 +510,7 @@ class MyResearchController extends MyResearchControllerBase
         return $view;
     }
 
-	/**
+    /**
      * Get a session namespace specific to the current class.
      *
      * @return SessionContainer
@@ -565,7 +524,7 @@ class MyResearchController extends MyResearchControllerBase
         return $session;
     }
 
-	/**
+    /**
      * Retrieve the last view option used.
      *
      * @return string
@@ -576,7 +535,7 @@ class MyResearchController extends MyResearchControllerBase
         return isset($session->lastView) ? $session->lastView : null;
     }
 
-	/**
+    /**
      * Adds list and table views to view
      *
      * @param $view
@@ -600,7 +559,7 @@ class MyResearchController extends MyResearchControllerBase
             } else {
                 $selectedView = $defaultView;
             }
-        } else if (!empty($lastView)) {
+        } elseif (!empty($lastView)) {
             // if there is nothing in the URL, check the Session
             $selectedView = $lastView;
         } else {
@@ -631,7 +590,7 @@ class MyResearchController extends MyResearchControllerBase
 
     public function checkedOutHistoryAction()
     {
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -648,7 +607,7 @@ class MyResearchController extends MyResearchControllerBase
         ]);
     }
 
-	/**
+    /**
      * Remember the last view option used.
      *
      * @param string $last Option to remember.
@@ -670,8 +629,8 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function mylistAction()
     {
-            // Fail if lists are disabled:
-        if (! $this->listsEnabled()) {
+        // Fail if lists are disabled:
+        if (!$this->listsEnabled()) {
             throw new \Exception('Lists disabled');
         }
 
@@ -683,7 +642,7 @@ class MyResearchController extends MyResearchControllerBase
         $offlineFavoritesEnabled = false;
 
         if ($config->Site['offlineFavoritesEnabled'] !== null) {
-            $offlineFavoritesEnabled = (bool) $config->Site['offlineFavoritesEnabled'];
+            $offlineFavoritesEnabled = (bool)$config->Site['offlineFavoritesEnabled'];
         }
 
         // Do we have request for a public list?
@@ -704,7 +663,7 @@ class MyResearchController extends MyResearchControllerBase
         }
     }
 
-	public function favoritesImportAction()
+    public function favoritesImportAction()
     {
         // Force login:
         $user = $this->getUser();
@@ -736,7 +695,7 @@ class MyResearchController extends MyResearchControllerBase
         return $this->redirect()->toRoute('myresearch-favorites');
     }
 
-	public function shortLoansAction()
+    public function shortLoansAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
         if (!is_array($patron = $this->catalogLogin())) {
@@ -782,17 +741,18 @@ class MyResearchController extends MyResearchControllerBase
 
     public function userConnectAction()
     {
-            // This eid serves only to warn user he wants to connect the same instituion account
-        if (isset($_GET['eid']))
+        // This eid serves only to warn user he wants to connect the same instituion account
+        if (isset($_GET['eid'])) {
             $entityIdInitiatedWith = $_GET['eid'];
-        else
+        } else {
             $entityIdInitiatedWith = null;
+        }
 
         $patron = $this->catalogLogin();
 
         // We can't really determine if is user logged in if entityIdInitiatedWith is provided
         // We have to leave this on ShibbolethIdentityManager ..
-        $haveToLogin = ! is_array($patron) && ! $this->isLoggedInWithDummyDriver($patron) && empty($entityIdInitiatedWith);
+        $haveToLogin = !is_array($patron) && !$this->isLoggedInWithDummyDriver($patron) && empty($entityIdInitiatedWith);
 
         // Stop now if the user does not have valid catalog credentials available:
         if ($haveToLogin) {
@@ -805,7 +765,7 @@ class MyResearchController extends MyResearchControllerBase
 
         $authManager = $this->getAuthManager();
 
-        if (! $authManager instanceof AuthManager) {
+        if (!$authManager instanceof AuthManager) {
             throw new AuthException("ERROR: authManager is not CPK\\Manager");
         }
 
@@ -815,8 +775,9 @@ class MyResearchController extends MyResearchControllerBase
         } else {
 
             // Clear followUp ...
-            if ($this->getFollowupUrl())
+            if ($this->getFollowupUrl()) {
                 $this->clearFollowupUrl();
+            }
 
             try {
                 $user = $authManager->consolidateIdentity();
@@ -824,7 +785,7 @@ class MyResearchController extends MyResearchControllerBase
                 $this->processAuthenticationException($e);
 
                 // Stop now if the user does not have valid catalog credentials available:
-                if (! $user = $this->getAuthManager()->isLoggedIn()) {
+                if (!$user = $this->getAuthManager()->isLoggedIn()) {
                     $this->flashExceptions($this->flashMessenger());
                     return $this->forceLogin();
                 }
@@ -832,10 +793,11 @@ class MyResearchController extends MyResearchControllerBase
                 return $this->redirect()->toRoute('librarycards-home');
             }
 
-            if ($user->consolidationSucceeded)
+            if ($user->consolidationSucceeded) {
                 $this->processSuccessMessage("Identities were successfully connected");
+            }
 
-                // Show user all his connected identities
+            // Show user all his connected identities
             return $this->redirect()->toRoute('librarycards-home');
         }
     }
@@ -848,7 +810,7 @@ class MyResearchController extends MyResearchControllerBase
     public function userDeleteAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -874,7 +836,7 @@ class MyResearchController extends MyResearchControllerBase
     public function finesAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -898,10 +860,11 @@ class MyResearchController extends MyResearchControllerBase
         $config = $catalog->getDriverConfig();
 
         if (isset($config['General']['async_fines']) &&
-             $config['General']['async_fines'])
+            $config['General']['async_fines']) {
             $isSynchronous = false;
-        else
+        } else {
             $isSynchronous = true;
+        }
 
         $viewVars['isSynchronous'] = $isSynchronous;
 
@@ -914,7 +877,7 @@ class MyResearchController extends MyResearchControllerBase
 
             $fines = [];
 
-            if (! $isSynchronous) {
+            if (!$isSynchronous) {
                 $fines['cat_username'] = $patron['cat_username'];
             } else {
                 // Get fine details:
@@ -923,7 +886,7 @@ class MyResearchController extends MyResearchControllerBase
                 foreach ($result as $row) {
                     // Attempt to look up and inject title:
                     try {
-                        if (! isset($row['id']) || empty($row['id'])) {
+                        if (!isset($row['id']) || empty($row['id'])) {
                             throw new \Exception();
                         }
                         $source = isset($row['source']) ? $row['source'] : 'VuFind';
@@ -932,7 +895,7 @@ class MyResearchController extends MyResearchControllerBase
                             ->load($row['id'], $source);
                         $row['title'] = $row['driver']->getShortTitle();
                     } catch (\Exception $e) {
-                        if (! isset($row['title'])) {
+                        if (!isset($row['title'])) {
                             $row['title'] = null;
                         }
                     }
@@ -943,21 +906,21 @@ class MyResearchController extends MyResearchControllerBase
         }
         $viewVars['fines'] = $allFines;
         $totalFine = 0;
-        if (! empty($result)) {
+        if (!empty($result)) {
             foreach ($result as $fine) {
                 $totalFine += ($fine['amount']);
             }
         }
         if ($totalFine < 0) {
             $viewVars['paymentUrl'] = $catalog->getPaymentURL($patron,
-                - 1 * $totalFine);
+                -1 * $totalFine);
         }
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;
     }
 
-	protected function getILLRequestFieldsForSerial()
+    protected function getILLRequestFieldsForSerial()
     {
         return array(
             'ill_request_for_serial' => array(
@@ -976,7 +939,10 @@ class MyResearchController extends MyResearchControllerBase
             ),
             'ill_administration_information' => array(
                 'last-interest-date' => array('label' => 'ill_last_interest_date', 'type' => 'date', 'required' => true),
-                'media' => array('label' => 'ill_request_type', 'type' => 'select',  'required' => false,
+                'media' => array(
+                    'label' => 'ill_request_type',
+                    'type' => 'select',
+                    'required' => false,
                     'options' => array(
                         'C-COPY' => 'ill_photocopy',
                         'L-COPY' => 'ill_loan',
@@ -987,10 +953,13 @@ class MyResearchController extends MyResearchControllerBase
                 'paragraph' => array('type' => 'paragraph', 'text' => 'ill_author_rights_restriction_text'),
             ),
             'ill_payment_options' => array(
-                'payment' => array('label' => 'ill_type', 'type' => 'select',  'required' => false,
+                'payment' => array(
+                    'label' => 'ill_type',
+                    'type' => 'select',
+                    'required' => false,
                     'options' => array(
-                        '100-200'   => 'ill_serial_request_from_abroad',
-                        'kopie ČR'  => 'ill_serial_request_from_Czech_Republic',
+                        '100-200' => 'ill_serial_request_from_abroad',
+                        'kopie ČR' => 'ill_serial_request_from_Czech_Republic',
                     ),
                 ),
                 'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox'),
@@ -999,14 +968,14 @@ class MyResearchController extends MyResearchControllerBase
         );
     }
 
-	protected function getHMAC()
+    protected function getHMAC()
     {
         $config = $this->getConfig();
         $hmacKey = $config->Security->HMACkey;
         return hash_hmac('md5', session_id(), $hmacKey);
     }
 
-	protected function getIllRequestFieldsForMonography()
+    protected function getIllRequestFieldsForMonography()
     {
         return array(
             'new_ill_request_for_monography' => array(
@@ -1029,7 +998,10 @@ class MyResearchController extends MyResearchControllerBase
             ),
             'ill_administration_information' => array(
                 'last-interest-date' => array('label' => 'ill_last_interest_date', 'type' => 'date', 'required' => true),
-                'media' => array('label' => 'ill_request_type', 'type' => 'select',  'required' => false,
+                'media' => array(
+                    'label' => 'ill_request_type',
+                    'type' => 'select',
+                    'required' => false,
                     'options' => array(
                         'L-PRINTED' => 'ill_loan',
                         'C-PRINTED' => 'ill_photocopy',
@@ -1040,11 +1012,14 @@ class MyResearchController extends MyResearchControllerBase
                 'paragraph' => array('type' => 'paragraph', 'text' => 'ill_author_rights_restriction_text'),
             ),
             'ill_payment_options' => array(
-                'payment' => array('label' => 'ill_type', 'type' => 'select',  'required' => false,
+                'payment' => array(
+                    'label' => 'ill_type',
+                    'type' => 'select',
+                    'required' => false,
                     'options' => array(
-                        '50'   => 'ill_request_from_Czech_Republic',
-                        '300'  => 'ill_request_from_Europe',
-                        '600'  => 'ill_request_from_Great_Britain_or_oversea',
+                        '50' => 'ill_request_from_Czech_Republic',
+                        '300' => 'ill_request_from_Europe',
+                        '600' => 'ill_request_from_Great_Britain_or_oversea',
                     ),
                 ),
                 'confirmation' => array('label' => 'ill_confirmation', 'type' => 'checkbox', 'required' => true),
@@ -1065,8 +1040,9 @@ class MyResearchController extends MyResearchControllerBase
 
     protected function isLoggedInWithDummyDriver($user)
     {
-        if ($user instanceof \Zend\View\Model\ViewModel)
+        if ($user instanceof \Zend\View\Model\ViewModel) {
             return false;
+        }
         return isset($user['home_library']) ? $user['home_library'] == "Dummy" : false;
     }
 
@@ -1078,10 +1054,11 @@ class MyResearchController extends MyResearchControllerBase
             }
 
             foreach ($profile['blocks'] as $institution => $block) {
-                if (isset($logos[$institution]))
+                if (isset($logos[$institution])) {
                     $logo = $logos[$institution];
-                else
+                } else {
                     $logo = $institution;
+                }
 
                 $message[$logo] = $block;
 
@@ -1112,7 +1089,7 @@ class MyResearchController extends MyResearchControllerBase
     public function settingsAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1135,14 +1112,14 @@ class MyResearchController extends MyResearchControllerBase
         $userSettingsTable = $this->getTable("usersettings");
         $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
 
-        $selectedCitationStyle = (! empty($preferedCitationStyle))
+        $selectedCitationStyle = (!empty($preferedCitationStyle))
             ? $preferedCitationStyle
             : $defaultCitationStyle;
 
-        $viewVars['selectedCitationStyle']   = $selectedCitationStyle;
+        $viewVars['selectedCitationStyle'] = $selectedCitationStyle;
         $viewVars['availableCitationStyles'] = $availableCitationStyles;
-        $viewVars['institutions']            = $this->getInstitutions($user, true);
-        $viewVars['preferredInstitutions']   = array_filter($userSettingsTable->getSavedInstitutions($user));
+        $viewVars['institutions'] = $this->getInstitutions($user, true);
+        $viewVars['preferredInstitutions'] = array_filter($userSettingsTable->getSavedInstitutions($user));
 
         /* Records per page fieldset */
         $searchesConfig = $this->getConfig('searches');
@@ -1150,9 +1127,9 @@ class MyResearchController extends MyResearchControllerBase
         $recordsPerPageDefaultValue = $searchesConfig->General->default_limit;
         $preferredRecordsPerPageValue = $userSettingsTable->getRecordsPerPage($user);
 
-        $selectedRecordsPerPageOption = (! empty($preferredRecordsPerPageValue))
-        ? $preferredRecordsPerPageValue
-        : $recordsPerPageDefaultValue;
+        $selectedRecordsPerPageOption = (!empty($preferredRecordsPerPageValue))
+            ? $preferredRecordsPerPageValue
+            : $recordsPerPageDefaultValue;
 
         $viewVars['recordsPerPageOptions'] = $recordsPerPageOptions;
         $viewVars['selectedRecordsPerPageOption'] = $selectedRecordsPerPageOption;
@@ -1162,9 +1139,9 @@ class MyResearchController extends MyResearchControllerBase
         $defaultSorting = $searchesConfig->General->default_sort;
         $preferredSorting = $userSettingsTable->getSorting($user);
 
-        $selectedSorting = (! empty($preferredSorting))
-        ? $preferredSorting
-        : $defaultSorting;
+        $selectedSorting = (!empty($preferredSorting))
+            ? $preferredSorting
+            : $defaultSorting;
 
         $viewVars['sortingOptions'] = $sortingOptions;
         $viewVars['selectedSorting'] = $selectedSorting;
@@ -1199,7 +1176,7 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
-        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $this->layout()->sort;
 
 
         return $view;
@@ -1238,7 +1215,7 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         $_SESSION['VuFind\Search\Solr\Options']['lastLimit'] = $this->layout()->limit;
-        $_SESSION['VuFind\Search\Solr\Options']['lastSort']  = $this->layout()->sort;
+        $_SESSION['VuFind\Search\Solr\Options']['lastSort'] = $this->layout()->sort;
     }
 
     /**
@@ -1248,7 +1225,7 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function changetitleAction()
     {
-    // Fail if saved searches are disabled.
+        // Fail if saved searches are disabled.
         $check = $this->getServiceLocator()->get('VuFind\AccountCapabilities');
         if ($check->getSavedSearchSetting() === 'disabled') {
             throw new \Exception('Saved searches disabled.');
@@ -1273,7 +1250,7 @@ class MyResearchController extends MyResearchControllerBase
             $row->populate($rowData, true);
             $row->save();
             $this->flashMessenger()->addMessage('search_save_success', 'success');
-        } else if (($id = $this->params()->fromQuery('delete', false)) !== false) {
+        } elseif (($id = $this->params()->fromQuery('delete', false)) !== false) {
             $search->setSavedFlag($id, false);
             $this->flashMessenger()->addMessage('search_unsave_success', 'success');
         } else {
@@ -1316,7 +1293,7 @@ class MyResearchController extends MyResearchControllerBase
         if ($withoutUserSavedInstitution) {
             $savedInstitutions = $this->getTable("usersettings")->getSavedInstitutions($user);
 
-            if (! empty($savedInstitutions)) {
+            if (!empty($savedInstitutions)) {
                 foreach ($facets as $key => $facet) {
                     if (in_array($facet['value'], $savedInstitutions)) {
                         unset($facets[$key]);
@@ -1326,6 +1303,7 @@ class MyResearchController extends MyResearchControllerBase
         }
         return $facets;
     }
+
     /**
      * Updates user's saved institution
      *
@@ -1334,7 +1312,7 @@ class MyResearchController extends MyResearchControllerBase
     public function userUpdateSavedInstitutionAction()
     {
         // Stop now if the user does not have valid catalog credentials available:
-        if (! $user = $this->getAuthManager()->isLoggedIn()) {
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
             return $this->forceLogin();
         }
@@ -1369,6 +1347,297 @@ class MyResearchController extends MyResearchControllerBase
             $msg = 'authentication_error_loggedout';
         }
         $this->flashMessenger()->addMessage($msg, 'error');
+    }
+
+    /**
+     * Ziskej tickets page
+     *
+     * @return mixed|\Zend\View\Model\ViewModel
+     * @throws \Http\Client\Exception
+     */
+    public function ziskejAction()
+    {
+        // Stop now if the user does not have valid catalog credentials available:
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        $this->preSetAutocompleteParams();
+
+        // Forwarding for Dummy connector to Home page ..
+        if ($this->isLoggedInWithDummyDriver($user)) {
+            return $this->forwardTo('MyResearch', 'Home');
+        }
+
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
+        $config = $catalog->getDriverConfig();
+
+        if (isset($config['General']['async_holds']) &&
+            $config['General']['async_holds']) {
+            $isSynchronous = false;
+        } else {
+            $isSynchronous = true;
+        }
+
+        $viewVars = [];
+
+        $userTickets = [];
+
+        $viewVars['isSynchronous'] = $isSynchronous;
+
+        $request = $this->getRequest();
+        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
+        if ($ziskejCurrentMode != 'disabled') {
+
+            /** @var \CPK\ILS\Driver\MultiBackend $multiBackend */
+            $multiBackend = $this->getILS()->getDriver();
+
+            try {
+
+                /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+                $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+                /** @var string[] $ziskejLibsCodes */
+                $ziskejLibsCodes = [];
+
+                $ziskejLibs = $ziskejApi->getLibraries();
+                foreach ($ziskejLibs->getAll() as $ziskejLib) {
+                    $id = $multiBackend->siglaToSource($ziskejLib->getSigla());
+                    if (!empty($id)) {
+                        $ziskejLibsCodes[] = $id;
+                    }
+                }
+                if ($user) {
+                    $userSources = $user->getNonDummyInstitutions();
+                    $userLibCards = $user->getAllUserLibraryCards();
+
+                    $connectedZiskejLibs = array_filter($userSources, function ($userLib) use ($ziskejLibsCodes) {
+                        return in_array($userLib, $ziskejLibsCodes);
+                    });
+                    $sourceEppn = [];
+                    foreach ($userLibCards as $userLibCard) {
+                        if (in_array($userLibCard->home_library, $connectedZiskejLibs)) {
+                            $sourceEppn[$userLibCard->home_library] = $userLibCard->eppn;
+                        }
+                    }
+                    $viewVars['connectedZiskejLibs'] = $connectedZiskejLibs;
+
+                    foreach ($sourceEppn as $source => $eppn) {
+                        $ziskejReader = $ziskejApi->getReader($eppn);
+                        if ($ziskejReader && $ziskejReader->isActive()) {
+                            $userTickets[$source] = $ziskejApi->getTickets($eppn);
+                        }
+                    }
+                }
+            } catch (\Exception $ex) {
+                if ($ziskejCurrentMode != 'disabled') {
+                    $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
+                        'warning');  //@todo presunout do view pod nadpis ziskej
+                }
+            }
+        }
+
+        $viewVars['userTickets'] = $userTickets;
+        $viewVars['ziskejCurrentMode'] = $ziskejCurrentMode;
+        $view = $this->createViewModel($viewVars);
+        $this->flashExceptions($this->flashMessenger());
+        return $view;
+    }
+
+    /**
+     * Ziskej ticket detail
+     * url: /MyResearch/ZiskejTicket/<eppn>/<ticket_id>
+     *
+     * @return mixed|\Zend\View\Model\ViewModel
+     *
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
+     */
+    public function ziskejTicketAction()
+    {
+        $eppn = $this->params()->fromRoute('eppn');
+        if (!$eppn) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppn == $card->eppn) {
+                $userCard = $card;
+            }
+        }
+
+        if (!$userCard) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        $ticket = $ziskejApi->getTicket($eppn, $ticketId);
+
+        $messages = $ziskejApi->getMessages($eppn, $ticketId);
+
+        $recordLoader = $this->getRecordLoader();
+        /** @var \CPK\RecordDriver\SolrMarcLocal $record */
+        $record = $recordLoader->load($ticket->getDocumentId(), 'VuFind');
+
+        $view = $this->createViewModel();
+        $view->setVariable('user', $user);
+        $view->setVariable('userCard', $userCard);
+        $view->setVariable('ticket', $ticket);
+        $view->setVariable('messages', $messages->getAll());
+        $view->setVariable('driver', $record);
+        //$this->flashExceptions($this->flashMessenger());  //@todo???
+        return $view;
+
+    }
+
+    /**
+     * Cancel Ziskej ticket
+     * url: /MyResearch/ZiskejTicketCancel/<eppn>/<ticket_id>
+     *
+     * @return mixed|\Zend\Http\Response
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     */
+    public function ziskejTicketCancelAction()
+    {
+        $eppn = $this->params()->fromRoute('eppn');
+        if (!$eppn) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppn == $card->eppn) {
+                $userCard = $card;
+            }
+        }
+
+        if (!$userCard) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        $deleted = $ziskejApi->cancelTicket($eppn, $ticketId);
+
+        if ($deleted) {
+            $this->flashMessenger()->addMessage('message_ziskej_order_cancel_success', 'success');
+        } else {
+            $this->flashMessenger()->addMessage('message_ziskej_order_cancel_fail', 'error');
+        }
+
+        return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+            'eppn' => $eppn,
+            'ticket_id' => $ticketId,
+        ]);
+
+    }
+
+    /**
+     * Send form: Create new message
+     *
+     * @return mixed|\Zend\Http\Response
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     */
+    public function ziskejTicketCreateMessageFormAction()
+    {
+        //@todo if method != POST
+
+        $eppn = $this->params()->fromRoute('eppn');
+        if (!$eppn) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        if (!$user = $this->getAuthManager()->isLoggedIn()) {
+            $this->flashExceptions($this->flashMessenger());
+            return $this->forceLogin();
+        }
+
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppn == $card->eppn) {
+                $userCard = $card;
+            }
+        }
+
+        if (!$userCard) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        $params = $this->params()->fromPost();
+        if (empty($params['ticketMessage'])) {
+            $this->flashMessenger()->addMessage('message_ziskej_message_required_ticketMessage', 'error');
+
+            return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+                'eppn' => $eppn,
+                'ticket_id' => $ticketId,
+            ]);
+        }
+
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        $message = new Message((string)$params['ticketMessage']);
+
+        $creaded = $ziskejApi->createMessage($eppn, $ticketId, $message);
+        if ($creaded) {
+            $this->flashMessenger()->addMessage('message_ziskej_message_send_success', 'success');
+        } else {
+            $this->flashMessenger()->addMessage('message_ziskej_message_send_fail', 'error');
+        }
+
+        return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+            'eppn' => $eppn,
+            'ticket_id' => $ticketId,
+        ]);
     }
 
 }

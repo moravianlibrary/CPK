@@ -6,6 +6,10 @@ use DateTimeImmutable;
 use Http\Adapter\Guzzle6\Client;
 use Http\Message\Authentication\Bearer;
 use Monolog\Logger;
+use Mzk\ZiskejApi\ResponseModel\LibraryCollection;
+use Mzk\ZiskejApi\ResponseModel\MessageCollection;
+use Mzk\ZiskejApi\ResponseModel\Ticket;
+use Mzk\ZiskejApi\ResponseModel\TicketsCollection;
 use Symfony\Component\Dotenv\Dotenv;
 
 final class ApiTest extends TestCase
@@ -53,7 +57,7 @@ final class ApiTest extends TestCase
     /**
      * @var string
      */
-    private $ticketId = 'd2b76fb303764fc9';
+    private $ticketId = '5b4a3d49d53a44ae';
 
     /**
      * @var string
@@ -142,8 +146,8 @@ final class ApiTest extends TestCase
 
         $output = $api->getLibraries();
 
-        $this->assertIsArray($output);
-        $this->assertNotEmpty($output);
+        $this->assertInstanceOf(LibraryCollection::class, $output);
+        $this->assertNotEmpty($output->getAll());
     }
 
     /*
@@ -419,9 +423,9 @@ final class ApiTest extends TestCase
     {
         $api = ApiFactory::createApi();
 
-        $output = $api->getTicketsDetails($this->eppnActive);
+        $output = $api->getTickets($this->eppnActive);
 
-        $this->assertIsArray($output);
+        $this->assertInstanceOf(TicketsCollection::class, $output);
     }
 
     public function testApiCreateTicket(): void
@@ -432,7 +436,7 @@ final class ApiTest extends TestCase
 
         $output = $api->createTicket($this->eppnActive, $ticket);
 
-        $this->assertIsString($output);
+        $this->assertInstanceOf(Ticket::class, $output);
     }
 
     public function testApiCreateTicketFull(): void
@@ -447,7 +451,7 @@ final class ApiTest extends TestCase
 
         $output = $api->createTicket($this->eppnActive, $ticket);
 
-        $this->assertIsString($output);
+        $this->assertInstanceOf(Ticket::class, $output);
     }
 
     public function testApiGetTicket(): void
@@ -456,7 +460,11 @@ final class ApiTest extends TestCase
 
         $output = $api->getTicket($this->eppnActive, $this->ticketId);
 
-        $this->assertIsArray($output);
+        $this->assertInstanceOf(Ticket::class, $output);
+
+        if ($output) {
+            $this->assertSame($this->ticketId, $output->getId());
+        }
     }
 
     /*
@@ -469,7 +477,7 @@ final class ApiTest extends TestCase
 
         $output = $api->getMessages($this->eppnActive, $this->ticketId);
 
-        $this->assertIsArray($output);
+        $this->assertInstanceOf(MessageCollection::class, $output);
     }
 
     public function testApiCreateMessage(): void
@@ -480,7 +488,8 @@ final class ApiTest extends TestCase
 
         $output = $api->createMessage($this->eppnActive, $this->ticketId, $message);
 
-        $this->assertIsArray($output);
+        $this->assertIsBool($output);
+        $this->assertEquals(true, $output);
     }
 
     public function testApiReadMessages(): void
@@ -491,7 +500,8 @@ final class ApiTest extends TestCase
 
         $output = $api->updateMessages($this->eppnActive, $this->ticketId, $messages);
 
-        $this->assertIsArray($output);
+        $this->assertIsBool($output);
+        $this->assertEquals(true, $output);
     }
 
 }

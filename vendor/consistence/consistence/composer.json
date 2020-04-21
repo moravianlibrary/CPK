@@ -1,0 +1,34 @@
+{
+	"name": "consistence/consistence",
+	"description": "Consistence - consistent approach and additions to PHP's functionality",
+	"keywords": ["enum", "array", "time", "format", "strict", "type", "check"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Vašek Purchart",
+			"email": "me@vasekpurchart.cz",
+			"homepage": "http://vasekpurchart.cz"
+		}
+	],
+	"require": {
+		"php": "~7.2"
+	},
+	"require-dev": {
+		"consistence/coding-standard": "3.7",
+		"jakub-onderka/php-console-highlighter": "0.4",
+		"jakub-onderka/php-parallel-lint": "1.0",
+		"phing/phing": "2.16.1",
+		"phpunit/phpunit": "7.5.1"
+	},
+	"autoload": {
+		"psr-4": { "Consistence\\": [ "src" ] },
+		"classmap": [ "src" ]
+	},
+	"autoload-dev": {
+		"psr-4": { "Consistence\\": [ "tests" ] },
+		"classmap": [ "tests" ]
+	},
+	"config": {
+		"bin-dir": "bin"
+	}
+}

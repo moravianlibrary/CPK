@@ -192,13 +192,13 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
         $view->isLoggedIn = $user ? true : false;
 
         if ($user) {
-        $userSettingsTable = $this->getTable("usersettings");
+            $userSettingsTable = $this->getTable("usersettings");
             $preferedCitationStyle = $userSettingsTable->getUserCitationStyle($user);
         }
 
-        $selectedCitationStyle = (! empty($preferedCitationStyle))
-        ? $preferedCitationStyle
-        : $defaultCitationStyle;
+        $selectedCitationStyle = (!empty($preferedCitationStyle))
+            ? $preferedCitationStyle
+            : $defaultCitationStyle;
 
         $view->selectedCitationStyle = $selectedCitationStyle;
 
@@ -209,11 +209,11 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
         $view->maxSubjectsInCore = $config['Record']['max_subjects_in_core'];
 
         /* Handle view template */
-	    if (! empty($this->params()->fromQuery('searchTypeTemplate')) ){
-	        $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
-	    } else {
-	        $view->searchTypeTemplate = 'basic';
-	    }
+        if (!empty($this->params()->fromQuery('searchTypeTemplate'))) {
+            $view->searchTypeTemplate = $this->params()->fromQuery('searchTypeTemplate');
+        } else {
+            $view->searchTypeTemplate = 'basic';
+        }
 
         //set username for comments if user have come from social network and don`t have firstname and lastname
         if($this->getUser()
@@ -311,12 +311,12 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                         $ilsDriver = $this->getILS()->getDriver();
 
                         // list of ziskej libraries sigla
-                        $ziskejLibsSiglas = $ziskejApi->getLibraries();
+                        $ziskejLibs = $ziskejApi->getLibraries()->getAll();
 
                         /** @var array $ziskejLibsIds */
                         $ziskejLibsIds = [];
-                        foreach ($ziskejLibsSiglas as $sigla) {
-                            $id = $ilsDriver->siglaToSource($sigla);
+                        foreach ($ziskejLibs as $ziskejLib) {
+                            $id = $ilsDriver->siglaToSource($ziskejLib->getSigla());
                             if (!empty($id)) {
                                 $ziskejLibsIds[] = $id;
                             }
@@ -326,12 +326,13 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                         if ($user) {
                             /** @var array $connectedLibs */
                             $connectedLibs = [];
-                            /** @var \VuFind\Db\Row\UserCard $libraryCard */
-                            foreach ($user->getLibraryCards() as $libraryCard) {
+                            /** @var \VuFind\Db\Row\UserCard $userCard */
+                            foreach ($user->getLibraryCards() as $userCard) {
                                 //@todo refactor to array_filter
-                                if (!empty($libraryCard->home_library)) {
-                                    if (in_array($libraryCard->home_library, $ziskejLibsIds)) {
-                                        $connectedLibs[$libraryCard->home_library]['reader'] = $libraryCard->toArray();
+                                if (!empty($userCard->home_library)) {
+                                    if (in_array($userCard->home_library, $ziskejLibsIds)) {
+                                        $connectedLibs[$userCard->home_library]['userCard'] = $userCard;
+                                        $connectedLibs[$userCard->home_library]['ziskejReader'] = $ziskejApi->getReader($userCard->eppn);
                                     }
                                 }
                             }
@@ -380,6 +381,10 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             /** @var string $eppn */
             $eppn = $params['eppn'];
 
+            /** @var string $email */
+            $email = $params['email'];
+            //@todo test email format and !null
+
             if (!$params['is_conditions']) {
                 $this->flashMessenger()->addMessage('ziskej_error_is_conditions', 'error');
                 return $this->redirectToRecord('', 'Ziskej');
@@ -394,12 +399,20 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $userData = $user->toArray();
 
             //try {
-            $reader = $ziskejApi->getReader($eppn);
-            if (!$reader) {
+            if ($ziskejApi->getReader($eppn)) {
+                $reader = $ziskejApi->updateReader($eppn, new Reader(
+                    $userData['firstname'],
+                    $userData['lastname'],
+                    $email,
+                    $driver->sourceToSigla($user->home_library),
+                    true,
+                    true
+                ));
+            } else {
                 $reader = $ziskejApi->createReader($eppn, new Reader(
                     $userData['firstname'],
                     $userData['lastname'],
-                    $userData['email'],
+                    $email,
                     $driver->sourceToSigla($user->home_library),
                     true,
                     true
@@ -412,16 +425,23 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 return $this->redirectToRecord('', 'Ziskej');
             }
 
-            $ticket = new Ticket($params['doc_id']);
-            $ticket->setDocumentAltIds($params['doc_alt_ids']);
-            $ticket->setNote($params['text']);
+            $ticketNew = new Ticket($params['doc_id']);
+            $ticketNew->setDocumentAltIds($params['doc_alt_ids']);
+            $ticketNew->setNote($params['text']);
 
-            $tickeId = $ziskejApi->createTicket($eppn, $ticket);
+            $ticket = $ziskejApi->createTicket($eppn, $ticketNew);
 
-            $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');    //@todo $tickeId
+            $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');
+            $this->flashMessenger()->addMessage('Objednávka nyní čeká na úhradu.', 'warning');
+
+            return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+                'eppn' => $eppn,
+                'ticket_id' => $ticket->getId(),
+            ]);
 
         } catch (\Exception $ex) {
-            $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected', 'warning');
+            //$this->flashMessenger()->addMessage('ziskej_warning_api_disconnected code 813', 'warning');
+            $this->flashMessenger()->addMessage($ex->getMessage(), 'error');
         }
 
         return $this->redirectToRecord('', 'Ziskej');

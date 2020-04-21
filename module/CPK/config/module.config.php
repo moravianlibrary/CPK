@@ -5,20 +5,20 @@ $config = array(
     'router' => [
         'routes' => [
             'default' => [
-                'type'    => 'Zend\Mvc\Router\Http\Segment',
+                'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
-                    'route'    => '/[:controller[/[:action[/[:subaction[/[:param[/[:param2]]]]]]]]]',
+                    'route' => '/[:controller[/[:action[/[:subaction[/[:param[/[:param2]]]]]]]]]',
                     'constraints' => [
                         'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                        'subaction'  => '[a-zA-Z0-9_-]*'
-                     ],
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'subaction' => '[a-zA-Z0-9_-]*'
+                    ],
                     'defaults' => [
                         'controller' => 'index',
-                        'action'     => 'Home',
-                        'subaction'  => 'default',
-                        'param'      => 'default',
-                        'param2'     => 'default'
+                        'action' => 'Home',
+                        'subaction' => 'default',
+                        'param' => 'default',
+                        'param2' => 'default'
                     ],
                 ],
             ],
@@ -28,7 +28,7 @@ $config = array(
         'plugin_managers' => array(
             'recorddriver' => array(
                 'factories' => array(
-					'solrdefault' => 'CPK\RecordDriver\Factory::getSolrMarc',
+                    'solrdefault' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrmarc' => 'CPK\RecordDriver\Factory::getSolrMarc',
                     'solrcpk_mzk' => 'CPK\RecordDriver\Factory::getSolrMarcMZK',
                     'solrcpk_vkol' => 'CPK\RecordDriver\Factory::getSolrMarcVKOL',
@@ -41,14 +41,14 @@ $config = array(
                 ) /* factories */
             ), /* recorddriver */
             'recordtab' => array(
-				'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
+                'abstract_factories' => array('VuFind\RecordTab\PluginFactory'),
                 'invokables' => array(
                     'userCommentsObalkyKnih' => 'CPK\RecordTab\UserCommentsObalkyKnih',
                     'eVersion' => 'CPK\RecordTab\EVersion',
                     'buy' => 'CPK\RecordTab\Buy',
                     'edsavailability' => 'CPK\RecordTab\EdsAvailability',
                     'StaffViewDublinCore' => 'CPK\RecordTab\StaffViewDublinCore',
-					'holdingsils'     => 'CPK\RecordTab\HoldingsILS',
+                    'holdingsils' => 'CPK\RecordTab\HoldingsILS',
                     'tagsandcomments' => 'CPK\RecordTab\TagsAndComments',
                     'branches' => 'CPK\RecordTab\Branches',
                     'services' => 'CPK\RecordTab\Services',
@@ -60,7 +60,7 @@ $config = array(
             'recommend' => [
                 'factories' => [
                     'sidefacets' => 'CPK\Recommend\Factory::getSideFacets',
-					'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
+                    'specifiablefacets' => 'CPK\Recommend\Factory::getSpecifiableFacets'
                 ], /* factories */
             ], /* recommend */
             'related' => [
@@ -92,7 +92,7 @@ $config = array(
                 ], /* factories */
                 'invokables' => [
                     'session' => 'VuFind\Db\Table\Session',
-					'recordstatus' => 'CPK\Db\Table\RecordStatus'
+                    'recordstatus' => 'CPK\Db\Table\RecordStatus'
                 ]
             ], /* db_table */
             'ils_driver' => [
@@ -107,10 +107,10 @@ $config = array(
                     'koharest' => 'CPK\ILS\Driver\Factory::getKohaRest',
                 ), /* factories */
             ], /* ils_driver */
-                'autocomplete' => [
-                    'factories' => [
-                        'solredgefaceted' => 'CPK\Autocomplete\Factory::getSolrEdgeFaceted'
-                    ],
+            'autocomplete' => [
+                'factories' => [
+                    'solredgefaceted' => 'CPK\Autocomplete\Factory::getSolrEdgeFaceted'
+                ],
             ],
         ), /* plugin_managers */
 
@@ -183,7 +183,8 @@ $config = array(
                 'tabs' => [
                     //'Description' => 'Description',
                     'TOC' => 'TOC',
-                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
+                    'Reviews' => 'Reviews',
+                    'Excerpt' => 'Excerpt',
                     'Preview' => 'preview',
                     'EdsAvailability' => 'EdsAvailability',
                     'Details' => 'StaffViewArray',
@@ -210,7 +211,7 @@ $config = array(
             'libraries' => 'CPK\Controller\Factory::getLibrariesController'
         ),
         'invokables' => array(
-			'myresearch' => 'CPK\Controller\MyResearchController',
+            'myresearch' => 'CPK\Controller\MyResearchController',
             'my-research' => 'CPK\Controller\MyResearchController',
             'librarycards' => 'CPK\Controller\LibraryCardsController',
             'search' => 'CPK\Controller\SearchController',
@@ -225,7 +226,7 @@ $config = array(
     'controller_plugins' => [
         'factories' => [
             'holds' => 'CPK\Controller\Plugin\Factory::getHolds',
-			'shortLoanRequests'   => 'CPK\Controller\Plugin\Factory::getShortLoanRequests'
+            'shortLoanRequests' => 'CPK\Controller\Plugin\Factory::getShortLoanRequests'
         ],
     ],
     'service_manager' => array(
@@ -264,14 +265,15 @@ $staticRoutes = array(
     'Admin/PortalPages',
     'Admin/PermissionsManager',
     'Admin/Widgets',
-	'Search/Conspectus',
- 	'Search/MostSearched',
-	'Search/NewAcquisitions',
+    'Search/Conspectus',
+    'Search/MostSearched',
+    'Search/NewAcquisitions',
     'MyResearch/CheckedOutHistory',
-	'MyResearch/ShortLoans',
+    'MyResearch/ShortLoans',
     'MyResearch/FavoritesImport',
-	'MyResearch/ProfileChange',
+    'MyResearch/ProfileChange',
     'MyResearch/ChangeTitle',
+    'MyResearch/Ziskej',
 );
 
 foreach ($staticRoutes as $route) {
@@ -283,7 +285,7 @@ foreach ($staticRoutes as $route) {
             'route' => '/' . $route,
             'defaults' => array(
                 'controller' => $controller,
-                'action' => (! empty($action)) ? $action : 'default'
+                'action' => (!empty($action)) ? $action : 'default'
             )
         )
     );
@@ -293,49 +295,68 @@ $nonTabRecordActions = array('ShortLoan', 'mvsForm');
 
 foreach ($nonTabRecordActions as $action) {
     $config['router']['routes']['record' . '-' . strtolower($action)] = array(
-        'type'    => 'Zend\Mvc\Router\Http\Segment',
+        'type' => 'Zend\Mvc\Router\Http\Segment',
         'options' => array(
-            'route'    => '/' . 'Record' . '/[:id]/' . $action,
+            'route' => '/' . 'Record' . '/[:id]/' . $action,
             'constraints' => array(
                 'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
             ),
             'defaults' => array(
                 'controller' => 'Record',
-                'action'     => $action,
+                'action' => $action,
             )
         )
     );
 }
 
 $config['router']['routes']['inspiration-show'] = array(
-    'type'    => 'Zend\Mvc\Router\Http\Segment',
+    'type' => 'Zend\Mvc\Router\Http\Segment',
     'options' => array(
-        'route'    => '/' . 'Inspiration' . '/[:tag]',
+        'route' => '/' . 'Inspiration' . '/[:tag]',
         'constraints' => array(
             'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-            'tag'        => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'tag' => '[a-zA-Z][a-zA-Z0-9_-]*',
         ),
         'defaults' => array(
             'controller' => 'Inspiration',
-            'action'     => 'show',
+            'action' => 'show',
         )
     )
 );
 
-$config['router']['routes']['ziskej'] = array(
-    'type'    => 'Zend\Mvc\Router\Http\Segment',
-    'options' => array(
-        'route'    => '/' . 'ziskej' . '/',
-        'constraints' => array(
-            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-            'tag'        => '[a-zA-Z][a-zA-Z0-9_-]*',
-        ),
-        'defaults' => array(
+$config['router']['routes']['ziskej'] = [
+    'type' => 'Zend\Mvc\Router\Http\Segment',
+    'options' => [
+        'route' => '/ziskej/',
+        'defaults' => [
             'controller' => 'Ziskej',
-            'action'     => 'home',
-        )
-    )
-);
+            'action' => 'home',
+        ]
+    ]
+];
+
+$config['router']['routes']['ziskej-payment'] = [
+    'type' => 'Zend\Mvc\Router\Http\Segment',
+    'options' => [
+        'route' => '/ziskej/payment/:eppn/:ticket_id/:payment_transaction_id',
+        'defaults' => [
+            'controller' => 'Ziskej',
+            'action' => 'payment',
+        ]
+    ]
+];
+
+$dynamicRoutes = [
+    'MyResearch' => [
+        'MyResearch-ziskejTicket' => 'ZiskejTicket/[:eppn]/[:ticket_id]',
+        'MyResearch-ziskejTicketCancel' => 'ZiskejTicketCancel/[:eppn]/[:ticket_id]',
+        'MyResearch-ziskejTicketCreateMessageForm' => 'ZiskejTicketCreateMessageForm/[:eppn]/[:ticket_id]',
+    ]
+];
+
+$routeGenerator = new \VuFind\Route\RouteGenerator();
+$routeGenerator->addDynamicRoutes($config, $dynamicRoutes);
+
 
 return $config;

@@ -91,7 +91,7 @@ final class ApiClient
     {
         $messageFactory = MessageFactoryDiscovery::find();
 
-        if ($requestObject->getMethod() === 'POST' && !empty($requestObject->getParamsData())) {
+        if ($requestObject->getEndpoint() === '/login') {
             // POST request with form values
             $streamFactory = StreamFactoryDiscovery::find();
             $builder = new MultipartStreamBuilder($streamFactory);
@@ -113,7 +113,6 @@ final class ApiClient
             ];
             $body = $builder->build();
         } else {
-            // other requests
             $headers = [
                 'Content-Type' => 'application/json',
             ];

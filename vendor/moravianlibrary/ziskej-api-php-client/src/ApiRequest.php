@@ -39,7 +39,7 @@ class ApiRequest
      * @param string $method
      * @param string $endpoint
      * @param string[] $urlQuery
-     * @param string[] $paramsUrl
+     * @param mixed[] $paramsUrl
      * @param string[] $paramsData
      */
     public function __construct(
@@ -60,6 +60,11 @@ class ApiRequest
     public function getMethod(): string
     {
         return $this->method;
+    }
+
+    public function getEndpoint(): string
+    {
+        return $this->endpoint;
     }
 
     /**

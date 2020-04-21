@@ -2,6 +2,12 @@
 
 namespace Mzk\ZiskejApi;
 
+use Mzk\ZiskejApi\ResponseModel\Library;
+use Mzk\ZiskejApi\ResponseModel\LibraryCollection;
+use Mzk\ZiskejApi\ResponseModel\MessageCollection;
+use Mzk\ZiskejApi\ResponseModel\Ticket;
+use Mzk\ZiskejApi\ResponseModel\TicketsCollection;
+
 final class Api
 {
 
@@ -78,23 +84,22 @@ final class Api
      * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      */
-    public function getLibrary(string $sigla): ?ResponseModel\Library
+    public function getLibrary(string $sigla): ?Library
     {
-        return in_array($sigla, $this->getLibraries())
-            ? new ResponseModel\Library($sigla)
-            : null;
+        $libraries = $this->getLibraries();
+        return $libraries->get($sigla);
     }
 
     /**
      * List all libraries
      * GET /libraries
      *
-     * @return string[]
+     * @return \Mzk\ZiskejApi\ResponseModel\LibraryCollection
      *
-     * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \Http\Client\Exception
      */
-    public function getLibraries(): array
+    public function getLibraries(): LibraryCollection
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
@@ -107,16 +112,17 @@ final class Api
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) && is_array($array['items'])
-                    ? $array['items']
-                    : [];
+
+                if (isset($array['items']) && is_array($array['items'])) {
+                    return LibraryCollection::fromArray($array['items']);
+                } else {
+                    return new LibraryCollection();
+                }
                 break;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
-
-        return $return;
     }
 
     /*
@@ -272,12 +278,12 @@ final class Api
      * GET /readers/:eppn/tickets
      *
      * @param string $eppn
-     * @return string[][] List of tickets with details
+     * @return \Mzk\ZiskejApi\ResponseModel\TicketsCollection List of tickets with details
      *
      * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      */
-    public function getTicketsDetails(string $eppn): array
+    public function getTickets(string $eppn): TicketsCollection
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
@@ -288,6 +294,7 @@ final class Api
                 ],
                 [
                     'expand' => 'detail',
+                    'include_closed' => 1,
                 ]
             )
         );
@@ -296,16 +303,19 @@ final class Api
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) && is_array($array['items'])
-                    ? $array['items']
-                    : [];
+
+                if (isset($array['items']) && is_array($array['items'])) {
+                    $tickets = TicketsCollection::fromArray($array['items']);
+                } else {
+                    $tickets = new TicketsCollection();
+                }
                 break;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
 
-        return (array)$return;
+        return $tickets;
     }
 
     /**
@@ -314,25 +324,24 @@ final class Api
      *
      * @param string $eppn
      * @param \Mzk\ZiskejApi\RequestModel\Ticket $ticket
-     * @return string
+     * @return \Mzk\ZiskejApi\ResponseModel\Ticket|null Created Ticket or null
      *
      * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiException
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      */
-    public function createTicket(string $eppn, RequestModel\Ticket $ticket): string
+    public function createTicket(string $eppn, RequestModel\Ticket $ticket): ?Ticket
     {
-        $apiResponse = $this->apiClient->sendApiRequest(
-            new ApiRequest(
-                'POST',
-                '/readers/:eppn/tickets',
-                [
-                    ':eppn' => $eppn,
-                ],
-                [],
-                $ticket->toArray()
-            )
+        $apiRequest = new ApiRequest(
+            'POST',
+            '/readers/:eppn/tickets',
+            [
+                ':eppn' => $eppn,
+            ],
+            [],
+            $ticket->toArray()
         );
+        $apiResponse = $this->apiClient->sendApiRequest($apiRequest);
 
         switch ($apiResponse->getStatusCode()) {
             //@todo api should return code 201, but return 200
@@ -340,19 +349,19 @@ final class Api
             case 201:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
+
                 if (empty($array['id'])) {
                     throw new \Mzk\ZiskejApi\Exception\ApiException(
                         'Ziskej API error: API did not return "id" parameter.'
                     );
                 }
-                $return = $array['id'];
+
+                return $this->getTicket($eppn, $array['id']);
                 break;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
-
-        return (string)$return;
     }
 
     /**
@@ -361,12 +370,12 @@ final class Api
      *
      * @param string $eppn
      * @param string $ticketId
-     * @return string[] Ticket details
+     * @return \Mzk\ZiskejApi\ResponseModel\Ticket|null Ticket detail data or null
      *
      * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      */
-    public function getTicket(string $eppn, string $ticketId): array
+    public function getTicket(string $eppn, string $ticketId): ?Ticket
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
@@ -382,16 +391,51 @@ final class Api
         switch ($apiResponse->getStatusCode()) {
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
-                $return = json_decode($contents, true);
+                return Ticket::fromArray(json_decode($contents, true));
                 break;
             case 404:
-                //@todo ticket not found
+                return null;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
+    }
 
-        return (array)$return;
+    /**
+     * Delete ticket
+     * DELETE /readers/:eppn/tickets/:ticket_id
+     *
+     * @param string $eppn
+     * @param string $ticketId
+     * @return bool If ticket deleted
+     *
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \Http\Client\Exception
+     */
+    public function cancelTicket(string $eppn, string $ticketId): bool
+    {
+        $apiResponse = $this->apiClient->sendApiRequest(
+            new ApiRequest(
+                'DELETE',
+                '/readers/:eppn/tickets/:ticket_id',
+                [
+                    ':eppn' => $eppn,
+                    ':ticket_id' => $ticketId,
+                ]
+            )
+        );
+
+        switch ($apiResponse->getStatusCode()) {
+            case 200:
+                return true;
+                break;
+            case 422:
+                return false;
+                break;
+            default:
+                throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
+                break;
+        }
     }
 
     /*
@@ -403,38 +447,39 @@ final class Api
      *
      * @param string $eppn
      * @param string $ticketId
-     * @return string[][]
+     * @return \Mzk\ZiskejApi\ResponseModel\MessageCollection
      *
-     * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \Http\Client\Exception
      */
-    public function getMessages(string $eppn, string $ticketId): array
+    public function getMessages(string $eppn, string $ticketId): MessageCollection
     {
-        $apiResponse = $this->apiClient->sendApiRequest(
-            new ApiRequest(
-                'GET',
-                '/readers/:eppn/tickets/:ticket_id/messages',
-                [
-                    ':eppn' => $eppn,
-                    ':ticket_id' => $ticketId,
-                ]
-            )
+        $apiRequest = new ApiRequest(
+            'GET',
+            '/readers/:eppn/tickets/:ticket_id/messages',
+            [
+                ':eppn' => $eppn,
+                ':ticket_id' => $ticketId,
+            ]
         );
+        $apiResponse = $this->apiClient->sendApiRequest($apiRequest);
 
         switch ($apiResponse->getStatusCode()) {
             case 200:
                 $contents = $apiResponse->getBody()->getContents();
                 $array = json_decode($contents, true);
-                $return = isset($array['items']) && is_array($array['items'])
-                    ? $array['items']
-                    : [];
+                if (isset($array['items']) && is_array($array['items'])) {
+                    $collection = MessageCollection::fromArray(array_reverse($array['items'], true));
+                } else {
+                    $collection = new MessageCollection();
+                }
                 break;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
 
-        return (array)$return;
+        return $collection;
     }
 
     /**
@@ -443,12 +488,12 @@ final class Api
      * @param string $eppn
      * @param string $ticketId
      * @param \Mzk\ZiskejApi\RequestModel\Message $message
-     * @return string[]
+     * @return bool
      *
-     * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \Http\Client\Exception
      */
-    public function createMessage(string $eppn, string $ticketId, RequestModel\Message $message): array
+    public function createMessage(string $eppn, string $ticketId, RequestModel\Message $message): bool
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
@@ -465,30 +510,26 @@ final class Api
 
         switch ($apiResponse->getStatusCode()) {
             case 201:
-                $contents = $apiResponse->getBody()->getContents();
-                $array = json_decode($contents, true);
-                $return = $array;
+                return true;
                 break;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
-
-        return (array)$return;
     }
 
     /**
-     * Set messages as read
+     * Set all messages as read
      *
      * @param string $eppn
      * @param string $ticketId
      * @param \Mzk\ZiskejApi\RequestModel\Messages $messages
-     * @return string[]
+     * @return bool
      *
      * @throws \Http\Client\Exception
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      */
-    public function updateMessages(string $eppn, string $ticketId, RequestModel\Messages $messages): array
+    public function updateMessages(string $eppn, string $ticketId, RequestModel\Messages $messages): bool
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
@@ -505,16 +546,12 @@ final class Api
 
         switch ($apiResponse->getStatusCode()) {
             case 200:
-                $contents = $apiResponse->getBody()->getContents();
-                $array = json_decode($contents, true);
-                $return = $array;
+                return true;
                 break;
             default:
                 throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
                 break;
         }
-
-        return (array)$return;
     }
 
 }

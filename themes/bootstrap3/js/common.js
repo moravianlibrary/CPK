@@ -666,8 +666,8 @@ jQuery( document ).ready( function( $ ) {
 
   $ziskejOrderButton.on('click', function (e) {
     e.preventDefault();
-    let library_eppn = $(this).data('eppn');
-    $('#mvs-modal #eppn').val(library_eppn);
+    $('#mvs-modal #eppn').val($(this).data('eppn'));
+    $('#mvs-modal #email').val($(this).data('email'));
     $('#mvs-modal').modal('show');
   });
 

@@ -423,6 +423,66 @@
         "homepage": "https://github.com/colinmollenhour/credis"
     },
     {
+        "name": "consistence/consistence",
+        "version": "2.0.1",
+        "version_normalized": "2.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/consistence/consistence.git",
+            "reference": "49786347a96696337591f14f26dabf46d1e69fd8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/consistence/consistence/zipball/49786347a96696337591f14f26dabf46d1e69fd8",
+            "reference": "49786347a96696337591f14f26dabf46d1e69fd8",
+            "shasum": ""
+        },
+        "require": {
+            "php": "~7.2"
+        },
+        "require-dev": {
+            "consistence/coding-standard": "3.7",
+            "jakub-onderka/php-console-highlighter": "0.4",
+            "jakub-onderka/php-parallel-lint": "1.0",
+            "phing/phing": "2.16.1",
+            "phpunit/phpunit": "7.5.1"
+        },
+        "time": "2018-12-28T16:03:19+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Consistence\\": [
+                    "src"
+                ]
+            },
+            "classmap": [
+                "src"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Vašek Purchart",
+                "email": "me@vasekpurchart.cz",
+                "homepage": "http://vasekpurchart.cz"
+            }
+        ],
+        "description": "Consistence - consistent approach and additions to PHP's functionality",
+        "keywords": [
+            "array",
+            "check",
+            "enum",
+            "format",
+            "strict",
+            "time",
+            "type"
+        ]
+    },
+    {
         "name": "guzzlehttp/guzzle",
         "version": "6.3.3",
         "version_normalized": "6.3.3.0",
@@ -875,14 +935,15 @@
     },
     {
         "name": "moravianlibrary/ziskej-api-php-client",
-        "version": "1.0.2",
-        "version_normalized": "1.0.2.0",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/moravianlibrary/ziskej-api-php-client",
-            "reference": "3700f5c4ad11f5dcd520d93fd6999efb026af6d6"
+            "reference": "7c70f55e6e29447fffaa33b605a0015b450f062e"
         },
         "require": {
+            "consistence/consistence": "^2.0",
             "ext-json": "*",
             "php": "^7.1",
             "php-http/client-common": "^2.0",
@@ -892,7 +953,8 @@
             "php-http/logger-plugin": "^1.1",
             "php-http/message-factory": "^1.0",
             "php-http/multipart-stream-builder": "^1.0",
-            "psr/http-message": "^1.0"
+            "psr/http-message": "^1.0",
+            "smartemailing/types": "^1.0"
         },
         "require-dev": {
             "guzzlehttp/psr7": "^1.0",
@@ -906,7 +968,7 @@
             "squizlabs/php_codesniffer": "^3.4",
             "symfony/dotenv": "^4.3"
         },
-        "time": "2019-10-16T08:48:34+00:00",
+        "time": "2020-03-31T12:06:53+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
@@ -947,6 +1009,160 @@
             "MIT"
         ],
         "description": "Ziskej API PHP client"
+    },
+    {
+        "name": "nette/http",
+        "version": "v3.0.3",
+        "version_normalized": "3.0.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nette/http.git",
+            "reference": "1df063526343299ea7fccdf90de6575db3559ff5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nette/http/zipball/1df063526343299ea7fccdf90de6575db3559ff5",
+            "reference": "1df063526343299ea7fccdf90de6575db3559ff5",
+            "shasum": ""
+        },
+        "require": {
+            "nette/utils": "^3.0",
+            "php": ">=7.1"
+        },
+        "conflict": {
+            "nette/di": "<3.0.0-stable"
+        },
+        "require-dev": {
+            "nette/di": "^3.0",
+            "nette/tester": "^2.0",
+            "tracy/tracy": "^2.4"
+        },
+        "suggest": {
+            "ext-fileinfo": "to detect type of uploaded files",
+            "nette/security": "allows use Nette\\Http\\UserStorage"
+        },
+        "time": "2019-10-31T15:07:40+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0"
+        ],
+        "authors": [
+            {
+                "name": "David Grudl",
+                "homepage": "https://davidgrudl.com"
+            },
+            {
+                "name": "Nette Community",
+                "homepage": "https://nette.org/contributors"
+            }
+        ],
+        "description": "🌐 Nette Http: abstraction for HTTP request, response and session. Provides careful data sanitization and utility for URL and cookies manipulation.",
+        "homepage": "https://nette.org",
+        "keywords": [
+            "cookies",
+            "http",
+            "nette",
+            "proxy",
+            "request",
+            "response",
+            "security",
+            "session",
+            "url"
+        ]
+    },
+    {
+        "name": "nette/utils",
+        "version": "v3.1.1",
+        "version_normalized": "3.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nette/utils.git",
+            "reference": "2c17d16d8887579ae1c0898ff94a3668997fd3eb"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nette/utils/zipball/2c17d16d8887579ae1c0898ff94a3668997fd3eb",
+            "reference": "2c17d16d8887579ae1c0898ff94a3668997fd3eb",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=7.1"
+        },
+        "require-dev": {
+            "nette/tester": "~2.0",
+            "phpstan/phpstan": "^0.12",
+            "tracy/tracy": "^2.3"
+        },
+        "suggest": {
+            "ext-gd": "to use Image",
+            "ext-iconv": "to use Strings::webalize() and toAscii()",
+            "ext-intl": "to use Strings::webalize(), toAscii(), normalize() and compare()",
+            "ext-json": "to use Nette\\Utils\\Json",
+            "ext-mbstring": "to use Strings::lower() etc...",
+            "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()",
+            "ext-xml": "to use Strings::length() etc. when mbstring is not available"
+        },
+        "time": "2020-02-09T14:10:55+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.1-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause",
+            "GPL-2.0-only",
+            "GPL-3.0-only"
+        ],
+        "authors": [
+            {
+                "name": "David Grudl",
+                "homepage": "https://davidgrudl.com"
+            },
+            {
+                "name": "Nette Community",
+                "homepage": "https://nette.org/contributors"
+            }
+        ],
+        "description": "🛠 Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+        "homepage": "https://nette.org",
+        "keywords": [
+            "array",
+            "core",
+            "datetime",
+            "images",
+            "json",
+            "nette",
+            "paginator",
+            "password",
+            "slugify",
+            "string",
+            "unicode",
+            "utf-8",
+            "utility",
+            "validation"
+        ]
     },
     {
         "name": "nullpunkt/lz-string-php",
@@ -1117,7 +1333,8 @@
             "lesscss",
             "php",
             "stylesheet"
-        ]
+        ],
+        "abandoned": true
     },
     {
         "name": "pear/file_marc",
@@ -1350,17 +1567,17 @@
     },
     {
         "name": "php-http/client-common",
-        "version": "2.0.0",
-        "version_normalized": "2.0.0.0",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-http/client-common.git",
-            "reference": "2b8aa3c4910afc21146a9c8f96adb266e869517a"
+            "reference": "a8b29678d61556f45d6236b1667db16d998ceec5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-http/client-common/zipball/2b8aa3c4910afc21146a9c8f96adb266e869517a",
-            "reference": "2b8aa3c4910afc21146a9c8f96adb266e869517a",
+            "url": "https://api.github.com/repos/php-http/client-common/zipball/a8b29678d61556f45d6236b1667db16d998ceec5",
+            "reference": "a8b29678d61556f45d6236b1667db16d998ceec5",
             "shasum": ""
         },
         "require": {
@@ -1368,7 +1585,7 @@
             "php-http/httplug": "^2.0",
             "php-http/message": "^1.6",
             "php-http/message-factory": "^1.0",
-            "symfony/options-resolver": " ^3.4.20 || ^4.0.15 || ^4.1.9 || ^4.2.1"
+            "symfony/options-resolver": " ^3.4.20 || ~4.0.15 || ~4.1.9 || ^4.2.1 || ^5.0"
         },
         "require-dev": {
             "doctrine/instantiator": "^1.1",
@@ -1384,7 +1601,7 @@
             "php-http/logger-plugin": "PSR-3 Logger plugin",
             "php-http/stopwatch-plugin": "Symfony Stopwatch plugin"
         },
-        "time": "2019-02-03T16:49:09+00:00",
+        "time": "2019-11-18T08:58:18+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1418,17 +1635,17 @@
     },
     {
         "name": "php-http/discovery",
-        "version": "1.7.0",
-        "version_normalized": "1.7.0.0",
+        "version": "1.7.4",
+        "version_normalized": "1.7.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-http/discovery.git",
-            "reference": "e822f86a6983790aa17ab13aa7e69631e86806b6"
+            "reference": "82dbef649ccffd8e4f22e1953c3a5265992b83c0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-http/discovery/zipball/e822f86a6983790aa17ab13aa7e69631e86806b6",
-            "reference": "e822f86a6983790aa17ab13aa7e69631e86806b6",
+            "url": "https://api.github.com/repos/php-http/discovery/zipball/82dbef649ccffd8e4f22e1953c3a5265992b83c0",
+            "reference": "82dbef649ccffd8e4f22e1953c3a5265992b83c0",
             "shasum": ""
         },
         "require": {
@@ -1448,7 +1665,7 @@
             "php-http/message": "Allow to use Guzzle, Diactoros or Slim Framework factories",
             "puli/composer-plugin": "Sets up Puli which is recommended for Discovery to work. Check http://docs.php-http.org/en/latest/discovery.html for more details."
         },
-        "time": "2019-06-30T09:04:27+00:00",
+        "time": "2020-01-03T11:25:47+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1550,17 +1767,17 @@
     },
     {
         "name": "php-http/httplug",
-        "version": "v2.0.0",
-        "version_normalized": "2.0.0.0",
+        "version": "2.1.0",
+        "version_normalized": "2.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-http/httplug.git",
-            "reference": "b3842537338c949f2469557ef4ad4bdc47b58603"
+            "reference": "72d2b129a48f0490d55b7f89be0d6aa0597ffb06"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-http/httplug/zipball/b3842537338c949f2469557ef4ad4bdc47b58603",
-            "reference": "b3842537338c949f2469557ef4ad4bdc47b58603",
+            "url": "https://api.github.com/repos/php-http/httplug/zipball/72d2b129a48f0490d55b7f89be0d6aa0597ffb06",
+            "reference": "72d2b129a48f0490d55b7f89be0d6aa0597ffb06",
             "shasum": ""
         },
         "require": {
@@ -1570,14 +1787,14 @@
             "psr/http-message": "^1.0"
         },
         "require-dev": {
-            "henrikbjorn/phpspec-code-coverage": "^1.0",
-            "phpspec/phpspec": "^2.4"
+            "friends-of-phpspec/phpspec-code-coverage": "^4.1",
+            "phpspec/phpspec": "^4.3.4|^5.0|^6.0"
         },
-        "time": "2018-10-31T09:14:44+00:00",
+        "time": "2019-12-27T10:07:11+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "2.0.x-dev"
+                "dev-master": "2.x-dev"
             }
         },
         "installation-source": "dist",
@@ -2061,27 +2278,27 @@
     },
     {
         "name": "psr/log",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
+        "version": "1.1.2",
+        "version_normalized": "1.1.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-fig/log.git",
-            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
+            "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
-            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+            "url": "https://api.github.com/repos/php-fig/log/zipball/446d54b4cb6bf489fc9d75f55843658e6f25d801",
+            "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2018-11-20T15:27:04+00:00",
+        "time": "2019-11-01T11:05:21+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.0.x-dev"
+                "dev-master": "1.1.x-dev"
             }
         },
         "installation-source": "dist",
@@ -2249,6 +2466,61 @@
         "description": "Library for interacting with Serials Solutions' Summon API."
     },
     {
+        "name": "smartemailing/types",
+        "version": "v1.0.9",
+        "version_normalized": "1.0.9.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/smartemailing/types.git",
+            "reference": "ae6bb6c1df5062b06d064bb829da5a1aa53ede63"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/smartemailing/types/zipball/ae6bb6c1df5062b06d064bb829da5a1aa53ede63",
+            "reference": "ae6bb6c1df5062b06d064bb829da5a1aa53ede63",
+            "shasum": ""
+        },
+        "require": {
+            "consistence/consistence": "^1.0 || ^2.0",
+            "jschaedl/iban-validation": "^1.0",
+            "nette/http": "^3.0 || ^2.4",
+            "nette/utils": "^3.0 || ^2.4",
+            "php": "~7.1"
+        },
+        "require-dev": {
+            "consistence/coding-standard": "^3.4",
+            "nette/tester": "^2.0",
+            "phpstan/phpstan-nette": "^0.9.0",
+            "slevomat/coding-standard": "^4.6"
+        },
+        "time": "2020-01-13T16:12:38+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SmartEmailing\\Types\\": [
+                    "src"
+                ]
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Martin Strouhal",
+                "email": "martin@smartemailing.cz"
+            }
+        ],
+        "description": "Lightweight collection of handy PHP value objects",
+        "keywords": [
+            "php",
+            "strict types",
+            "value objects"
+        ]
+    },
+    {
         "name": "swagger-api/swagger-ui",
         "version": "v2.2.4",
         "version_normalized": "2.2.4.0",
@@ -2353,27 +2625,27 @@
     },
     {
         "name": "symfony/options-resolver",
-        "version": "v4.3.4",
-        "version_normalized": "4.3.4.0",
+        "version": "v5.0.5",
+        "version_normalized": "5.0.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/options-resolver.git",
-            "reference": "81c2e120522a42f623233968244baebd6b36cb6a"
+            "reference": "b1ab86ce52b0c0abe031367a173005a025e30e04"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/options-resolver/zipball/81c2e120522a42f623233968244baebd6b36cb6a",
-            "reference": "81c2e120522a42f623233968244baebd6b36cb6a",
+            "url": "https://api.github.com/repos/symfony/options-resolver/zipball/b1ab86ce52b0c0abe031367a173005a025e30e04",
+            "reference": "b1ab86ce52b0c0abe031367a173005a025e30e04",
             "shasum": ""
         },
         "require": {
-            "php": "^7.1.3"
+            "php": "^7.2.5"
         },
-        "time": "2019-08-08T09:29:19+00:00",
+        "time": "2020-01-04T14:08:26+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "4.3-dev"
+                "dev-master": "5.0-dev"
             }
         },
         "installation-source": "dist",
@@ -2752,7 +3024,8 @@
         "keywords": [
             "rest",
             "zf2"
-        ]
+        ],
+        "abandoned": true
     },
     {
         "name": "zendframework/zendservice-amazon",

@@ -1,104 +1,109 @@
 <script>
-    dataLayer.push({
-        'page': {
-            'category': 'account'
-        }
-    });
+  dataLayer.push({
+    'page': {
+      'category': 'account'
+    }
+  });
 </script>
-<h4><?=$this->transEsc('Your Account')?></h4>
-<ul class="list-group">
-  <? $user = $this->auth()->isLoggedIn(); if ($user['home_library'] !== 'Dummy'): ?>
-	  <? if ('ils-none' !== $this->ils()->getOfflineMode()): ?>
-	    <a href="<?=$this->url('myresearch-checkedout')?>" class="list-group-item<?=$this->active == 'checkedout' ? ' active' : ''?>">
-	      <?=$this->transEsc('Checked Out Items')?>
-	      <span class="pull-right flip"><i class="pr-document-bookpaper"></i></span>
-	    </a>
-	    <a href="<?=$this->url('myresearch-checkedouthistory')?>" class="list-group-item<?=$this->active == 'checkedouthistory' ? ' active' : ''?>">
-	      <?=$this->transEsc('Checked Out History')?>
-	      <span class="pull-right flip"><i class="pr-document-bookpaper"></i></span>
-	    </a>
-	    <a href="<?=$this->url('myresearch-holds')?>" class="list-group-item<?=$this->active == 'holds' ? ' active' : ''?>">
-	      <?=$this->transEsc('Holds and Recalls')?>
-	      <span class="pull-right flip"><i class="pr-time-clockhour"></i></span>
-	    </a>
-	    <? if ($this->ils()->checkFunction('StorageRetrievalRequests')): ?>
-	      <a href="<?=$this->url('myresearch-storageretrievalrequests')?>" class="list-group-item<?=$this->active == 'storageRetrievalRequests' ? ' active' : ''?>">
-		<?=$this->transEsc('Storage Retrieval Requests')?>
-		<span class="pull-right flip"><i class="fa fa-archive"></i></span>
-	      </a>
-	    <? endif; ?>
-	    <a href="<?=$this->url('myresearch-fines')?>" class="list-group-item<?=$this->active == 'fines' ? ' active' : ''?>">
-	      <?=$this->transEsc('Fines and Charges')?>
-	      <span class="pull-right flip"><i class="pr-ecommerce-creditcardmastercard"></i></span>
-	    </a>
-	    <a href="<?=$this->url('myresearch-profile')?>" class="list-group-item<?=$this->active == 'profile' ? ' active' : ''?>">
-	        <? $titleHtml = $this->transEsc('Profile'); ?>
-            <?= $this->help()->getElementHelp('element_help_profile', $titleHtml) ?>
-            <span class="pull-right flip"><i class="pr-user-single"></i></span>
-	    </a>
-
-	  <? endif; ?>
+<h4><?= $this->transEsc('Your Account') ?></h4>
+<div class="list-group">
+  <? $user = $this->auth()->isLoggedIn(); ?>
+  <? if ($user['home_library'] !== 'Dummy'): ?>
+    <? if ('ils-none' !== $this->ils()->getOfflineMode()): ?>
+      <a href="<?= $this->url('myresearch-checkedout') ?>" class="list-group-item<?= $this->active == 'checkedout' ? ' active' : '' ?>">
+        <?= $this->transEsc('Checked Out Items') ?>
+        <span class="pull-right flip"><i class="pr-document-bookpaper"></i></span>
+      </a>
+      <a href="<?= $this->url('myresearch-checkedouthistory') ?>" class="list-group-item<?= $this->active == 'checkedouthistory' ? ' active' : '' ?>">
+        <?= $this->transEsc('Checked Out History') ?>
+        <span class="pull-right flip"><i class="pr-document-bookpaper"></i></span>
+      </a>
+      <a href="<?= $this->url('myresearch-holds') ?>" class="list-group-item<?= $this->active == 'holds' ? ' active' : '' ?>">
+        <?= $this->transEsc('Holds and Recalls') ?>
+        <span class="pull-right flip"><i class="pr-time-clockhour"></i></span>
+      </a>
+      <? if ($this->Ziskej()->isEnabled()): ?>
+        <a href="<?= $this->url('myresearch-ziskej') ?>" class="list-group-item<?= $this->active == 'ziskej' ? ' active' : '' ?>">
+          <?= $this->transEsc('Ziskej Service') ?>
+          <span class="pull-right flip"><i class="pr-document-book"></i></span>
+        </a>
+      <? endif; ?>
+      <? if ($this->ils()->checkFunction('StorageRetrievalRequests')): ?>
+        <a href="<?= $this->url('myresearch-storageretrievalrequests') ?>" class="list-group-item<?= $this->active == 'storageRetrievalRequests' ? ' active' : '' ?>">
+          <?= $this->transEsc('Storage Retrieval Requests') ?>
+          <span class="pull-right flip"><i class="fa fa-archive"></i></span>
+        </a>
+      <? endif; ?>
+      <a href="<?= $this->url('myresearch-fines') ?>" class="list-group-item<?= $this->active == 'fines' ? ' active' : '' ?>">
+        <?= $this->transEsc('Fines and Charges') ?>
+        <span class="pull-right flip"><i class="pr-ecommerce-creditcardmastercard"></i></span>
+      </a>
+      <a href="<?= $this->url('myresearch-profile') ?>" class="list-group-item<?= $this->active == 'profile' ? ' active' : '' ?>">
+        <? $titleHtml = $this->transEsc('Profile'); ?>
+        <?= $this->help()->getElementHelp('element_help_profile', $titleHtml) ?>
+        <span class="pull-right flip"><i class="pr-user-single"></i></span>
+      </a>
+    <? endif; ?>
   <? endif; ?>
   <? if ($user): ?>
-	    <a href="<?=$this->url('myresearch-settings')?>" class="list-group-item<?=$this->active == 'settings' ? ' active' : ''?>">
-	      <?=$this->transEsc('Settings')?>
-	      <span class="pull-right flip"><i class="pr-setting-wrench"></i></span>
-	    </a>
-	    <? if ($user->isAdmin()): ?>
-	      <a href="<?=$this->url('admin')?>" class="list-group-item<?=$this->active == 'admin' ? ' active' : ''?>">
-	        <?=$this->transEsc('Administration')?>
-	        <span class="pull-right flip"><i class="pr-setting-gear2"></i></span>
-	      </a>
-	    <? endif; ?>
+    <a href="<?= $this->url('myresearch-settings') ?>" class="list-group-item<?= $this->active == 'settings' ? ' active' : '' ?>">
+      <?= $this->transEsc('Settings') ?>
+      <span class="pull-right flip"><i class="pr-setting-wrench"></i></span>
+    </a>
+    <? if ($user->isAdmin()): ?>
+      <a href="<?= $this->url('admin') ?>" class="list-group-item<?= $this->active == 'admin' ? ' active' : '' ?>">
+        <?= $this->transEsc('Administration') ?>
+        <span class="pull-right flip"><i class="pr-setting-gear2"></i></span>
+      </a>
+    <? endif; ?>
   <? endif; ?>
-
   <? if ($user && $user->libraryCardsEnabled()): ?>
-    <a href="<?=$this->url('librarycards-home')?>" class="list-group-item<?=$this->active == 'librarycards' ? ' active' : ''?>">
-        <? $titleHtml = $this->transEsc('Linked accounts'); ?>
-        <?= $this->help()->getElementHelp('element_help_linked_accounts', $titleHtml) ?>
+    <a href="<?= $this->url('librarycards-home') ?>" class="list-group-item<?= $this->active == 'librarycards' ? ' active' : '' ?>">
+      <? $titleHtml = $this->transEsc('Linked accounts'); ?>
+      <?= $this->help()->getElementHelp('element_help_linked_accounts', $titleHtml) ?>
       <span class="pull-right flip"><i class="pr-user-malegroup"></i></span>
     </a>
   <? endif; ?>
   <? if ($this->accountCapabilities()->getSavedSearchSetting() === 'enabled'): ?>
-    <a href="<?=$this->url('search-history')?>?require_login" class="list-group-item<?=$this->active == 'history' ? ' active' : ''?>">
-      <?=$this->transEsc('history_saved_searches')?>
+    <a href="<?= $this->url('search-history') ?>?require_login" class="list-group-item<?= $this->active == 'history' ? ' active' : '' ?>">
+      <?= $this->transEsc('history_saved_searches') ?>
       <span class="pull-right flip"><i class="pr-interface-searchtickdone"></i></span>
     </a>
   <? endif; ?>
   <? if ($user): ?>
-    <a href="<?=$this->url('myresearch-logout')?>" class="list-group-item">
-      <?=$this->transEsc("Log Out")?>
+    <a href="<?= $this->url('myresearch-logout') ?>" class="list-group-item">
+      <?= $this->transEsc("Log Out") ?>
       <span class="pull-right flip"><i class="pr-interface-logoutexit"></i></span>
     </a>
   <? endif; ?>
-</ul>
+</div>
 <? if ($this->auth()->isLoggedIn() && $this->auth()->getManager()->supportsPasswordChange()): ?>
-  <h4><?=$this->transEsc('Preferences')?></h4>
-  <ul class="list-group">
-    <a href="<?=$this->url('myresearch-changepassword') ?>" class="list-group-item<?=$this->active == 'newpassword' ? ' active' : ''?>">
-      <?=$this->transEsc('Change Password') ?>
+  <h4><?= $this->transEsc('Preferences') ?></h4>
+  <div class="list-group">
+    <a href="<?= $this->url('myresearch-changepassword') ?>" class="list-group-item<?= $this->active == 'newpassword' ? ' active' : '' ?>">
+      <?= $this->transEsc('Change Password') ?>
       <span class="pull-right flip"><i class="pr-user-passwordlock2"></i></span>
     </a>
-  </ul>
+  </div>
 <? endif; ?>
 <? if ($this->userlist()->getMode() !== 'disabled' && $user = $this->auth()->isLoggedIn()): ?>
-  <ul class="list-group">
-    <a href="<?=$this->url('myresearch-favorites')?>" class="list-group-item<?=$this->active == 'favorites' ? ' active' : ''?>">
-      <?=$this->transEsc('Your Favorites')?>
+  <div class="list-group">
+    <a href="<?= $this->url('myresearch-favorites') ?>" class="list-group-item<?= $this->active == 'favorites' ? ' active' : '' ?>">
+      <?= $this->transEsc('Your Favorites') ?>
       <span class="pull-right flip"><i class="pr-interface-favoritestar2"></i></span>
     </a>
     <? $lists = $user->getLists() ?>
-    <div style=" margin-left: 15px; ">
-    <? foreach ($lists as $list): ?>
-        <a href="<?=$this->url('userList', array('id' => $list['id']))?>" class="list-group-item<?=$this->active == 'list' . $list['id'] ? ' active' : ''?>">
-          <?=$this->escapeHtml($list['title'])?>
-          <span class="badge"><?=$list->cnt?></span>
+    <div style="margin-left: 15px;">
+      <? foreach ($lists as $list): ?>
+        <a href="<?= $this->url('userList', array('id' => $list['id'])) ?>" class="list-group-item<?= $this->active == 'list' . $list['id'] ? ' active' : '' ?>">
+          <?= $this->escapeHtml($list['title']) ?>
+          <span class="badge"><?= $list->cnt ?></span>
         </a>
-    <? endforeach; ?>
-    <a href="<?=$this->url('editList', array('id'=>'NEW'))?>" title="<?=$this->transEsc('Create a List') ?>" class="list-group-item">
-      <?=$this->transEsc('Create a List') ?>
-      <span class="pull-right flip"><i class="pr-interface-plusadd"></i></span>
-    </a>
+      <? endforeach; ?>
+      <a href="<?= $this->url('editList', array('id' => 'NEW')) ?>" title="<?= $this->transEsc('Create a List') ?>" class="list-group-item">
+        <?= $this->transEsc('Create a List') ?>
+        <span class="pull-right flip"><i class="pr-interface-plusadd"></i></span>
+      </a>
     </div>
-  </ul>
+  </div>
 <? endif ?>

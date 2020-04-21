@@ -179,4 +179,32 @@ class Factory
         return new Feedback($config);
     }
 
+    /**
+     * Get Ziskej view helper
+     *
+     * @param \Zend\ServiceManager\ServiceManager $sm
+     * @return \CPK\View\Helper\CPK\Ziskej
+     */
+    public static function getZiskej(ServiceManager $sm): Ziskej
+    {
+        /** @var \Zend\Http\PhpEnvironment\Request $request */
+        $request = $sm->getServiceLocator()
+            ->get('Request');
+
+        /** @var \Zend\Http\Header\Cookie $cookie */
+        $cookie = $request->getCookie();
+
+        return new Ziskej($cookie);
+    }
+
+    /**
+     * Get Order view helper
+     *
+     * @return \CPK\View\Helper\CPK\Order
+     */
+    public static function getOrder(): Order
+    {
+        return new Order();
+    }
+
 }
