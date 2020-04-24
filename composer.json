@@ -42,7 +42,8 @@
         "monolog/monolog": "^1.24",
         "php-http/guzzle6-adapter": "^2.0",
         "colinmollenhour/credis": "^1.10",
-        "moravianlibrary/ziskej-api-php-client": "^2.1"
+        "moravianlibrary/ziskej-api-php-client": "^2.1",
+        "lcobucci/jwt": "^3.3"
     },
     "require-dev": {
         "behat/mink": "1.7.0",

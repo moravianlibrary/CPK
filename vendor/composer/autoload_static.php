@@ -43,6 +43,7 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
         'L' => 
         array (
             'LosReCaptcha\\' => 13,
+            'Lcobucci\\JWT\\' => 13,
             'LZCompressor\\' => 13,
         ),
         'H' => 
@@ -127,6 +128,10 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
         'LosReCaptcha\\' => 
         array (
             0 => __DIR__ . '/..' . '/los/losrecaptcha/src',
+        ),
+        'Lcobucci\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/lcobucci/jwt/src',
         ),
         'LZCompressor\\' => 
         array (
