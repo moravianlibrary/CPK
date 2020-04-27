@@ -769,4 +769,39 @@ class UtilController extends AbstractBase
 
         return $json['response']['docs'];
     }
+
+    /**
+     * Remove expired users
+     *
+     * @return void
+     */
+    public function expireusersAction()
+    {
+        $this->consoleOpts->addRules(
+            [
+                'h|help' => 'Get help',
+            ]
+        );
+
+        if ($this->consoleOpts->getOption('h')
+            || $this->consoleOpts->getOption('help')
+        ) {
+            Console::writeLine('Expire old users in the database.');
+            Console::writeLine('');
+            Console::writeLine(
+                'Optional parameter: days from last login, at least 730 (= 2 years);'
+            );
+            Console::writeLine(
+                'by default, searches more than 730 days old will be removed.'
+            );
+            return $this->getFailureResponse();
+        }
+
+        return $this->expire(
+            'User',
+            '%%count%% inactive user accounts deleted.',
+            'No inactive user accounts to delete.',
+            730
+        );
+    }
 }

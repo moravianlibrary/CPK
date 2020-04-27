@@ -197,7 +197,7 @@ class Logger extends BaseLogger implements ServiceLocatorAwareInterface
                 $min = BaseLogger::ALERT; // Alert: action must be taken immediately
                 break;
             default:                    // INVALID FILTER
-                continue;
+                break;
             }
 
             // Clone the submitted writer since we'll need a separate instance of the

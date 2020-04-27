@@ -159,6 +159,30 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
 
             $this->normalizeItemRestrictionType($response, $itemInformation, $i);
         }
+
+        $items = $response->getArray('LookupItemSetResponse', 'BibInformation', 'HoldingsSet', 'ItemInformation');
+
+        // Move DateDue to proper position
+        foreach ($items as $i => $itemInformation) {
+            $dueDate = $response->getRelative($itemInformation, 'DateDue');
+            if ($dueDate === null) {
+                $dueDate = $response->getRelative(
+                    $itemInformation, 'ItemOptionalFields', 'DateDue'
+                );
+
+                if ($dueDate !== null) {
+                    $response->setDataValue(
+                        $dueDate,
+                        'ns1:LookupItemSetResponse',
+                        'ns1:BibInformation',
+                        'ns1:HoldingsSet',
+                        (count($items) > 1) ? "ns1:ItemInformation[$i]" : 'ns1:ItemInformation',
+                        'ns1:DateDue'
+                    );
+                }
+            }
+        }
+
     }
 
     public function normalizeRequestedItems(JsonXML &$response)
