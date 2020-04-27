@@ -3,6 +3,9 @@
 namespace CPK;
 
 use Http\Message\Authentication\Bearer;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Ecdsa\Sha512;
+use Lcobucci\JWT\Signer\Key;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Mzk\ZiskejApi\Api;
@@ -20,9 +23,7 @@ class ZiskejApiFactory implements FactoryInterface
      *
      * @return mixed|\Mzk\ZiskejApi\Api
      *
-     * @throws \Http\Client\Exception
-     * @throws \Mzk\ZiskejApi\Exception\ApiException
-     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \Exception
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
@@ -39,9 +40,22 @@ class ZiskejApiFactory implements FactoryInterface
             'connect_timeout' => 10,
         ]);
 
-        $api = new Api(new ApiClient($guzzleClient, $apiBaseUrl, null, $logger));
+        // generate token
+        $keyFile = $config->Certs->ziskej;
+        if(!$keyFile || !is_readable($keyFile)){
+            throw new \Exception('Certificate file to generate token not found');
+        }
 
-        $token = $api->login($config['SensitiveZiskej']['username'], $config['SensitiveZiskej']['password']);
+        $time = time();
+        $token = (new Builder())
+            ->issuedBy('cpk')
+            ->issuedAt($time)
+            ->expiresAt($time + 3600)
+            ->withClaim('app', 'cpk')
+            ->getToken(
+                new Sha512(),
+                new Key('file://' . $keyFile)
+            );
 
         //@todo store token
 
