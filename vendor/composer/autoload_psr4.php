@@ -19,6 +19,7 @@ return array(
     'Mzk\\ZiskejApi\\' => array($vendorDir . '/moravianlibrary/ziskej-api-php-client/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'LosReCaptcha\\' => array($vendorDir . '/los/losrecaptcha/src'),
+    'Lcobucci\\JWT\\' => array($vendorDir . '/lcobucci/jwt/src'),
     'LZCompressor\\' => array($vendorDir . '/nullpunkt/lz-string-php/src/LZCompressor'),
     'Http\\Promise\\' => array($vendorDir . '/php-http/promise/src'),
     'Http\\Message\\MultipartStream\\' => array($vendorDir . '/php-http/multipart-stream-builder/src'),
