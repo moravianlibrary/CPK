@@ -143,10 +143,10 @@ list_sorting = random
 
 [Ziskej]
 disabled = ''
-prod = 'https://ziskej.techlib.cz/api/v1'
-test = 'https://ziskej-test.techlib.cz/api/v1'
-demo = 'https://ziskej-demo.techlib.cz/api/v1'
-dev  = 'https://ziskej-dev.techlib.cz/api/v1'
+prod = 'https://ziskej.techlib.cz:9080/api/v1'
+test = 'https://ziskej-test.techlib.cz:9080/api/v1'
+demo = 'https://ziskej-demo.techlib.cz:9080/api/v1'
+dev  = 'https://ziskej-dev.techlib.cz:9080/api/v1'
 
 [Ziskej_minimal]
 url = 'https://ziskej.techlib.cz'
