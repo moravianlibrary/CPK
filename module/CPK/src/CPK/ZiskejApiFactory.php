@@ -2,6 +2,7 @@
 
 namespace CPK;
 
+use Http\Adapter\Guzzle6\Client;
 use Http\Message\Authentication\Bearer;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Ecdsa\Sha512;
@@ -36,7 +37,7 @@ class ZiskejApiFactory implements FactoryInterface
         $logger = new Logger('ZiskejApi');
         $logger->pushHandler(new StreamHandler('log/ziskej-api.log', $logger::DEBUG));
 
-        $guzzleClient = \Http\Adapter\Guzzle6\Client::createWithConfig([
+        $guzzleClient = Client::createWithConfig([
             'connect_timeout' => 10,
         ]);
 
