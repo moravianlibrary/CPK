@@ -43,7 +43,8 @@
         "php-http/guzzle6-adapter": "^2.0",
         "colinmollenhour/credis": "^1.10",
         "moravianlibrary/ziskej-api-php-client": "^2.1",
-        "lcobucci/jwt": "^3.3"
+        "lcobucci/jwt": "^3.3",
+        "graylog2/gelf-php": "^1.6"
     },
     "require-dev": {
         "behat/mink": "1.7.0",
