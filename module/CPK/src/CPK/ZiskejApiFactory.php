@@ -2,11 +2,14 @@
 
 namespace CPK;
 
+use Gelf\Publisher;
+use Gelf\Transport\TcpTransport;
 use Http\Adapter\Guzzle6\Client;
 use Http\Message\Authentication\Bearer;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Ecdsa\Sha512;
 use Lcobucci\JWT\Signer\Key;
+use Monolog\Handler\GelfHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Mzk\ZiskejApi\Api;
@@ -35,7 +38,17 @@ class ZiskejApiFactory implements FactoryInterface
         $apiBaseUrl = $config['Ziskej'][$cookieZiskejMode];
 
         $logger = new Logger('ZiskejApi');
-        $logger->pushHandler(new StreamHandler('log/ziskej-api.log', $logger::DEBUG));
+
+        $streamHandler = new StreamHandler('log/ziskej-api.log', $logger::DEBUG);
+        $logger->pushHandler($streamHandler);
+
+        if (!empty($config->Filebeat) && !empty($config->Filebeat->host)) {
+            $gelfHandler = new GelfHandler(new Publisher(new TcpTransport(
+                $config->Filebeat->host,
+                !empty((int)$config->Filebeat->port) ? (int)$config->Filebeat->port : null
+            )), $logger::DEBUG);
+            $logger->pushHandler($gelfHandler);
+        }
 
         $guzzleClient = Client::createWithConfig([
             'connect_timeout' => 10,
