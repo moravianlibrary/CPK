@@ -60,7 +60,9 @@ class ZiskejApiFactory implements FactoryInterface
 
         //@todo store token
 
-        return new Api(new ApiClient($guzzleClient, $apiBaseUrl, new Bearer($token), $logger));
+        $api = new Api(new ApiClient($guzzleClient, $apiBaseUrl, new Bearer($token), $logger));
+        $logger->addDebug('Ziskej API Client created.');
+        return $api;
     }
 
 }
