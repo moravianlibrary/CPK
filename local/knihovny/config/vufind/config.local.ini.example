@@ -172,4 +172,4 @@ lifetime                    = 3600 ; Session lasts for 1 hour
 ;redis_version            = 3
 
 [Certs]
-ziskej = "/data/www/cpk/local/knihovny.cz/certs/cert-cpk-ziskej-api.key"
+ziskej = "/var/www/cpk/certs/cert-cpk-ziskej-api.key"
