@@ -25,6 +25,7 @@
 
 namespace CPK\Controller;
 
+use CPK\Ziskej\Ziskej;
 use VuFind\Controller\AbstractBase;
 
 
@@ -41,27 +42,19 @@ class ZiskejController extends AbstractBase
         /** @var \Zend\View\Model\ViewModel $view */
         $view = $this->createViewModel();
 
-        /** @var string[] $ziskejModes */
-        $ziskejModes = array_keys($this->getConfig()->Ziskej->toArray());
-        $view->setVariable('ziskejModes', $ziskejModes);
+        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
 
-        $request = $this->getRequest();
-        if ($this->getRequest()->isPost()) {
-            $postZiskejStatus = in_array($this->getRequest()->getPost('ziskej'), $ziskejModes)
-                ? $this->getRequest()->getPost('ziskej')
-                : 'disabled';
-            setcookie('ziskej', $postZiskejStatus, 0, '/');
-            if ($this->getRequest()->getPost('ziskej')) {
-                $this->flashMessenger()->addMessage('message_ziskej_mode_saved', 'success');
-            }
+        if ($this->getRequest()->isPost() && $this->getRequest()->getPost('ziskej')) {
+            $cpkZiskej->setMode($this->getRequest()->getPost('ziskej'));
+            $this->flashMessenger()->addMessage('message_ziskej_mode_saved', 'success');
             return $this->redirect()->refresh();
         }
 
-        /** @var string ziskejCurrentMode */
-        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
-        $view->setVariable('ziskejCurrentMode', $ziskejCurrentMode);
+        $view->setVariable('ziskejModes', $cpkZiskej->getModes());
+        $view->setVariable('ziskejCurrentMode', $cpkZiskej->getCurrentMode());
 
-        if ($ziskejCurrentMode === 'disabled') {
+        if (!$cpkZiskej->isEnabled()) {
             return $view;
         }
 

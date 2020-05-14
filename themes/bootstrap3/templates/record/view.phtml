@@ -212,7 +212,7 @@
                   <ul class="recordTabs nav nav-tabs">
                     <?php $disabledTabs = []; ?>
                     <? foreach ($this->tabs as $tab => $obj): ?>
-                    <? if($tab == 'Ziskej' && !$this->ziskejEnabled) continue; ?>
+                    <? if($tab == 'Ziskej' && !$this->Ziskej()->isEnabled()) continue; ?>
                     <? // add current tab to breadcrumbs if applicable:
                       $desc = $obj->getDescription();
                       $tab_classes = array();
@@ -242,7 +242,7 @@
             </div>
            	<? endif; ?>
                 <div class="tab-content well border" id="record-tabs">
-                  <? if($this->activeTab != 'ziskej' || $this->ziskejEnabled): ?>
+                  <? if($this->activeTab != 'ziskej' || $this->Ziskej()->isEnabled()): ?>
                     <div class="tab-pane active" id="<?=$this->activeTab ?>-tab">
                       <?=isset($activeTabObj) ? $this->record($this->driver)->getTab($activeTabObj) : '' ?>
                     </div>
@@ -321,7 +321,7 @@
                   }
 
                   // Disable ziskej tab
-                  if (!$this->ziskejEnabled) {
+                  if (!$this->Ziskej()->isEnabled()) {
                     $disabledTabs[] = 'ziskej';
                   }
                 ?>
