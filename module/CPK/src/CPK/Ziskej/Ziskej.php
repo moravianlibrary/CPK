@@ -18,6 +18,11 @@ class Ziskej
     private $config;
 
     /**
+     * @var Config
+     */
+    private $configZiskej;
+
+    /**
      * @var CookieManager
      */
     private $cookieManager;
@@ -32,7 +37,10 @@ class Ziskej
         CookieManager $cookieManager
     ) {
         $this->config = $config;
+        $this->configZiskej = $this->config->get('Ziskej');
         $this->cookieManager = $cookieManager;
+
+        $this->defaultMode = $this->configZiskej['default_mode'] ?: self::MODE_DISABLED;
     }
 
     /**
@@ -47,11 +55,13 @@ class Ziskej
     /**
      * Get list of Ziskej API urls
      *
-     * @return mixed[]
+     * @return string[]
      */
     public function getUrls(): array
     {
-        return $this->config->get('Ziskej')->toArray();
+        return !empty($this->configZiskej['modes'])
+            ? $this->configZiskej['modes']->toArray()
+            : [];
     }
 
     /**
@@ -131,7 +141,7 @@ class Ziskej
      */
     public function getZiskejTechlibUrl(): ?string
     {
-        return $this->config->get('Ziskej_minimal')['url'];
+        return $this->configZiskej['techlib_url'];
     }
 
     /**
