@@ -240,6 +240,7 @@ $config = array(
             'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
             'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory',
             'CPK\KohaOAUTH2Service' => 'CPK\Auth\Factory::getKohaOAUTH2Service',
+            'CPK\Ziskej' => 'CPK\Ziskej\Factory',
         ), // Exceptions throwing system
 
         'invokables' => array(
