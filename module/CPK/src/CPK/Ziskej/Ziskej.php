@@ -10,6 +10,7 @@ use Zend\Config\Config;
 class Ziskej
 {
     public const MODE_DISABLED = 'disabled';
+    public const MODE_PRODUCTION = 'prod';
 
     /**
      * @var Config
@@ -24,7 +25,7 @@ class Ziskej
     /**
      * @var string
      */
-    private $defaultMode = self::MODE_DISABLED;
+    private $defaultMode = self::MODE_PRODUCTION;
 
     public function __construct(
         Config $config,
