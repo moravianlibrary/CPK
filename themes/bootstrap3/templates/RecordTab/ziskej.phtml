@@ -5,7 +5,8 @@
     </div>
     <div class="panel-body">
       <div class="col-md-10">
-        <?= $this->translate('ziskej_desc') ?>
+        <p><?= $this->translate('ziskej_desc') ?></p>
+        <p><?= $this->translate('ziskej_price') ?></p>
       </div>
       <div class="col-md-2">
         <? if (!empty($this->ziskejTechlibFrontUrl)): ?>
@@ -143,7 +144,7 @@
                   <?= $this->translate('ziskej_text_info_conditions'); ?>
                 </p>
                 <div class="text-center">
-                  <p><?= $this->translate("ziskej_price") ?></p>
+                  <p><strong><?= $this->translate("ziskej_price") ?></strong></p>
                   <input id="submit" type="submit" name="submit" class="btn btn-primary" value="<?= $this->transEsc("btn_order") ?>">
                 </div>
               </div>
