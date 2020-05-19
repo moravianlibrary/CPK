@@ -17,21 +17,20 @@ class ZiskejApiFactory implements FactoryInterface
 {
 
     /**
+     * @var \CPK\Ziskej\Ziskej
+     */
+    private $cpkZiskej;
+
+    /**
      * Create Ziskej Api service
      *
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
-     *
-     * @return mixed|\Mzk\ZiskejApi\Api
-     *
+     * @return \Mzk\ZiskejApi\Api
      * @throws \Exception
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator): Api
     {
-        $cookieManager = $serviceLocator->get('VuFind\CookieManager');
-        $cookieZiskejMode = $cookieManager->get('ziskej');
-
-        $config = $serviceLocator->get('VuFind\Config')->get('config');
-        $apiBaseUrl = $config['Ziskej'][$cookieZiskejMode];
+        $this->cpkZiskej = $serviceLocator->get('CPK\Ziskej');
 
         $logger = new Logger('ZiskejApi');
         $logger->pushHandler(new StreamHandler('log/ziskej-api.log', $logger::DEBUG));
@@ -41,11 +40,6 @@ class ZiskejApiFactory implements FactoryInterface
         ]);
 
         // generate token
-        $keyFile = $config->Certs->ziskej;
-        if(!$keyFile || !is_readable($keyFile)){
-            throw new \Exception('Certificate file to generate token not found');
-        }
-
         $time = time();
         $token = (new Builder())
             ->issuedBy('cpk')
@@ -54,12 +48,12 @@ class ZiskejApiFactory implements FactoryInterface
             ->withClaim('app', 'cpk')
             ->getToken(
                 new Sha512(),
-                new Key('file://' . $keyFile)
+                new Key('file://' . $this->cpkZiskej->getPrivateKeyFileLocation())
             );
 
         //@todo store token
 
-        return new Api(new ApiClient($guzzleClient, $apiBaseUrl, new Bearer($token), $logger));
+        return new Api(new ApiClient($guzzleClient, $this->cpkZiskej->getCurrentUrl(), new Bearer($token), $logger));
     }
 
 }

@@ -30,6 +30,7 @@ namespace CPK\Controller;
 
 use CPK\Auth\Manager as AuthManager;
 use CPK\Controller\Exception\TicketNotFoundException;
+use CPK\Ziskej\Ziskej;
 use Mzk\ZiskejApi\RequestModel\Message;
 use VuFind\Controller\MyResearchController as MyResearchControllerBase;
 use VuFind\Exception\Auth as AuthException;
@@ -1357,6 +1358,9 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function ziskejAction()
     {
+        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
+
         // Stop now if the user does not have valid catalog credentials available:
         if (!$user = $this->getAuthManager()->isLoggedIn()) {
             $this->flashExceptions($this->flashMessenger());
@@ -1388,9 +1392,7 @@ class MyResearchController extends MyResearchControllerBase
 
         $viewVars['isSynchronous'] = $isSynchronous;
 
-        $request = $this->getRequest();
-        $ziskejCurrentMode = $request->getCookie()->ziskej ?? 'disabled';
-        if ($ziskejCurrentMode != 'disabled') {
+        if ($cpkZiskej->isEnabled()) {
 
             /** @var \CPK\ILS\Driver\MultiBackend $multiBackend */
             $multiBackend = $this->getILS()->getDriver();
@@ -1433,15 +1435,13 @@ class MyResearchController extends MyResearchControllerBase
                     }
                 }
             } catch (\Exception $ex) {
-                if ($ziskejCurrentMode != 'disabled') {
-                    $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
-                        'warning');  //@todo presunout do view pod nadpis ziskej
-                }
+                $this->flashMessenger()->addMessage('ziskej_warning_api_disconnected',
+                    'warning');  //@todo presunout do view pod nadpis ziskej
             }
         }
 
         $viewVars['userTickets'] = $userTickets;
-        $viewVars['ziskejCurrentMode'] = $ziskejCurrentMode;
+        $viewVars['ziskejCurrentMode'] = $cpkZiskej->getCurrentMode();
         $view = $this->createViewModel($viewVars);
         $this->flashExceptions($this->flashMessenger());
         return $view;

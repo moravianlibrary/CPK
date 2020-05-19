@@ -2,7 +2,6 @@
 
 namespace CPK\View\Helper\CPK;
 
-use Zend\Http\Header\Cookie;
 use Zend\View\Helper\AbstractHelper;
 
 /**
@@ -12,20 +11,17 @@ class Ziskej extends AbstractHelper
 {
 
     /**
-     * @var string
+     * @var \CPK\Ziskej\Ziskej
      */
-    private $mode;
+    private $cpkZiskej;
 
-    public function __construct(Cookie $cookie)
+    public function __construct(\CPK\Ziskej\Ziskej $cpkZiskej)
     {
-        if (!empty($cookie->ziskej) && $cookie->ziskej != 'disabled') {
-            $this->mode = $cookie->ziskej;
-        }
-
+        $this->cpkZiskej = $cpkZiskej;
     }
 
     public function isEnabled(): bool
     {
-        return (bool)$this->mode;
+        return $this->cpkZiskej->isEnabled();
     }
 }
