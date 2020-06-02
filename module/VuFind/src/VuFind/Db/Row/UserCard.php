@@ -47,4 +47,10 @@ class UserCard extends RowGateway
     {
         parent::__construct('id', 'user_card', $adapter);
     }
+
+    public function getEppnDomain(): ?string
+    {
+        $eppnDomain = substr(strrchr($this->eppn, "@"), 1);
+        return $eppnDomain ? $eppnDomain : null;
+    }
 }

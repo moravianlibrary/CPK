@@ -1449,7 +1449,7 @@ class MyResearchController extends MyResearchControllerBase
 
     /**
      * Ziskej ticket detail
-     * url: /MyResearch/ZiskejTicket/<eppn>/<ticket_id>
+     * url: /MyResearch/ZiskejTicket/<eppn_domain>/<ticket_id>
      *
      * @return mixed|\Zend\View\Model\ViewModel
      *
@@ -1459,8 +1459,8 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function ziskejTicketAction()
     {
-        $eppn = $this->params()->fromRoute('eppn');
-        if (!$eppn) {
+        $eppnDomain = $this->params()->fromRoute('eppn_domain');
+        if (!$eppnDomain) {
             throw new TicketNotFoundException('The requested order was not found');
         }
 
@@ -1478,14 +1478,16 @@ class MyResearchController extends MyResearchControllerBase
         $userCards = $user->getAllUserLibraryCards();
 
         $userCard = null;
+        $eppn = null;
         /** @var \VuFind\Db\Row\UserCard $userCard */
         foreach ($userCards as $card) {
-            if ($eppn == $card->eppn) {
+            if ($eppnDomain == $card->getEppnDomain()) {
                 $userCard = $card;
+                $eppn = $card->eppn;
             }
         }
 
-        if (!$userCard) {
+        if (!$userCard || !$eppn) {
             throw new TicketNotFoundException('The requested order was not found');
         }
 
@@ -1513,7 +1515,7 @@ class MyResearchController extends MyResearchControllerBase
 
     /**
      * Cancel Ziskej ticket
-     * url: /MyResearch/ZiskejTicketCancel/<eppn>/<ticket_id>
+     * url: /MyResearch/ZiskejTicketCancel/<eppn_domain>/<ticket_id>
      *
      * @return mixed|\Zend\Http\Response
      * @throws \CPK\Controller\Exception\TicketNotFoundException
@@ -1522,8 +1524,8 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function ziskejTicketCancelAction()
     {
-        $eppn = $this->params()->fromRoute('eppn');
-        if (!$eppn) {
+        $eppnDomain = $this->params()->fromRoute('eppn_domain');
+        if (!$eppnDomain) {
             throw new TicketNotFoundException('The requested order was not found');
         }
 
@@ -1541,14 +1543,16 @@ class MyResearchController extends MyResearchControllerBase
         $userCards = $user->getAllUserLibraryCards();
 
         $userCard = null;
+        $eppn = null;
         /** @var \VuFind\Db\Row\UserCard $userCard */
         foreach ($userCards as $card) {
-            if ($eppn == $card->eppn) {
+            if ($eppnDomain == $card->getEppnDomain()) {
                 $userCard = $card;
+                $eppn = $card->eppn;
             }
         }
 
-        if (!$userCard) {
+        if (!$userCard || !$eppn) {
             throw new TicketNotFoundException('The requested order was not found');
         }
 
@@ -1564,7 +1568,7 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
-            'eppn' => $eppn,
+            'eppn_domain' => $eppnDomain,
             'ticket_id' => $ticketId,
         ]);
 
@@ -1582,8 +1586,8 @@ class MyResearchController extends MyResearchControllerBase
     {
         //@todo if method != POST
 
-        $eppn = $this->params()->fromRoute('eppn');
-        if (!$eppn) {
+        $eppnDomain = $this->params()->fromRoute('eppn_domain');
+        if (!$eppnDomain) {
             throw new TicketNotFoundException('The requested order was not found');
         }
 
@@ -1601,14 +1605,16 @@ class MyResearchController extends MyResearchControllerBase
         $userCards = $user->getAllUserLibraryCards();
 
         $userCard = null;
+        $eppn = null;
         /** @var \VuFind\Db\Row\UserCard $userCard */
         foreach ($userCards as $card) {
-            if ($eppn == $card->eppn) {
+            if ($eppnDomain == $card->getEppnDomain()) {
                 $userCard = $card;
+                $eppn = $card->eppn;
             }
         }
 
-        if (!$userCard) {
+        if (!$userCard || !$eppn) {
             throw new TicketNotFoundException('The requested order was not found');
         }
 
@@ -1617,7 +1623,7 @@ class MyResearchController extends MyResearchControllerBase
             $this->flashMessenger()->addMessage('message_ziskej_message_required_ticketMessage', 'error');
 
             return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
-                'eppn' => $eppn,
+                'eppn_domain' => $eppnDomain,
                 'ticket_id' => $ticketId,
             ]);
         }
@@ -1635,7 +1641,7 @@ class MyResearchController extends MyResearchControllerBase
         }
 
         return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
-            'eppn' => $eppn,
+            'eppn_domain' => $eppnDomain,
             'ticket_id' => $ticketId,
         ]);
     }

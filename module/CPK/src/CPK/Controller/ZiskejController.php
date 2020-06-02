@@ -129,12 +129,12 @@ class ZiskejController extends AbstractBase
      */
     public function paymentAction()
     {
-        $eppn = $this->params()->fromRoute('eppn');
+        $eppnDomain = $this->params()->fromRoute('eppn_domain');
         $ticketId = $this->params()->fromRoute('ticket_id');
         $payment_transaction_id = $this->params()->fromRoute('payment_transaction_id');
 
         return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
-            'eppn' => $eppn,
+            'eppn_domain' => $eppnDomain,
             'ticket_id' => $ticketId
         ]);
     }
