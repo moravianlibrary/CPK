@@ -386,28 +386,20 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 return $this->redirectToRecord('', 'Ziskej');
             }
 
-            /** @var array $userData */
-            $userData = $user->toArray();
+            $responseReader = new Reader(
+                $user->firstname,
+                $user->lastname,
+                $email,
+                $driver->sourceToSigla($user->home_library),
+                true,
+                true,
+                !empty($user->cat_username) ? $user->cat_username : null
+            );
 
-            //try {
             if ($ziskejApi->getReader($eppn)) {
-                $reader = $ziskejApi->updateReader($eppn, new Reader(
-                    $userData['firstname'],
-                    $userData['lastname'],
-                    $email,
-                    $driver->sourceToSigla($user->home_library),
-                    true,
-                    true
-                ));
+                $reader = $ziskejApi->updateReader($eppn, $responseReader);
             } else {
-                $reader = $ziskejApi->createReader($eppn, new Reader(
-                    $userData['firstname'],
-                    $userData['lastname'],
-                    $email,
-                    $driver->sourceToSigla($user->home_library),
-                    true,
-                    true
-                ));
+                $reader = $ziskejApi->createReader($eppn, $responseReader);
             }
 
             if (!$reader->isActive()) {
