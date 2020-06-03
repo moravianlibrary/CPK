@@ -151,7 +151,7 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
         </a>
       <? endif; ?>
       <? if (in_array($ticket->getStatus(), ['created', 'paid'])): ?>
-        <a class="btn btn-info" href="/MyResearch/ZiskejTicketCancel/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>"
+        <a class="btn btn-info" href="/MyResearch/ZiskejTicketCancel/<?= $userCard->getEppnDomain(); ?>/<?= $ticket->getId() ?>"
            title="<?= $this->transEsc("btn_order_cancel_title"); ?>"
            onclick="return confirm('<?= sprintf("Opravdu chcete stornovat objednávku číslo %s?", $ticket->getHid()); ?>')">
           <i class="fa fa-times"></i> <?= $this->transEsc("btn_order_cancel"); ?>
@@ -252,7 +252,7 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
         <div>
           <hr>
           <h4><?= $this->transEsc("header_order_new_message"); ?></h4>
-          <form method="post" action="/MyResearch/ZiskejTicketCreateMessageForm/<?= $userCard->eppn; ?>/<?= $ticket->getId() ?>">
+          <form method="post" action="/MyResearch/ZiskejTicketCreateMessageForm/<?= $userCard->getEppnDomain(); ?>/<?= $ticket->getId() ?>">
             <div class="form-group">
               <label for="ticketMessage"><?= $this->transEsc("label_ticketMessage"); ?>:</label>
               <textarea name="ticketMessage" id="ticketMessage" class="form-control" rows="3" required></textarea>

@@ -340,7 +340,7 @@ $config['router']['routes']['ziskej'] = [
 $config['router']['routes']['ziskej-payment'] = [
     'type' => 'Zend\Mvc\Router\Http\Segment',
     'options' => [
-        'route' => '/ziskej/payment/:eppn/:ticket_id/:payment_transaction_id',
+        'route' => '/ziskej/payment/:eppn_domain/:ticket_id/:payment_transaction_id',
         'defaults' => [
             'controller' => 'Ziskej',
             'action' => 'payment',
@@ -350,9 +350,9 @@ $config['router']['routes']['ziskej-payment'] = [
 
 $dynamicRoutes = [
     'MyResearch' => [
-        'MyResearch-ziskejTicket' => 'ZiskejTicket/[:eppn]/[:ticket_id]',
-        'MyResearch-ziskejTicketCancel' => 'ZiskejTicketCancel/[:eppn]/[:ticket_id]',
-        'MyResearch-ziskejTicketCreateMessageForm' => 'ZiskejTicketCreateMessageForm/[:eppn]/[:ticket_id]',
+        'MyResearch-ziskejTicket' => 'ZiskejTicket/[:eppn_domain]/[:ticket_id]',
+        'MyResearch-ziskejTicketCancel' => 'ZiskejTicketCancel/[:eppn_domain]/[:ticket_id]',
+        'MyResearch-ziskejTicketCreateMessageForm' => 'ZiskejTicketCreateMessageForm/[:eppn_domain]/[:ticket_id]',
     ]
 ];
 

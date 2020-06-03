@@ -426,7 +426,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $this->flashMessenger()->addMessage('Objednávka nyní čeká na úhradu.', 'warning');
 
             return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
-                'eppn' => $eppn,
+                'eppn_domain' => substr(strrchr($eppn, "@"), 1),
                 'ticket_id' => $ticket->getId(),
             ]);
 
