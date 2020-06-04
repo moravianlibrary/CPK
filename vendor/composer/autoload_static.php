@@ -24,9 +24,7 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
         'S' => 
         array (
             'Symfony\\Component\\Yaml\\' => 23,
-            'Symfony\\Component\\Process\\' => 26,
             'Symfony\\Component\\OptionsResolver\\' => 34,
-            'Symfony\\Component\\CssSelector\\' => 30,
             'SmartEmailing\\Types\\' => 20,
         ),
         'P' => 
@@ -68,11 +66,6 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
             'Consistence\\' => 12,
             'Clue\\StreamFilter\\' => 18,
         ),
-        'B' => 
-        array (
-            'Behat\\Mink\\Driver\\' => 18,
-            'Behat\\Mink\\' => 11,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -88,17 +81,9 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
         array (
             0 => __DIR__ . '/..' . '/symfony/yaml',
         ),
-        'Symfony\\Component\\Process\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/process',
-        ),
         'Symfony\\Component\\OptionsResolver\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/options-resolver',
-        ),
-        'Symfony\\Component\\CssSelector\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/css-selector',
         ),
         'SmartEmailing\\Types\\' => 
         array (
@@ -190,15 +175,6 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
         array (
             0 => __DIR__ . '/..' . '/clue/stream-filter/src',
         ),
-        'Behat\\Mink\\Driver\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/behat/mink-selenium2-driver/src',
-            1 => __DIR__ . '/..' . '/behat/mink-zombie-driver/src',
-        ),
-        'Behat\\Mink\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/behat/mink/src',
-        ),
     );
 
     public static $prefixesPsr0 = array (
@@ -215,13 +191,6 @@ class ComposerStaticInit3a47b6a0a6aba66870ea75e8ef6a7551
             'ZendRest' => 
             array (
                 0 => __DIR__ . '/..' . '/zendframework/zendrest/library',
-            ),
-        ),
-        'W' => 
-        array (
-            'WebDriver' => 
-            array (
-                0 => __DIR__ . '/..' . '/instaclick/php-webdriver/lib',
             ),
         ),
         'V' => 

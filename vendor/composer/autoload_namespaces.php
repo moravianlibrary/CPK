@@ -9,7 +9,6 @@ return array(
     'ZfcRbac\\' => array($vendorDir . '/zf-commons/zfc-rbac/src'),
     'ZendService\\Amazon\\' => array($vendorDir . '/zendframework/zendservice-amazon/library'),
     'ZendRest' => array($vendorDir . '/zendframework/zendrest/library'),
-    'WebDriver' => array($vendorDir . '/instaclick/php-webdriver/lib'),
     'VuFindHttp\\' => array($vendorDir . '/vufind-org/vufindhttp/src'),
     'VuFindCode\\' => array($vendorDir . '/vufind-org/vufindcode/src'),
     'Validate' => array($vendorDir . '/pear/validate', $vendorDir . '/pear/validate_ispn'),
