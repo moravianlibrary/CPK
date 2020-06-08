@@ -33,7 +33,9 @@ class ZiskejApiFactory implements FactoryInterface
         $this->cpkZiskej = $serviceLocator->get('CPK\Ziskej');
 
         $logger = new Logger('ZiskejApi');
-        $logger->pushHandler(new StreamHandler('log/ziskej-api.log', $logger::DEBUG));
+
+        $handlerStream = new StreamHandler('log/ziskej-api.log', $logger::DEBUG);
+        $logger->pushHandler($handlerStream);
 
         $guzzleClient = \Http\Adapter\Guzzle6\Client::createWithConfig([
             'connect_timeout' => 10,
