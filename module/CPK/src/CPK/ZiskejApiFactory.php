@@ -6,6 +6,8 @@ use Http\Message\Authentication\Bearer;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Ecdsa\Sha512;
 use Lcobucci\JWT\Signer\Key;
+use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\SocketHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Mzk\ZiskejApi\Api;
@@ -17,35 +19,44 @@ class ZiskejApiFactory implements FactoryInterface
 {
 
     /**
+     * @var \CPK\Ziskej\Ziskej
+     */
+    private $cpkZiskej;
+
+    /**
      * Create Ziskej Api service
      *
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
-     *
-     * @return mixed|\Mzk\ZiskejApi\Api
-     *
+     * @return \Mzk\ZiskejApi\Api
      * @throws \Exception
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function createService(ServiceLocatorInterface $serviceLocator): Api
     {
-        $cookieManager = $serviceLocator->get('VuFind\CookieManager');
-        $cookieZiskejMode = $cookieManager->get('ziskej');
+        $this->cpkZiskej = $serviceLocator->get('CPK\Ziskej');
 
         $config = $serviceLocator->get('VuFind\Config')->get('config');
-        $apiBaseUrl = $config['Ziskej'][$cookieZiskejMode];
 
         $logger = new Logger('ZiskejApi');
-        $logger->pushHandler(new StreamHandler('log/ziskej-api.log', $logger::DEBUG));
+
+        $handlerStream = new StreamHandler('log/ziskej-api.log', $logger::DEBUG);
+        $logger->pushHandler($handlerStream);
+
+        if (!empty($config->Filebeat) && !empty($config->Filebeat->host)) {
+            $connectionString = $config->Filebeat->host;
+            if (!empty($config->Filebeat->port)) {
+                $connectionString .= ':' . $config->Filebeat->port;
+            }
+            $handlerSocket = new SocketHandler($connectionString);
+            $formaterJson = new JsonFormatter();
+            $handlerSocket->setFormatter($formaterJson);
+            $logger->pushHandler($handlerSocket);
+        }
 
         $guzzleClient = \Http\Adapter\Guzzle6\Client::createWithConfig([
             'connect_timeout' => 10,
         ]);
 
         // generate token
-        $keyFile = $config->Certs->ziskej;
-        if(!$keyFile || !is_readable($keyFile)){
-            throw new \Exception('Certificate file to generate token not found');
-        }
-
         $time = time();
         $token = (new Builder())
             ->issuedBy('cpk')
@@ -54,12 +65,12 @@ class ZiskejApiFactory implements FactoryInterface
             ->withClaim('app', 'cpk')
             ->getToken(
                 new Sha512(),
-                new Key('file://' . $keyFile)
+                new Key('file://' . $this->cpkZiskej->getPrivateKeyFileLocation())
             );
 
         //@todo store token
 
-        return new Api(new ApiClient($guzzleClient, $apiBaseUrl, new Bearer($token), $logger));
+        return new Api(new ApiClient($guzzleClient, $this->cpkZiskej->getCurrentUrl(), new Bearer($token), $logger));
     }
 
 }

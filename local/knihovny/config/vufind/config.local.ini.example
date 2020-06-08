@@ -142,14 +142,13 @@ list_item[] = 'doctypes_widget_authorities;doctypes_widget_authorities_descripti
 list_sorting = random
 
 [Ziskej]
-disabled = ''
-prod = 'https://ziskej.techlib.cz:9080/api/v1'
-test = 'https://ziskej-test.techlib.cz:9080/api/v1'
-demo = 'https://ziskej-demo.techlib.cz:9080/api/v1'
-dev  = 'https://ziskej-dev.techlib.cz:9080/api/v1'
-
-[Ziskej_minimal]
-url = 'https://ziskej.techlib.cz'
+techlib_url = "https://ziskej.techlib.cz"
+default_mode = "disabled"
+modes["disabled"] = ""
+modes["prod"] = "https://ziskej.techlib.cz:9080/api/v1"
+modes["test"] = "https://ziskej-test.techlib.cz:9080/api/v1"
+modes["demo"] = "https://ziskej-demo.techlib.cz:9080/api/v1"
+modes["dev"] = "https://ziskej-dev.techlib.cz:9080/api/v1"
 
 [SensitiveZiskej]
 username = "ziskej_api_username"
@@ -173,3 +172,7 @@ lifetime                    = 3600 ; Session lasts for 1 hour
 
 [Certs]
 ziskej = "/var/www/cpk/certs/cert-cpk-ziskej-api.key"
+
+[Filebeat]
+;host = xx.xx.xx.xx
+;port = xxxx

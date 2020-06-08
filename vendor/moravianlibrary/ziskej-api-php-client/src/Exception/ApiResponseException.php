@@ -11,9 +11,10 @@ class ApiResponseException extends \Exception
     {
         parent::__construct(
             sprintf(
-                'Ziskej API response error: "%d %s"',
+                'Ziskej API response error: "%d %s: %s"',
                 $apiResponse->getStatusCode(),
-                $apiResponse->getReasonPhrase()
+                $apiResponse->getReasonPhrase(),
+                !empty($apiResponse->getBody()) ? (string)$apiResponse->getBody() : ''
             ),
             $apiResponse->getStatusCode(),
             parent::getPrevious()

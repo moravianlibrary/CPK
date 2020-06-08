@@ -45,6 +45,10 @@ class Reader
      */
     private $isGdprData;
 
+    /**
+     * @var string|null
+     */
+    private $readerLibraryId;
 
     /**
      * Reader constructor.
@@ -55,6 +59,7 @@ class Reader
      * @param string $sigla
      * @param bool $isGdprReg
      * @param bool $isGdprData
+     * @param string|null $readerLibraryId
      *
      * @throws \Mzk\ZiskejApi\Exception\ApiInputException
      */
@@ -64,7 +69,8 @@ class Reader
         string $email,
         string $sigla,
         bool $isGdprReg,
-        bool $isGdprData
+        bool $isGdprData,
+        ?string $readerLibraryId = null
     ) {
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -77,6 +83,7 @@ class Reader
         $this->sigla = $sigla;
         $this->isGdprReg = $isGdprReg;
         $this->isGdprData = $isGdprData;
+        $this->readerLibraryId = $readerLibraryId;
     }
 
     /**
@@ -92,6 +99,7 @@ class Reader
             'notification_enabled' => $this->isNotificationEnabled,
             'is_gdpr_reg' => $this->isGdprReg,
             'is_gdpr_data' => $this->isGdprData,
+            'reader_library_id' => $this->readerLibraryId,
         ];
     }
 
@@ -128,6 +136,11 @@ class Reader
     public function isGdprData(): bool
     {
         return $this->isGdprData;
+    }
+
+    public function getReaderLibraryId(): ?string
+    {
+        return $this->readerLibraryId;
     }
 
 }

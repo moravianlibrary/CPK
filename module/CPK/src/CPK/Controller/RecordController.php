@@ -27,6 +27,7 @@
  */
 namespace CPK\Controller;
 
+use CPK\Ziskej\Ziskej;
 use Mzk\ZiskejApi\RequestModel\Reader;
 use Mzk\ZiskejApi\RequestModel\Ticket;
 use VuFind\Controller\RecordController as RecordControllerBase;
@@ -269,37 +270,27 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
 
 
         // ziskej
-        /** @var string|null $ziskejMode */
-        $ziskejMode = $request->getCookie()->ziskej;
-        if ($ziskejMode === 'disabled') {
-            $ziskejMode = null;
-        }
-        $view->ziskejMode = $ziskejMode;
-
-        /** @var bool $ziskejEnabled */
-        $ziskejEnabled = !empty($ziskejMode);
-        $view->ziskejEnabled = $ziskejEnabled;
+        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
 
         // ziskej tab
         if (strtolower($tab) === 'ziskej') {
 
             /** @var string|null $ziskejApiUrl */
             $ziskejApiUrl = null;
-            if ($ziskejEnabled) {
-                if (isset($config->Ziskej) && isset($config->Ziskej->$ziskejMode)) {
-                    $ziskejApiUrl = $config->Ziskej->$ziskejMode;
+            if ($cpkZiskej->isEnabled()) {
+                if (isset($config->Ziskej) && !empty($cpkZiskej->getCurrentUrl())) {
+                    $ziskejApiUrl = $cpkZiskej->getCurrentUrl();
                 }
             }
             $view->ziskejApiUrl = $ziskejApiUrl;
 
-            if ($ziskejEnabled) {
+            if ($cpkZiskej->isEnabled()) {
                 /** @var string|null ziskejMinUrl */
-                $view->ziskejMinUrl = $config->Ziskej_minimal->url ?? null;
+                $view->ziskejMinUrl = $cpkZiskej->getZiskejTechlibUrl();
 
                 /** @var string|null $ziskejTechlibFrontUrl */
-                $view->ziskejTechlibFrontUrl = !empty($config->ZiskejTechlibFrontUrl->$ziskejMode)
-                    ? $config->ZiskejTechlibFrontUrl->$ziskejMode
-                    : null;
+                $view->ziskejTechlibFrontUrl = $cpkZiskej->getCurrentZiskejTechlibFrontUrl();
 
                 if ($ziskejApiUrl && $user) {
                     try {
@@ -395,28 +386,20 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 return $this->redirectToRecord('', 'Ziskej');
             }
 
-            /** @var array $userData */
-            $userData = $user->toArray();
+            $responseReader = new Reader(
+                $user->firstname,
+                $user->lastname,
+                $email,
+                $driver->sourceToSigla($user->home_library),
+                true,
+                true,
+                !empty($user->cat_username) ? $user->cat_username : null
+            );
 
-            //try {
             if ($ziskejApi->getReader($eppn)) {
-                $reader = $ziskejApi->updateReader($eppn, new Reader(
-                    $userData['firstname'],
-                    $userData['lastname'],
-                    $email,
-                    $driver->sourceToSigla($user->home_library),
-                    true,
-                    true
-                ));
+                $reader = $ziskejApi->updateReader($eppn, $responseReader);
             } else {
-                $reader = $ziskejApi->createReader($eppn, new Reader(
-                    $userData['firstname'],
-                    $userData['lastname'],
-                    $email,
-                    $driver->sourceToSigla($user->home_library),
-                    true,
-                    true
-                ));
+                $reader = $ziskejApi->createReader($eppn, $responseReader);
             }
 
             if (!$reader->isActive()) {
@@ -435,7 +418,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $this->flashMessenger()->addMessage('Objednávka nyní čeká na úhradu.', 'warning');
 
             return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
-                'eppn' => $eppn,
+                'eppn_domain' => substr(strrchr($eppn, "@"), 1),
                 'ticket_id' => $ticket->getId(),
             ]);
 

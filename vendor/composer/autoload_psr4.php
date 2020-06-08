@@ -9,9 +9,7 @@ return array(
     'Zend\\' => array($vendorDir . '/zendframework/zendframework/library/Zend'),
     'ZendXml\\' => array($vendorDir . '/zendframework/zendxml/src'),
     'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
-    'Symfony\\Component\\Process\\' => array($vendorDir . '/symfony/process'),
     'Symfony\\Component\\OptionsResolver\\' => array($vendorDir . '/symfony/options-resolver'),
-    'Symfony\\Component\\CssSelector\\' => array($vendorDir . '/symfony/css-selector'),
     'SmartEmailing\\Types\\' => array($vendorDir . '/smartemailing/types/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
@@ -34,6 +32,4 @@ return array(
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Consistence\\' => array($vendorDir . '/consistence/consistence/src'),
     'Clue\\StreamFilter\\' => array($vendorDir . '/clue/stream-filter/src'),
-    'Behat\\Mink\\Driver\\' => array($vendorDir . '/behat/mink-selenium2-driver/src', $vendorDir . '/behat/mink-zombie-driver/src'),
-    'Behat\\Mink\\' => array($vendorDir . '/behat/mink/src'),
 );
