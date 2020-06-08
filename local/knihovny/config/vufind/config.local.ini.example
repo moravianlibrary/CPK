@@ -172,3 +172,7 @@ lifetime                    = 3600 ; Session lasts for 1 hour
 
 [Certs]
 ziskej = "/var/www/cpk/certs/cert-cpk-ziskej-api.key"
+
+[Filebeat]
+;host = xx.xx.xx.xx
+;port = xxxx
