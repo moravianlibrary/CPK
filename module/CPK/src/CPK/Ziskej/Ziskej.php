@@ -30,7 +30,7 @@ class Ziskej
     /**
      * @var string
      */
-    private $defaultMode = self::MODE_PRODUCTION;
+    private $defaultMode = self::MODE_DISABLED;
 
     public function __construct(
         Config $config,
