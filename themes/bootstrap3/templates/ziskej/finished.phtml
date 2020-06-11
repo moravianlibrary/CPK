@@ -1,0 +1,22 @@
+<?php
+// Set page title.
+$this->headTitle($this->translate('header_order_ziskej_finished', ['%order_id' => $ticket->getHid()]));
+
+// Disable search box
+$this->layout()->searchbox = false;
+?>
+
+<h2>
+  <?= $this->translate('header_order_ziskej_finished', ['%order_id' => $ticket->getHid()]); ?>
+</h2>
+
+<?= $this->flashmessages() ?>
+
+<p>
+  <a class="btn btn-sm btn-primary" href="<?= $this->url('MyResearch-ziskejTicket', ['eppn_domain' => $userCard->getEppnDomain(), 'ticket_id' => $ticket->getId()]); ?>" title="<?= $this->translate("btn_order_detail_title"); ?>">
+    <i class="fa fa-search"></i> <?= $this->translate("Zobrazit detail objednávky"); ?>
+  </a>
+  <a class="btn btn-sm btn-default" href="<?= $this->url('home'); ?>" title="<?= $this->translate("Pokračovat na úvodní stranu"); ?>">
+    <i class="fa fa-home"></i> <?= $this->translate("Pokračovat na úvodní stranu"); ?>
+  </a>
+</p>
