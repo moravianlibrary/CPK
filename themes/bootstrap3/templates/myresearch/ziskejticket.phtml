@@ -144,6 +144,12 @@ $this->headTitle($this->translate('header_order_ziskej_num') . ' ' . $ticket->ge
       </ul>
     </div>
 
+    <?php if (in_array($ticket->getStatus(), ['created'])): ?>
+    <div class="alert alert-warning">
+      <?= $this->translate('message_ziskej_message_wait_payment'); ?>
+    </div>
+    <?php endif; ?>
+
     <div class="text-center well border" style="margin-bottom: 1em;">
       <? if (in_array($ticket->getStatus(), ['created'])): ?>
         <a class="btn btn-primary" href="<?= $ticket->getPaymentUrl(); ?>?lang=<?= $this->layout()->userLang; ?>" title="<?= $this->transEsc("btn_order_pay_title"); ?>">
