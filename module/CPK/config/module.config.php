@@ -337,6 +337,17 @@ $config['router']['routes']['ziskej'] = [
     ]
 ];
 
+$config['router']['routes']['ziskej-finished'] = [
+    'type' => 'Zend\Mvc\Router\Http\Segment',
+    'options' => [
+        'route' => '/ziskej/finished/:eppn_domain/:ticket_id',
+        'defaults' => [
+            'controller' => 'Ziskej',
+            'action' => 'finished',
+        ]
+    ]
+];
+
 $config['router']['routes']['ziskej-payment'] = [
     'type' => 'Zend\Mvc\Router\Http\Segment',
     'options' => [

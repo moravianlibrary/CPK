@@ -143,7 +143,7 @@ list_sorting = random
 
 [Ziskej]
 techlib_url = "https://ziskej.techlib.cz"
-default_mode = "disabled"
+default_mode = "prod"
 modes["disabled"] = ""
 modes["prod"] = "https://ziskej.techlib.cz:9080/api/v1"
 modes["test"] = "https://ziskej-test.techlib.cz:9080/api/v1"

@@ -415,9 +415,8 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $ticket = $ziskejApi->createTicket($eppn, $ticketNew);
 
             $this->flashMessenger()->addMessage('ziskej_success_order_finished', 'success');
-            $this->flashMessenger()->addMessage('Objednávka nyní čeká na úhradu.', 'warning');
 
-            return $this->redirect()->toRoute('MyResearch-ziskejTicket', [
+            return $this->redirect()->toRoute('ziskej-finished', [
                 'eppn_domain' => substr(strrchr($eppn, "@"), 1),
                 'ticket_id' => $ticket->getId(),
             ]);

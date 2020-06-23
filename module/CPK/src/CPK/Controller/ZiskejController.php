@@ -25,6 +25,7 @@
 
 namespace CPK\Controller;
 
+use CPK\Controller\Exception\TicketNotFoundException;
 use CPK\Ziskej\Ziskej;
 use VuFind\Controller\AbstractBase;
 
@@ -137,6 +138,58 @@ class ZiskejController extends AbstractBase
             'eppn_domain' => $eppnDomain,
             'ticket_id' => $ticketId
         ]);
+    }
+
+    /**
+     * Ziskej order finished page
+     *
+     * @return mixed|\Zend\View\Model\ViewModel
+     * @throws \CPK\Controller\Exception\TicketNotFoundException
+     * @throws \Http\Client\Exception
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     */
+    public function finishedAction(){
+        $eppnDomain = $this->params()->fromRoute('eppn_domain');
+        if (!$eppnDomain) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        $ticketId = $this->params()->fromRoute('ticket_id');
+        if (!$ticketId) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        $user = $this->getAuthManager()->isLoggedIn();
+        if (!$user) {
+            return $this->forceLogin();
+        }
+
+        /** @var \VuFind\Db\Row\UserCard[] $userCards */
+        $userCards = $user->getAllUserLibraryCards();
+
+        $userCard = null;
+        $eppn = null;
+        /** @var \VuFind\Db\Row\UserCard $userCard */
+        foreach ($userCards as $card) {
+            if ($eppnDomain == $card->getEppnDomain()) {
+                $userCard = $card;
+                $eppn = $card->eppn;
+            }
+        }
+
+        if (!$userCard || !$eppn) {
+            throw new TicketNotFoundException('The requested order was not found');
+        }
+
+        /** @var \Mzk\ZiskejApi\Api $ziskejApi */
+        $ziskejApi = $this->serviceLocator->get('Mzk\ZiskejApi\Api');
+
+        $ticket = $ziskejApi->getTicket($eppn, $ticketId);
+
+        $view = $this->createViewModel();
+        $view->setVariable('userCard', $userCard);
+        $view->setVariable('ticket', $ticket);
+        return $view;
     }
 
 }
