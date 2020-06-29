@@ -24,4 +24,14 @@ class Ziskej extends AbstractHelper
     {
         return $this->cpkZiskej->isEnabled();
     }
+
+    public function getCurrentMode(): string
+    {
+        return $this->cpkZiskej->getCurrentMode();
+    }
+
+    public function isProduction(): bool
+    {
+        return $this->cpkZiskej->getCurrentMode() === \CPK\Ziskej\Ziskej::MODE_PRODUCTION;
+    }
 }

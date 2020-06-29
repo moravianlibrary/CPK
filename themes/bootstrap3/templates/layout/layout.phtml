@@ -213,7 +213,7 @@
     ?>
     <?=$this->headScript()->appendFile("geolocation.js");?>
   </head>
-  <body data-ng-app="cpk" data-ng-controller="GlobalController as ctrl" class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?>">
+  <body data-ng-app="cpk" data-ng-controller="GlobalController as ctrl" class="<?=$this->layoutClass('offcanvas-row')?><? if ($this->layout()->rtl): ?> rtl<? endif; ?> ziskej-mode-<?=$this->Ziskej()->getCurrentMode()?>">
 
   <!-- Facebook Pixel Code -->
   <script>
@@ -463,5 +463,13 @@
       </div>
     </div>
     <? endif; ?>
+
+    <?php if($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()): ?>
+      <div class="bar-ziskej">
+        <i class="fa fa-fw fa-exclamation-circle" aria-hidden="true"></i>
+        <?=$this->translate('ziskej_bar_info', ['%%mode%%' => $this->Ziskej()->getCurrentMode()])?>
+        <a href="<?=$this->url('ziskej')?>" title="<?=$this->translate('ziskej_bar_change_mode_title')?>"><?=$this->translate('ziskej_bar_change_mode')?></a>
+      </div>
+    <?php endif; ?>
   </body>
 </html>
