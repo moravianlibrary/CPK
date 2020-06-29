@@ -101,7 +101,7 @@ $i = 0;
                     <dd><?= $this->Datetime()->convertToDisplayDate('U', $ticket->getReturnAt()->getTimestamp()); ?></dd>
                   <? endif; ?>
 
-                  <dt>Číslo objednávky:</dt>
+                  <dt><?= $this->transEsc('ziskej_label_order_number') ?>:</dt>
                   <dd><?= $ticket->getHid(); ?></dd>
                   
                   <? if ($ticket->getStatus()): ?>
