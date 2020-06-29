@@ -12,11 +12,16 @@ $this->layout()->searchbox = false;
 
 <?= $this->flashmessages() ?>
 
-<p>
-  <a class="btn btn-sm btn-primary" href="<?= $this->url('MyResearch-ziskejTicket', ['eppn_domain' => $userCard->getEppnDomain(), 'ticket_id' => $ticket->getId()]); ?>" title="<?= $this->translate("btn_order_detail_title"); ?>">
+<p class="text-center">
+  <a class="btn btn-primary" href="<?= $ticket->getPaymentUrl(); ?>?lang=<?= $this->layout()->userLang; ?>" title="<?= $this->transEsc("btn_order_pay_title"); ?>">
+    <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("btn_order_pay"); ?>
+  </a>
+  <a class="btn btn-info" href="<?= $this->url('MyResearch-ziskejTicket', ['eppn_domain' => $userCard->getEppnDomain(), 'ticket_id' => $ticket->getId()]); ?>" title="<?= $this->translate("btn_order_detail_title"); ?>">
     <i class="fa fa-search"></i> <?= $this->translate("btn_order_detail"); ?>
   </a>
-  <a class="btn btn-sm btn-default" href="<?= $this->url('home'); ?>" title="<?= $this->translate("btn_homepage_title"); ?>">
+</p>
+<p class="text-center">
+  <a class="btn btn-default" href="<?= $this->url('home'); ?>" title="<?= $this->translate("btn_homepage_title"); ?>">
     <i class="fa fa-home"></i> <?= $this->translate("btn_homepage"); ?>
   </a>
 </p>
