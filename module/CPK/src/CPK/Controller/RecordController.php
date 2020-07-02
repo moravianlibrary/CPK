@@ -376,6 +376,17 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             $email = $params['email'];
             //@todo test email format and !null
 
+            /** @var \VuFind\Db\Row\UserCard[] $userCards */
+            $userCards = $user->getAllUserLibraryCards();
+
+            $catUsername = null;
+            foreach ($userCards as $userCard){
+                if($userCard->eppn == $eppn){
+                    $catUsername = $userCard->cat_username;
+                    break;
+                }
+            }
+
             if (!$params['is_conditions']) {
                 $this->flashMessenger()->addMessage('ziskej_error_is_conditions', 'error');
                 return $this->redirectToRecord('', 'Ziskej');
@@ -393,7 +404,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 $driver->sourceToSigla($user->home_library),
                 true,
                 true,
-                !empty($user->cat_username) ? $user->cat_username : null
+                $catUsername
             );
 
             if ($ziskejApi->getReader($eppn)) {
