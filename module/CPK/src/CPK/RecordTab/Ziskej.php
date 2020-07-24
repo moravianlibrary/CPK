@@ -18,7 +18,7 @@ class Ziskej extends AbstractBase
      *
      * @param bool $enabled is this tab enabled?
      */
-    public function __construct($enabled = true)
+    public function __construct($enabled = false)
     {
         $this->enabled = $enabled;
     }
@@ -27,9 +27,14 @@ class Ziskej extends AbstractBase
      * Is this tab active?
      *
      * @return bool
+     * @throws \Exception
      */
-    public function isActive()
+    public function isActive(): bool
     {
+        if ($this->getRecordDriver()->tryMethod('isAvailableInZiskej') === true) {
+            $this->enabled = true;
+        }
+
         return $this->enabled;
     }
 
