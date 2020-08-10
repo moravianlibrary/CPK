@@ -1059,7 +1059,6 @@ class SolrMarc extends ParentSolrMarc
 
     public function isAvailableInZiskej() : bool
     {
-
         return $this->fields['ziskej_boolean'] ?? false;
     }
 
