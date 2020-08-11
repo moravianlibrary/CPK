@@ -1057,10 +1057,11 @@ class SolrMarc extends ParentSolrMarc
         return implode(" | ", explode("|", $serie));
     }
 
-    public function getZiskejBoolean() : bool
+    public function isAvailableInZiskej() : bool
     {
-
-        return $this->fields['ziskej_boolean'] ?? false;
+        return ($parent = $this->getParentRecordDriver())
+            ? (isset($parent->fields['ziskej_boolean']) ? (bool)$parent->fields['ziskej_boolean'] : false)
+            : false;
     }
 
     public function getSimilarFromSolrField(): array
