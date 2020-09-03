@@ -812,7 +812,7 @@ class Aleph extends AlephBase implements CPKDriverInterface
 
         $availability = (string) $z30->{'z30-item-status'};
         if ($this->availabilitySource == 'nkp' &&
-                ($availability == 'archivní exemplář' || $availability == 'archival copy' || $availability == 'nelze expedovat' || $availability == 'not available')) {
+                ($availability == 'archivní exemplář' || $availability == 'archival copy')) {
             $available = false;
         }
 
