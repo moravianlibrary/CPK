@@ -326,6 +326,21 @@ $config['router']['routes']['inspiration-show'] = array(
     )
 );
 
+$config['router']['routes']['inspirace'] = array(
+    'type' => 'Zend\Mvc\Router\Http\Segment',
+    'options' => array(
+        'route' => '/inspirace/[:tag]',
+        'constraints' => array(
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'tag' => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ),
+        'defaults' => array(
+            'controller' => 'Inspiration',
+            'action' => 'show',
+        )
+    )
+);
+
 $config['router']['routes']['ziskej'] = [
     'type' => 'Zend\Mvc\Router\Http\Segment',
     'options' => [
