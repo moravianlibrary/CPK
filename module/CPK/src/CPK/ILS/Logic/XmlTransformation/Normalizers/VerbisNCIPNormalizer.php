@@ -30,6 +30,7 @@
 namespace CPK\ILS\Logic\XmlTransformation\Normalizers;
 
 use CPK\ILS\Logic\XmlTransformation\JsonXML;
+use VuFind\Exception\ILS as ILSException;
 
 class VerbisNCIPNormalizer extends NCIPNormalizer
 {
@@ -195,5 +196,9 @@ class VerbisNCIPNormalizer extends NCIPNormalizer
                 }
             }
         }
+    }
+
+    public function normalizeLookupUserLoanedItemsHistory(JsonXML &$response)
+    {
     }
 }

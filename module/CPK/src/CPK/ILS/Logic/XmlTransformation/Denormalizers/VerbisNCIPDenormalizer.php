@@ -30,9 +30,26 @@
 namespace CPK\ILS\Logic\XmlTransformation\Denormalizers;
 
 use CPK\ILS\Logic\XmlTransformation\JsonXML;
+use CPK\ILS\Logic\XmlTransformation\Normalizers\NCIPNormalizer;
 
 class VerbisNCIPDenormalizer extends NCIPDenormalizer
 {
+
+    public function denormalize(string $request)
+    {
+        $namespaces = NCIPNormalizer::NAMESPACES;
+
+        $jsonXml = JsonXML::fabricateFromXmlString($request, $namespaces);
+
+        switch ($this->methodName) {
+        case 'getStatuses':
+            $this->denormalizeLookupItemSetStatus($jsonXml);
+            break;
+        }
+
+        return $jsonXml;
+    }
+
     public function denormalizeLookupItemSetStatus(JsonXML &$request)
     {
         $bibId = $request->get(
