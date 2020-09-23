@@ -42,9 +42,9 @@ class VerbisNCIPDenormalizer extends NCIPDenormalizer
         $jsonXml = JsonXML::fabricateFromXmlString($request, $namespaces);
 
         switch ($this->methodName) {
-        case 'getStatuses':
-            $this->denormalizeLookupItemSetStatus($jsonXml);
-            break;
+            case 'getStatuses':
+                $this->denormalizeLookupItemSetStatus($jsonXml);
+                break;
         }
 
         return $jsonXml;
