@@ -127,8 +127,10 @@
    * @return      string
    **/
   function addUrlScalarParamsToJson($jsonVarName, $paramName, $defaultValue = '') {
-      $paramValue =(! empty($_GET[$paramName])) ? htmlspecialchars($_GET[$paramName]) : $defaultValue;
-      echo $jsonVarName."['$paramName'] = '$paramValue';\n";
+      $paramValue = json_encode(
+        !empty($_GET[$paramName]) ? $_GET[$paramName] : $defaultValue
+      );
+      echo $jsonVarName."['$paramName'] = $paramValue;\n";
   }
 
 ?>
