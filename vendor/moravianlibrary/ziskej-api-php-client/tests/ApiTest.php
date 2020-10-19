@@ -115,26 +115,6 @@ final class ApiTest extends TestCase
      * LIBRARIES
      */
 
-    public function testApiGetLibrary(): void
-    {
-        $apiClient = new ApiClient(null, $this->baseUrl, null, $this->logger);
-        $api = new Api($apiClient);
-
-        $library = $api->getLibrary('BOA001');
-
-        $this->assertInstanceOf(ResponseModel\Library::class, $library);
-    }
-
-    public function testApiGetLibraryNull(): void
-    {
-        $apiClient = new ApiClient(null, $this->baseUrl, null, $this->logger);
-        $api = new Api($apiClient);
-
-        $library = $api->getLibrary('XYZ001');
-
-        $this->assertNull($library);
-    }
-
     public function testApiGetLibraries(): void
     {
         $guzzleClient = Client::createWithConfig([

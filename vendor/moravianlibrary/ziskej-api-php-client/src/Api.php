@@ -76,21 +76,6 @@ final class Api
      */
 
     /**
-     * Get library by sigla
-     *
-     * @param string $sigla
-     * @return \Mzk\ZiskejApi\ResponseModel\Library|null
-     *
-     * @throws \Http\Client\Exception
-     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
-     */
-    public function getLibrary(string $sigla): ?Library
-    {
-        $libraries = $this->getLibraries();
-        return $libraries->get($sigla);
-    }
-
-    /**
      * List all libraries
      * GET /libraries
      *
