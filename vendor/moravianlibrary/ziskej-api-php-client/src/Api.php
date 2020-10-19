@@ -89,7 +89,11 @@ final class Api
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
                 'GET',
-                '/libraries'
+                '/libraries',
+                [],
+                [
+                    'service' => 'mvszk'
+                ],
             )
         );
 
