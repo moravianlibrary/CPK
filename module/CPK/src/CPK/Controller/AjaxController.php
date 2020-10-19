@@ -677,7 +677,7 @@ class AjaxController extends AjaxControllerBase
         /** @var \CPK\ILS\Driver\MultiBackend $cpkMultibackend */
         $cpkMultibackend = $this->getILS()->getDriver();
 
-        $ziskejLibs = $ziskejApi->getLibraries()->getAll();
+        $ziskejLibs = $ziskejApi->getLibrariesActive()->getAll();
         $libraryIds = [];
         foreach ($ziskejLibs as $ziskejLib) {
             $libraryId = $cpkMultibackend->siglaToSource($ziskejLib->getSigla());

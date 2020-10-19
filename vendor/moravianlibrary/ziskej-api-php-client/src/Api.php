@@ -76,7 +76,7 @@ final class Api
      */
 
     /**
-     * List all libraries
+     * List all active libraries
      * GET /libraries
      *
      * @return \Mzk\ZiskejApi\ResponseModel\LibraryCollection
@@ -84,7 +84,7 @@ final class Api
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      * @throws \Http\Client\Exception
      */
-    public function getLibraries(): LibraryCollection
+    public function getLibrariesActive(): LibraryCollection
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(

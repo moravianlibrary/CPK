@@ -302,7 +302,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                         $ilsDriver = $this->getILS()->getDriver();
 
                         // list of ziskej libraries sigla
-                        $ziskejLibs = $ziskejApi->getLibraries()->getAll();
+                        $ziskejLibs = $ziskejApi->getLibrariesActive()->getAll();
 
                         /** @var array $ziskejLibsIds */
                         $ziskejLibsIds = [];
