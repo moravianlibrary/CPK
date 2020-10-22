@@ -1405,7 +1405,7 @@ class MyResearchController extends MyResearchControllerBase
                 /** @var string[] $ziskejLibsCodes */
                 $ziskejLibsCodes = [];
 
-                $ziskejLibs = $ziskejApi->getLibraries();
+                $ziskejLibs = $ziskejApi->getLibrariesActive();
                 foreach ($ziskejLibs->getAll() as $ziskejLib) {
                     $id = $multiBackend->siglaToSource($ziskejLib->getSigla());
                     if (!empty($id)) {
