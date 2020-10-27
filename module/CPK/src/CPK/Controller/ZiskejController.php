@@ -79,7 +79,7 @@ class ZiskejController extends AbstractBase
             /** @var string[] $ziskejLibsCodes */
             $ziskejLibsCodes = [];
 
-            $ziskejLibs = $ziskejApi->getLibraries();
+            $ziskejLibs = $ziskejApi->getLibrariesAll();
             foreach ($ziskejLibs->getAll() as $ziskejLib) {
                 $id = $multiBackend->siglaToSource($ziskejLib->getSigla());
                 if (!empty($id)) {

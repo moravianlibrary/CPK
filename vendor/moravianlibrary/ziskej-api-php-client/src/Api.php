@@ -76,21 +76,6 @@ final class Api
      */
 
     /**
-     * Get library by sigla
-     *
-     * @param string $sigla
-     * @return \Mzk\ZiskejApi\ResponseModel\Library|null
-     *
-     * @throws \Http\Client\Exception
-     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
-     */
-    public function getLibrary(string $sigla): ?Library
-    {
-        $libraries = $this->getLibraries();
-        return $libraries->get($sigla);
-    }
-
-    /**
      * List all libraries
      * GET /libraries
      *
@@ -99,12 +84,57 @@ final class Api
      * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
      * @throws \Http\Client\Exception
      */
-    public function getLibraries(): LibraryCollection
+    public function getLibrariesAll(): LibraryCollection
     {
         $apiResponse = $this->apiClient->sendApiRequest(
             new ApiRequest(
                 'GET',
-                '/libraries'
+                '/libraries',
+                [],
+                [
+                    'service' => 'mvszk',
+                    'include_deactivated' => 1,
+                ],
+
+            )
+        );
+
+        switch ($apiResponse->getStatusCode()) {
+            case 200:
+                $contents = $apiResponse->getBody()->getContents();
+                $array = json_decode($contents, true);
+
+                if (isset($array['items']) && is_array($array['items'])) {
+                    return LibraryCollection::fromArray($array['items']);
+                } else {
+                    return new LibraryCollection();
+                }
+                break;
+            default:
+                throw new \Mzk\ZiskejApi\Exception\ApiResponseException($apiResponse);
+                break;
+        }
+    }
+
+    /**
+     * List all active libraries
+     * GET /libraries
+     *
+     * @return \Mzk\ZiskejApi\ResponseModel\LibraryCollection
+     *
+     * @throws \Mzk\ZiskejApi\Exception\ApiResponseException
+     * @throws \Http\Client\Exception
+     */
+    public function getLibrariesActive(): LibraryCollection
+    {
+        $apiResponse = $this->apiClient->sendApiRequest(
+            new ApiRequest(
+                'GET',
+                '/libraries',
+                [],
+                [
+                    'service' => 'mvszk'
+                ],
             )
         );
 
