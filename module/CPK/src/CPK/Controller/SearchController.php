@@ -1732,6 +1732,7 @@ class SearchController extends SearchControllerBase
     }
 
     public function embeddedAction() {
+        $this->serviceLocator->get('VuFind\Session\Settings')->disableWrite();
         $response = $this->getResponse();
         $headers = $response->getHeaders();
         $headers->addHeaderLine('Content-Security-Policy', 'frame-ancestors *');
@@ -1747,14 +1748,6 @@ class SearchController extends SearchControllerBase
         $view->logo_path = (isset($config->Embedded->logo_path))? $config->Embedded->logo_path : "";
         $view->theme = (isset($config->Site->theme))? $config->Site->theme : "";
         $view->link = (isset($config->Site->url))? $config->Site->url : "";
-
-        $lang = $this->params()->fromQuery('lang', 'cs');
-        if ((!isset($_COOKIE['language'])) || ($_COOKIE['language'] !== $lang)) {
-            $this->layout()->userLang=$lang;
-            setcookie('language', $lang,null,'/');
-            header("Refresh:0");
-        }
-
         return $view;
     }
 
