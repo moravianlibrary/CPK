@@ -412,5 +412,6 @@ jQuery( document ).ready( function( \$ ) {
 EOT;
 ?>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET'); ?>
-<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $buyLinksScript, 'SET'); ?>
-
+<? if ($this->driver instanceof CPK\RecordDriver\SolrMarc): ?>
+  <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $buyLinksScript, 'SET'); ?>
+<? endif; ?>
