@@ -53,7 +53,7 @@
                   <span class="pull-right">
                   <button class="btn btn-default ziskej-order-btn" id="<?= $libId ?>"
                           data-eppn="<?= $userCard->eppn; ?>"
-                          data-email="<?= !empty($ziskejReader) ? $ziskejReader->getEmail() : (!empty($this->user->email) ? $this->user->email : ''); ?>">
+                          data-email="<?= !empty($ziskejReader) ? $ziskejReader->getEmail() : ''; ?>">
                     <i class="fa fa-shopping-cart"></i> <?= $this->transEsc("ziskej_btn_order") ?>
                   </button>
                 </span>
