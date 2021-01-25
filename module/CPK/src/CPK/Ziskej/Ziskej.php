@@ -9,6 +9,8 @@ use Zend\Config\Config;
  */
 class Ziskej
 {
+    public const COOKIE_NAME = 'ziskejMvs';
+
     public const MODE_DISABLED = 'disabled';
     public const MODE_PRODUCTION = 'prod';
 
@@ -92,8 +94,8 @@ class Ziskej
      */
     public function getCurrentMode(): string
     {
-        return !empty($this->cookieManager->get('ziskej'))
-            ? $this->cookieManager->get('ziskej')
+        return !empty($this->cookieManager->get(self::COOKIE_NAME))
+            ? $this->cookieManager->get(self::COOKIE_NAME)
             : $this->defaultMode;
     }
 
@@ -105,7 +107,7 @@ class Ziskej
     public function setMode(string $mode): void
     {
         $cookieMode = $this->isMode($mode) ? $mode : self::MODE_DISABLED;
-        \setcookie('ziskej', $cookieMode, 0, '/');
+        \setcookie(self::COOKIE_NAME, $cookieMode, 0, '/');
     }
 
     /**
