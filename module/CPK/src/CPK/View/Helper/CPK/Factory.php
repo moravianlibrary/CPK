@@ -180,6 +180,20 @@ class Factory
     }
 
     /**
+     * Get ZiskejEdd view helper
+     *
+     * @param \Zend\ServiceManager\ServiceManager $sm
+     * @return \CPK\View\Helper\CPK\ZiskejEdd
+     */
+    public static function getZiskejEdd(ServiceManager $sm): ZiskejEdd
+    {
+        /** @var \CPK\Ziskej\ZiskejEdd $cpkZiskej */
+        $cpkZiskej = $sm->getServiceLocator()->get(\CPK\Ziskej\ZiskejEdd::class);
+
+        return new ZiskejEdd($cpkZiskej);
+    }
+
+    /**
      * Get Ziskej view helper
      *
      * @param \Zend\ServiceManager\ServiceManager $sm
