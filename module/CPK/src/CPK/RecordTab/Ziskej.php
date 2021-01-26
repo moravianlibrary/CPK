@@ -38,7 +38,7 @@ class Ziskej extends AbstractBase
         return $this->enabled;
     }
 
-    public function getDescription()
+    public function getDescription(): string
     {
         return 'Ziskej';
     }
