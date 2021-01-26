@@ -1057,6 +1057,13 @@ class SolrMarc extends ParentSolrMarc
         return implode(" | ", explode("|", $serie));
     }
 
+    public function isAvailableInZiskejEdd() : bool
+    {
+        return ($parent = $this->getParentRecordDriver())
+            ? (isset($parent->fields['edd_boolean']) ? (bool)$parent->fields['edd_boolean'] : false)
+            : false;
+    }
+
     public function isAvailableInZiskej() : bool
     {
         return ($parent = $this->getParentRecordDriver())
