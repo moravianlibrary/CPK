@@ -16,19 +16,27 @@ $this->layout()->searchbox = false;
   <div class="panel-body">
     <form action="<?= $this->url('ziskej') ?>" id="ziskejForm" method="post" name="ziskejForm">
       <div class="form-group">
-        <label for="ziskejSelect"><?= $this->translate('ziskej_label_mode') ?>: </label>
-        <select name="ziskej" class="form-control" id="ziskejSelect">
-          <? foreach ($this->ziskejModes as $mode): ?>
-            <option value="<?= $this->escapeHtmlAttr($mode) ?>"
-                    <? if ($mode == $this->ziskejCurrentMode): ?>selected="selected"<? endif; ?>>
+        <label for="selectZiskejMvs"><?= $this->translate('label_ziskej_mvs_mode') ?>: </label>
+        <select name="ziskejMvsMode" class="form-control" id="selectZiskejMvs">
+          <? foreach ($this->ziskejMvsModes as $mode): ?>
+            <option value="<?= $this->escapeHtmlAttr($mode) ?>" <? if ($mode == $this->ziskejMvsCurrentMode): ?>selected="selected"<? endif; ?>>
               <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
             </option>
           <? endforeach; ?>
         </select>
       </div>
       <div class="form-group">
-        <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
-               value="<?= $this->translate('Set') ?>">
+        <label for="selectZiskejEdd"><?= $this->translate('label_ziskej_edd_mode') ?>: </label>
+        <select name="ziskejEddMode" class="form-control" id="selectZiskejEdd">
+          <? foreach ($this->ziskejEddModes as $mode): ?>
+            <option value="<?= $this->escapeHtmlAttr($mode) ?>" <? if ($mode == $this->ziskejEddCurrentMode): ?>selected="selected"<? endif; ?>>
+              <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
+            </option>
+          <? endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group">
+        <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>" value="<?= $this->translate('Set') ?>">
       </div>
     </form>
   </div>
