@@ -11,6 +11,7 @@
       <div class="col-md-2">
         <? if (!empty($this->ziskejTechlibFrontUrl)): ?>
           <form action="<?= $this->ziskejTechlibFrontUrl ?>/ticket_create" id="mvs" method="post" target="_blank">
+            <input type="hidden" name="service" value="edd">
             <input type="hidden" name="source_id" value="<?= $this->escapeHtmlAttr($this->serverName) ?>">
             <input type="hidden" name="user_id" value="<?= $this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
             <input type="hidden" name="doc_id" value="<?= $this->escapeHtmlAttr($this->driver->getUniqueID()) ?>">
