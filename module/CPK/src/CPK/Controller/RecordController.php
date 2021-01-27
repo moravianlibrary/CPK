@@ -27,7 +27,6 @@
  */
 namespace CPK\Controller;
 
-use CPK\Ziskej\Ziskej;
 use Mzk\ZiskejApi\RequestModel\Reader;
 use Mzk\ZiskejApi\RequestModel\Ticket;
 use VuFind\Controller\RecordController as RecordControllerBase;
@@ -270,8 +269,8 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
 
 
         // ziskej
-        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
-        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
+        /** @var \CPK\Ziskej\ZiskejMvs $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get(\CPK\Ziskej\ZiskejMvs::class);
 
         // ziskej tab
         if (strtolower($tab) === 'ziskej') {

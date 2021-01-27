@@ -187,8 +187,8 @@ class Factory
      */
     public static function getZiskej(ServiceManager $sm): Ziskej
     {
-        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
-        $cpkZiskej = $sm->getServiceLocator()->get('CPK\Ziskej');
+        /** @var \CPK\Ziskej\ZiskejMvs $cpkZiskej */
+        $cpkZiskej = $sm->getServiceLocator()->get(\CPK\Ziskej\ZiskejMvs::class);
 
         return new Ziskej($cpkZiskej);
     }

@@ -30,7 +30,7 @@ namespace CPK\Controller;
 
 use CPK\Auth\Manager as AuthManager;
 use CPK\Controller\Exception\TicketNotFoundException;
-use CPK\Ziskej\Ziskej;
+use CPK\Ziskej\ZiskejMvs;
 use Mzk\ZiskejApi\RequestModel\Message;
 use VuFind\Controller\MyResearchController as MyResearchControllerBase;
 use VuFind\Exception\Auth as AuthException;
@@ -1358,8 +1358,8 @@ class MyResearchController extends MyResearchControllerBase
      */
     public function ziskejAction()
     {
-        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
-        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
+        /** @var \CPK\Ziskej\ZiskejMvs $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get(\CPK\Ziskej\ZiskejMvs::class);
 
         // Stop now if the user does not have valid catalog credentials available:
         if (!$user = $this->getAuthManager()->isLoggedIn()) {

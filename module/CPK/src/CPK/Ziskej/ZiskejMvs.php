@@ -1,13 +1,14 @@
 <?php
+
 namespace CPK\Ziskej;
 
 use VuFind\Cookie\CookieManager;
 use Zend\Config\Config;
 
 /**
- * CPK Ziskej Class
+ * CPK Ziskej MVS Class
  */
-class Ziskej
+class ZiskejMvs
 {
     public const COOKIE_NAME = 'ziskejMvs';
 

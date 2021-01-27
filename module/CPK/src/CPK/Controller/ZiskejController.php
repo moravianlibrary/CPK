@@ -26,7 +26,6 @@
 namespace CPK\Controller;
 
 use CPK\Controller\Exception\TicketNotFoundException;
-use CPK\Ziskej\Ziskej;
 use VuFind\Controller\AbstractBase;
 
 
@@ -43,8 +42,8 @@ class ZiskejController extends AbstractBase
         /** @var \Zend\View\Model\ViewModel $view */
         $view = $this->createViewModel();
 
-        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
-        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
+        /** @var \CPK\Ziskej\ZiskejMvs $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get(\CPK\Ziskej\ZiskejMvs::class);
 
         if ($this->getRequest()->isPost() && $this->getRequest()->getPost('ziskej')) {
             $cpkZiskej->setMode($this->getRequest()->getPost('ziskej'));

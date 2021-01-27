@@ -11,11 +11,11 @@ class Ziskej extends AbstractHelper
 {
 
     /**
-     * @var \CPK\Ziskej\Ziskej
+     * @var \CPK\Ziskej\ZiskejMvs
      */
     private $cpkZiskej;
 
-    public function __construct(\CPK\Ziskej\Ziskej $cpkZiskej)
+    public function __construct(\CPK\Ziskej\ZiskejMvs $cpkZiskej)
     {
         $this->cpkZiskej = $cpkZiskej;
     }
@@ -32,6 +32,6 @@ class Ziskej extends AbstractHelper
 
     public function isProduction(): bool
     {
-        return $this->cpkZiskej->getCurrentMode() === \CPK\Ziskej\Ziskej::MODE_PRODUCTION;
+        return $this->cpkZiskej->getCurrentMode() === \CPK\Ziskej\ZiskejMvs::MODE_PRODUCTION;
     }
 }
