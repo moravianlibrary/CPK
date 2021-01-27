@@ -34,4 +34,9 @@ class ZiskejEdd extends AbstractHelper
     {
         return $this->cpkZiskejEdd->getCurrentMode() === \CPK\Ziskej\ZiskejEdd::MODE_PRODUCTION;
     }
+
+    public function getModes()
+    {
+        return $this->cpkZiskejEdd->getModes();
+    }
 }

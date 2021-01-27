@@ -18,8 +18,8 @@ $this->layout()->searchbox = false;
       <div class="form-group">
         <label for="selectZiskejMvs"><?= $this->translate('label_ziskej_mvs_mode') ?>: </label>
         <select name="ziskejMvsMode" class="form-control" id="selectZiskejMvs">
-          <? foreach ($this->ziskejMvsModes as $mode): ?>
-            <option value="<?= $this->escapeHtmlAttr($mode) ?>" <? if ($mode == $this->ziskejMvsCurrentMode): ?>selected="selected"<? endif; ?>>
+          <? foreach ($this->Ziskej()->getModes() as $mode): ?>
+            <option value="<?= $this->escapeHtmlAttr($mode) ?>" <? if ($mode == $this->Ziskej()->getCurrentMode()): ?>selected="selected"<? endif; ?>>
               <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
             </option>
           <? endforeach; ?>
@@ -28,8 +28,8 @@ $this->layout()->searchbox = false;
       <div class="form-group">
         <label for="selectZiskejEdd"><?= $this->translate('label_ziskej_edd_mode') ?>: </label>
         <select name="ziskejEddMode" class="form-control" id="selectZiskejEdd">
-          <? foreach ($this->ziskejEddModes as $mode): ?>
-            <option value="<?= $this->escapeHtmlAttr($mode) ?>" <? if ($mode == $this->ziskejEddCurrentMode): ?>selected="selected"<? endif; ?>>
+          <? foreach ($this->ziskejEdd()->getModes() as $mode): ?>
+            <option value="<?= $this->escapeHtmlAttr($mode) ?>" <? if ($mode == $this->ZiskejEdd()->getCurrentMode()): ?>selected="selected"<? endif; ?>>
               <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
             </option>
           <? endforeach; ?>

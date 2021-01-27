@@ -59,12 +59,6 @@ class ZiskejController extends AbstractBase
             return $this->redirect()->refresh();
         }
 
-        $view->setVariable('ziskejMvsModes', $cpkZiskejMvs->getModes());
-        $view->setVariable('ziskejEddModes', $cpkZiskejEdd->getModes());
-
-        $view->setVariable('ziskejMvsCurrentMode', $cpkZiskejMvs->getCurrentMode());
-        $view->setVariable('ziskejEddCurrentMode', $cpkZiskejEdd->getCurrentMode());
-
         if (!$cpkZiskejMvs->isEnabled() && !$cpkZiskejEdd->isEnabled()) {
             return $view;
         }
