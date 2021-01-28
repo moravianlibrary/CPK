@@ -464,10 +464,16 @@
     </div>
     <? endif; ?>
 
-    <?php if($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()): ?>
+    <?php if(($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()) ||
+             ($this->ZiskejEdd()->isEnabled() && !$this->ZiskejEdd()->isProduction())): ?>
       <div class="bar-ziskej">
-        <i class="fa fa-fw fa-exclamation-circle" aria-hidden="true"></i>
-        <?=$this->translate('ziskej_bar_info', ['%%mode%%' => $this->Ziskej()->getCurrentMode()])?>
+        <i class="fa fa-fw fa-exclamation-triangle" aria-hidden="true"></i>
+        <?php if($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()): ?>
+          <?=$this->translate('ziskej_bar_info', ['%%mode%%' => $this->Ziskej()->getCurrentMode()])?>
+        <?php endif; ?>
+        <?php if($this->ZiskejEdd()->isEnabled() && !$this->ZiskejEdd()->isProduction()): ?>
+          <?=$this->translate('ziskej_bar_info_edd', ['%%mode%%' => $this->ZiskejEdd()->getCurrentMode()])?>
+        <?php endif; ?>
         <a href="<?=$this->url('ziskej')?>" title="<?=$this->translate('ziskej_bar_change_mode_title')?>"><?=$this->translate('ziskej_bar_change_mode')?></a>
       </div>
     <?php endif; ?>
