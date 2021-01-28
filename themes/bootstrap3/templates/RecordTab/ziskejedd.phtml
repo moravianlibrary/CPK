@@ -6,10 +6,23 @@
     <div class="panel-body">
       <div class="col-md-10">
         <p><?=$this->translate('ziskej_edd_desc') ?></p>
+        <?php if (!empty($this->ziskejTechlibFrontUrl)): ?>
+          <form action="<?=$this->ziskejTechlibFrontUrl ?>/ticket_create" id="ziskejEddLogo" method="post" target="_blank">
+            <input type="hidden" name="service" value="edd">
+            <input type="hidden" name="source_id" value="<?=$this->escapeHtmlAttr($this->serverName) ?>">
+            <input type="hidden" name="user_id" value="<?=$this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
+            <input type="hidden" name="doc_id" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID()) ?>">
+            <input type="hidden" name="entity_id" value="<?=$this->escapeHtmlAttr(isset($this->entityId) ? $this->entityId : '') ?>">
+            <?php foreach ($this->tabs['DedupedRecords']->getRecordsInGroup() as $record): ?>
+              <input type="hidden" name="doc_alt_ids[]" value="<?=$this->escapeHtmlAttr($record['id']) ?>">
+            <?php endforeach; ?>
+            <button class="btn btn-primary" type="submit"><?=$this->translate('ziskej_edd_button') ?></button>
+          </form>
+        <?php endif; ?>
       </div>
       <div class="col-md-2">
         <?php if (!empty($this->ziskejTechlibFrontUrl)): ?>
-          <form action="<?=$this->ziskejTechlibFrontUrl ?>/ticket_create" id="ziskejEdd" method="post" target="_blank">
+          <form action="<?=$this->ziskejTechlibFrontUrl ?>/ticket_create" id="ziskejEddButton" method="post" target="_blank">
             <input type="hidden" name="service" value="edd">
             <input type="hidden" name="source_id" value="<?=$this->escapeHtmlAttr($this->serverName) ?>">
             <input type="hidden" name="user_id" value="<?=$this->escapeHtmlAttr(isset($this->eppn) ? $this->eppn : '') ?>">
