@@ -1112,8 +1112,9 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
             $sum += $amount_int;
 
+
             $fine = $this->translator->translate($type);
-            $fine .= empty($desc) ? '' : " ($desc)";
+            $fine .= empty($desc) || gettype($desc) !== 'string' ? '' : " ($desc)";
             $fines[] = array(
                 'amount' => (string)$amount_int,
                 'checkout' => $date,
@@ -1123,7 +1124,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
                 'duedate' => '',
                 'id' => '',
                 'excluded' => $excluded,
-                'item_id' => $item_id
+                'item_id' => $item_id,
             );
 
         }
