@@ -8,7 +8,7 @@ use Zend\Config\Config;
 /**
  * CPK Ziskej Class
  */
-class Ziskej
+abstract class Ziskej
 {
     protected $cookieName = '';
 
