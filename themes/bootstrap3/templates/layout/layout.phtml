@@ -464,11 +464,11 @@
     </div>
     <? endif; ?>
 
-    <?php if(($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()) ||
+    <?php if(!$this->Ziskej()->isProduction() ||
              ($this->ZiskejEdd()->isEnabled() && !$this->ZiskejEdd()->isProduction())): ?>
       <div class="bar-ziskej">
         <i class="fa fa-fw fa-exclamation-triangle" aria-hidden="true"></i>
-        <?php if($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()): ?>
+        <?php if(!$this->Ziskej()->isProduction()): ?>
           <?=$this->translate('ziskej_bar_info', ['%%mode%%' => $this->Ziskej()->getCurrentMode()])?>
         <?php endif; ?>
         <?php if($this->ZiskejEdd()->isEnabled() && !$this->ZiskejEdd()->isProduction()): ?>
