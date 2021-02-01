@@ -52,7 +52,7 @@
                 <li class="list-group-item clearfix">
                   <?=$this->translate('source_' . $libId) ?>
                   <span class="pull-right">
-                  <button class="btn btn-default ziskej-order-btn" id="<?=$libId ?>"
+                  <button class="btn btn-primary ziskej-order-btn" id="<?=$libId ?>"
                           data-eppn="<?=$userCard->eppn ?>"
                           data-email="<?=!empty($ziskejReader) ? $ziskejReader->getEmail() : (!empty($this->user->email) ? $this->user->email : '') ?>">
                     <i class="fa fa-shopping-cart"></i> <?=$this->transEsc("ziskej_btn_order") ?>
