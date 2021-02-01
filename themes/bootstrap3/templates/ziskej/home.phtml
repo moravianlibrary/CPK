@@ -55,19 +55,19 @@ $this->layout()->searchbox = false;
         <div class="row">
           <div class="col-md-6">
             <dl class="dl-horizontal">
-              <dt>Username:</dt>
+              <dt><?=$this->translate('ziskej_settings_label_username') ?>:</dt>
               <dd><?=$this->user->username ?></dd>
-              <dt>Home library:</dt>
+              <dt><?=$this->translate('ziskej_settings_label_home_library') ?>:</dt>
               <dd><?=$this->user->home_library ?></dd>
             </dl>
           </div>
           <div class="col-md-6">
             <dl class="dl-horizontal">
-              <dt>First name:</dt>
+              <dt><?=$this->translate('ziskej_settings_label_name_first') ?>:</dt>
               <dd><?=$this->user->firstname ?></dd>
-              <dt>Last name:</dt>
+              <dt><?=$this->translate('ziskej_settings_label_name_last') ?>:</dt>
               <dd><?=$this->user->lastname ?></dd>
-              <dt>Email:</dt>
+              <dt><?=$this->translate('ziskej_settings_label_email') ?>:</dt>
               <dd><?=$this->user->email ?></dd>
             </dl>
           </div>
@@ -107,32 +107,32 @@ $this->layout()->searchbox = false;
               <?php if ($reader): ?>
                 <?php if (!$reader->isActive()): ?>
                   <div class="alert alert-warning text-center">
-                    Reader is in Ziskej, but is not active
+                    <?=$this->translate('ziskej_settings_alert_reader_not_active') ?>
                   </div>
                 <?php endif; ?>
                 <div class="panel panel-default">
                   <div class="panel-heading">
-                    <h3 class="panel-title">Reader</h3>
+                    <h3 class="panel-title"><?=$this->translate('ziskej_settings_label_reader') ?></h3>
                   </div>
                   <div class="panel-body">
                     <div class="row">
                       <div class="col-md-6">
                         <dl class="dl-horizontal">
-                          <dt>Is active</dt>
-                          <dd><?=$reader->isActive() ? 'Yes' : 'No' ?></dd>
-                          <dt>Eppn:</dt>
+                          <dt><?=$this->translate('ziskej_settings_label_is_active') ?></dt>
+                          <dd><?=$reader->isActive() ? $this->translate('yes') : $this->translate('no') ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_eppn') ?>:</dt>
                           <dd><?=$eppn ?></dd>
-                          <dt>Sigla</dt>
+                          <dt><?=$this->translate('ziskej_settings_label_sigla') ?></dt>
                           <dd><?=$reader->getSigla() ?></dd>
                         </dl>
                       </div>
                       <div class="col-md-6">
                         <dl class="dl-horizontal">
-                          <dt>First name:</dt>
+                          <dt><?=$this->translate('ziskej_settings_label_name_first') ?>:</dt>
                           <dd><?=$reader->getFirstName() ?></dd>
-                          <dt>Last name:</dt>
+                          <dt><?=$this->translate('ziskej_settings_label_name_last') ?>:</dt>
                           <dd><?=$reader->getLastName() ?></dd>
-                          <dt>Email:</dt>
+                          <dt><?=$this->translate('ziskej_settings_label_email') ?>:</dt>
                           <dd><?=$reader->getEmail() ?></dd>
                         </dl>
                       </div>
@@ -146,7 +146,7 @@ $this->layout()->searchbox = false;
                   ?>
                   <div class="panel panel-default">
                     <div class="panel-heading">
-                      <h3 class="panel-title">Tickets <span class="badge"><?=count($tickets) ?></span></h3>
+                      <h3 class="panel-title"><?=$this->translate('ziskej_settings_label_tickets') ?> <span class="badge"><?=count($tickets) ?></span></h3>
                     </div>
                     <div class="panel-body">
                       <?php if (count($tickets)): ?>
@@ -164,7 +164,7 @@ $this->layout()->searchbox = false;
                                     | <?=$ticket->getId() ?>
                                     <span class="pull-right">
                                       <?php if (count($ticketDuo['messages'])): ?>
-                                        <span class="badge"><?=count($ticketDuo['messages']) ?> messages</span>
+                                        <span class="badge"><?=$this->translate('ziskej_settings_label_count_tickets') ?>: <?=count($ticketDuo['messages']) ?></span>
                                       <?php endif; ?>
                                     </span>
                                   </a>
@@ -175,36 +175,36 @@ $this->layout()->searchbox = false;
                                   <div class="row">
                                     <div class="col-md-6">
                                       <dl class="dl-horizontal">
-                                        <dt>ID:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_id') ?>:</dt>
                                         <dd><?=$ticket->getId() ?></dd>
-                                        <dt>HID:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_hid') ?>:</dt>
                                         <dd><?=$ticket->getHid() ?></dd>
-                                        <dt>is_open:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_is_open') ?>:</dt>
                                         <dd><?=$ticket->isOpen() ?></dd>
-                                        <dt>doc_id:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_doc_id') ?>:</dt>
                                         <dd><?=$ticket->getDocumentId() ?></dd>
-                                        <dt>sigla:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_sigla') ?>:</dt>
                                         <dd><?=$ticket->getSigla() ?></dd>
-                                        <dt>status_reader :</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_status_reader') ?>:</dt>
                                         <dd><?=$ticket->getStatus() ?></dd>
                                       </dl>
                                     </div>
                                     <div class="col-md-6">
-                                      <dl class="dl-horizontal">
-                                        <dt>date_created:</dt>
+                                      <dl>
+                                        <dt><?=$this->translate('ziskej_settings_label_date_created') ?>:</dt>
                                         <dd><?=$this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()) ?></dd>
-                                        <dt>date_requested:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_date_requested') ?>:</dt>
                                         <dd>
                                           <?=!empty($ticket->getRequestedAt())
                                             ? $this->Datetime()->convertToDisplayDate('U', $ticket->getRequestedAt()->getTimestamp())
-                                            : ''
+                                            : '–'
                                           ?>
                                         </dd>
-                                        <dt>date_return:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_date_return') ?>:</dt>
                                         <dd>
                                           <?=!empty($ticket->getReturnAt())
                                             ? $this->Datetime()->convertToDisplayDate('U', $ticket->getReturnAt()->getTimestamp())
-                                            : ''
+                                            : '–'
                                           ?>
                                         </dd>
                                       </dl>
@@ -218,7 +218,7 @@ $this->layout()->searchbox = false;
                         </div>
                       <?php else: ?>
                         <div class="alert alert-info text-center">
-                          No tickets
+                          <?=$this->translate('ziskej_settings_label_no_tickets') ?>
                         </div>
                       <?php endif; ?>
                     </div>
@@ -226,12 +226,12 @@ $this->layout()->searchbox = false;
                 <?php endif; ?>
               <?php else: ?>
                 <div class="alert alert-warning text-center">
-                  No reader in Ziskej
+                  <?=$this->translate('ziskej_settings_label_no_reader') ?>
                 </div>
               <?php endif; ?>
             <?php else: ?>
               <div class="alert alert-warning text-center">
-                Library not in Ziskej
+                <?=$this->translate('ziskej_settings_label_no_library') ?>
               </div>
             <?php endif ?>
           </div>
