@@ -49,7 +49,6 @@
             <table class="table table-striped" summary="<?=$this->transEsc('Your Fines')?>">
             <tr>
               <th><?=$this->transEsc('Fine description')?></th>
-              <th><?=$this->transEsc('Title')?></th>
               <th><?=$this->transEsc('Fine genesis date')?></th>
               <th><?=$this->transEsc('Fee')?></th>
             </tr>
@@ -58,15 +57,6 @@
                 <? foreach ($identityFines as $record): ?>
                   <tr>
                     <td><?=isset($record['fine']) ? $this->escapeHtml($record['fine']) : ''?></td>
-                    <td>
-                      <? if (empty($record['title'])): ?>
-                        <?=$this->transEsc('not_applicable')?>
-                      <? elseif (!isset($record['id'])): ?>
-                        <?=$this->escapeHtml(trim($record['title'], '/:'))?>
-                      <? else: ?>
-                        <a href="<?=$this->url('record', array('id' => $record['id']))?>"><?=$this->escapeHtml(trim($record['title'], '/:'))?></a>
-                      <? endif; ?>
-                    </td>
                     <td><?=isset($record['checkout']) ? $this->escapeHtml($record['checkout']) : ''?></td>
                     <td><?=isset($record['amount']) ? $this->safeMoneyFormat($record['amount']/100.00) : ''?></td>
                   </tr>
@@ -89,12 +79,11 @@
         <tbody hidden="hidden" data-money-format="<?=$this->transEsc('__MONEY_FORMAT__', null, '$ VALUE') ?>" data-title-unknown="<?=$this->transEsc('unknown') ?>">
         <tr>
               <th data-key='fine'><?=$this->transEsc('Fine description')?></th>
-              <th data-key='title'><?=$this->transEsc('Title')?></th>
               <th data-key='checkout'><?=$this->transEsc('Fine genesis date')?></th>
               <th data-key='amount'><?=$this->transEsc('Fee')?></th>
         </tr>
         <tr id='summary_<?=$this->escapeHtmlAttr($identityFines['cat_username'])?>' style="font-weight:bold">
-          <td colspan="3"><?=$this->transEsc('Total Balance Due')?></td>
+          <td colspan="2"><?=$this->transEsc('Total Balance Due')?></td>
           <td data-type="sum"></td>
         </tr>
         </tbody>

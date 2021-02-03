@@ -1112,20 +1112,21 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
 
             $sum += $amount_int;
 
-            if (empty($desc))
-                $desc = $type;
 
+            $fine = $this->translator->translate($type);
+            $fine .= empty($desc) || gettype($desc) !== 'string' ? '' : " ($desc)";
             $fines[] = array(
                 'amount' => (string)$amount_int,
                 'checkout' => $date,
-                'fine' => $this->translator->translate($type),
+                'fine' => $fine,
                 'balance' => (string)$sum,
                 'createdate' => '',
                 'duedate' => '',
-                'id' => $desc,
+                'id' => '',
                 'excluded' => $excluded,
-                'item_id' => $item_id
+                'item_id' => $item_id,
             );
+
         }
         if (empty($fines) && !empty($monetaryValue) && (int)$monetaryValue != 0) {
             return false;
