@@ -1,4 +1,5 @@
 <?php
+
 namespace CPK\Ziskej;
 
 use VuFind\Cookie\CookieManager;
@@ -7,8 +8,10 @@ use Zend\Config\Config;
 /**
  * CPK Ziskej Class
  */
-class Ziskej
+abstract class Ziskej
 {
+    protected $cookieName = '';
+
     public const MODE_DISABLED = 'disabled';
     public const MODE_PRODUCTION = 'prod';
 
@@ -30,7 +33,7 @@ class Ziskej
     /**
      * @var string
      */
-    private $defaultMode = self::MODE_DISABLED;
+    private $defaultMode;
 
     public function __construct(
         Config $config,
@@ -92,8 +95,8 @@ class Ziskej
      */
     public function getCurrentMode(): string
     {
-        return !empty($this->cookieManager->get('ziskej'))
-            ? $this->cookieManager->get('ziskej')
+        return !empty($this->cookieManager->get($this->cookieName))
+            ? $this->cookieManager->get($this->cookieName)
             : $this->defaultMode;
     }
 
@@ -105,7 +108,7 @@ class Ziskej
     public function setMode(string $mode): void
     {
         $cookieMode = $this->isMode($mode) ? $mode : self::MODE_DISABLED;
-        \setcookie('ziskej', $cookieMode, 0, '/');
+        \setcookie($this->cookieName, $cookieMode, 0, '/');
     }
 
     /**
