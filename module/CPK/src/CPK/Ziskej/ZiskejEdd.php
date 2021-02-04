@@ -8,4 +8,6 @@ namespace CPK\Ziskej;
 class ZiskejEdd extends Ziskej
 {
     protected $cookieName = 'ziskejEdd';
+
+    protected $configDefaultModeName = 'default_mode_edd';
 }
