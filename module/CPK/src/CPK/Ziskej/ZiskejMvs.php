@@ -8,4 +8,6 @@ namespace CPK\Ziskej;
 class ZiskejMvs extends Ziskej
 {
     protected $cookieName = 'ziskejMvs';
+
+    protected $configDefaultModeName = 'default_mode_mvs';
 }

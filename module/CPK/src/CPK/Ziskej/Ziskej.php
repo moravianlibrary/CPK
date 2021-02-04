@@ -43,7 +43,7 @@ abstract class Ziskej
         $this->configZiskej = $this->config->get('Ziskej');
         $this->cookieManager = $cookieManager;
 
-        $this->defaultMode = $this->configZiskej['default_mode'] ?: self::MODE_DISABLED;
+        $this->defaultMode = $this->configZiskej[$this->configDefaultModeName] ?: self::MODE_DISABLED;
     }
 
     /**
