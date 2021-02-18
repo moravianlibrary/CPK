@@ -21,6 +21,7 @@ class ArlNCIPDenormalizer extends NCIPDenormalizer
         $newBibId = str_replace('CbvkUsCat_', 'cbvk_us_cat*', $newBibId);
 	$newBibId = str_replace('KlUsCat_', 'kl_us_cat*', $newBibId);
 	$newBibId = str_replace('VyUsCat_', 'vy_us_cat*', $newBibId);
+    $newBibId = str_replace('KjmUsCat_', 'kjm_us_cat*', $newBibId);
 
         if ($newBibId !== null)
             $request->setDataValue(
