@@ -26,7 +26,7 @@ namespace CPK\Auth;
 
 use VuFind\Exception\ILS as ILSException;
 
-class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
+class Oauth2Service implements \VuFindHttp\HttpServiceAwareInterface,
     \Zend\Log\LoggerAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
@@ -59,6 +59,7 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
      * @var
      */
     protected $token;
+
 
     /**
      * Constructor
@@ -104,6 +105,20 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
     {
         $tokenEndpoint = $this->config['Catalog']['tokenEndpoint'];
         $client = $this->createHttpClient($tokenEndpoint);
+        $postFields =  [
+            'grant_type' => $this->config['Catalog']['grantType']
+                ?? 'client_credentials',
+            ];
+        if (isset($this->config['Catalog']['tokenBasicAuth'])
+            && $this->config['Catalog']['tokenBasicAuth']) {
+            $client->setAuth(
+                $this->config['Catalog']['clientId'],
+                $this->config['Catalog']['clientSecret']
+            );
+        } else {
+            $postFields['client_id'] = $this->config['Catalog']['clientId'];
+            $postFields['client_secret'] = $this->config['Catalog']['clientSecret'];
+        }
 
         $adapter = new \Zend\Http\Client\Adapter\Curl();
         $client->setAdapter($adapter);
@@ -111,12 +126,7 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
             'curloptions' => [
                 CURLOPT_POST => true,
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POSTFIELDS => [
-                    'client_id' => $this->config['Catalog']['clientId'],
-                    'client_secret' => $this->config['Catalog']['clientSecret'],
-                    'grant_type' => $this->config['Catalog']['grantType']
-                        ?? 'client_credentials'
-                ]
+                CURLOPT_POSTFIELDS => $postFields,
             ]
         ]);
 
@@ -185,7 +195,7 @@ class KohaRestService implements \VuFindHttp\HttpServiceAwareInterface,
     }
 
     protected function getCacheKey() {
-        return "KohaREST_token_" . $this->source;
+        return "Oauth2_token_" . $this->source;
     }
 
     protected function setToCache($value) {
