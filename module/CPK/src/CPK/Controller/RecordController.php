@@ -418,8 +418,8 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             }
 
             $responseReader = new Reader(
-                $user->firstname,
-                $user->lastname,
+                !empty($user->firstname) ? $user->firstname : 'empty_first_name',
+                !empty($user->lastname) ? $user->lastname : 'empty_last_name',
                 $email,
                 $driver->sourceToSigla($user->home_library),
                 true,
