@@ -1,19 +1,21 @@
 <?php
+
 namespace CPK\Ziskej;
+
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Factory for instantiating objects
  */
-class Factory implements FactoryInterface
+class ZiskejEddFactory implements FactoryInterface
 {
     /**
-     * Create CPK\Ziskej service
+     * Create service
      * @param \Zend\ServiceManager\ServiceLocatorInterface $sm
-     * @return \CPK\Ziskej\Ziskej
+     * @return \CPK\Ziskej\ZiskejEdd
      */
-    public function createService(ServiceLocatorInterface $sm): Ziskej
+    public function createService(ServiceLocatorInterface $sm): ZiskejEdd
     {
         /** @var \Zend\Config\Config $config */
         $config = $sm->get('VuFind\Config')->get('config');
@@ -21,6 +23,6 @@ class Factory implements FactoryInterface
         /** @var \VuFind\Cookie\CookieManager $cookieManager */
         $cookieManager = $sm->get('VuFind\CookieManager');
 
-        return new \CPK\Ziskej\Ziskej($config, $cookieManager);
+        return new \CPK\Ziskej\ZiskejEdd($config, $cookieManager);
     }
 }

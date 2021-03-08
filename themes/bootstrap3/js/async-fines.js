@@ -80,7 +80,7 @@ function updateFinesTable(response) {
 
 		if (!(typeof data.paymentUrl === "undefined")) {
 			if (data.paymentUrl !== null)
-				summaryRow.after('<tr><td></td><td></td><td></td><td><a class="btn btn-primary btn-sm" id="pay-button" href="' + data.paymentUrl + '">' + data.payButtonText + '</a></td></tr>');
+				summaryRow.after('<tr><td></td><td></td><td><a class="btn btn-primary btn-sm" id="pay-button" href="' + data.paymentUrl + '">' + data.payButtonText + '</a></td></tr>');
 		}
 		// Unhide the table
 		tableBody.removeAttr('hidden');
@@ -101,7 +101,7 @@ function updateFinesTable(response) {
             $( 'tr[id="summary_' + escapeHTML(cat_username) + '"]' )
                 .before(`
                      <tr>
-                       <td colspan='4' class='text-center'>
+                       <td colspan='3' class='text-center'>
                          <a id='${escapeHTML(cat_username)}' class='toggler'>
                            <i class='pr-interface-arrowbottom4' title='${VuFind.translate("show_others")}'> </i>
                          </a>

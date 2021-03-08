@@ -4,7 +4,7 @@ namespace CPK\RecordTab;
 
 use VuFind\RecordTab\AbstractBase;
 
-class Ziskej extends AbstractBase
+class ZiskejEdd extends AbstractBase
 {
     /**
      * Is this tab enabled?
@@ -31,7 +31,7 @@ class Ziskej extends AbstractBase
      */
     public function isActive(): bool
     {
-        if ($this->getRecordDriver()->tryMethod('isAvailableInZiskej') === true) {
+        if ($this->getRecordDriver()->tryMethod('isAvailableInZiskejEdd') === true) {
             $this->enabled = true;
         }
 
@@ -40,6 +40,6 @@ class Ziskej extends AbstractBase
 
     public function getDescription(): string
     {
-        return 'Ziskej';
+        return 'Získej EDD';
     }
 }

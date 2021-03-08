@@ -27,7 +27,6 @@
  */
 namespace CPK\Controller;
 
-use CPK\Ziskej\Ziskej;
 use Mzk\ZiskejApi\RequestModel\Reader;
 use Mzk\ZiskejApi\RequestModel\Ticket;
 use VuFind\Controller\RecordController as RecordControllerBase;
@@ -269,12 +268,10 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
         }
 
 
-        // ziskej
-        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
-        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
-
-        // ziskej tab
+        // ziskej mvs tab
         if (strtolower($tab) === 'ziskej') {
+        /** @var \CPK\Ziskej\ZiskejMvs $cpkZiskej */
+        $cpkZiskej = $this->serviceLocator->get(\CPK\Ziskej\ZiskejMvs::class);
 
             /** @var string|null $ziskejApiUrl */
             $ziskejApiUrl = null;
@@ -335,6 +332,29 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                     }
                     $view->ziskejActive = $ziskejActive;
                 }
+            }
+        }
+
+        // ziskej edd tab
+        if (strtolower($tab) === 'ziskejedd') {
+            /** @var \CPK\Ziskej\ZiskejEdd $cpkZiskej */
+            $cpkZiskej = $this->serviceLocator->get(\CPK\Ziskej\ZiskejEdd::class);
+
+            /** @var string|null $ziskejApiUrl */
+            $ziskejApiUrl = null;
+            if ($cpkZiskej->isEnabled()) {
+                if (isset($config->Ziskej) && !empty($cpkZiskej->getCurrentUrl())) {
+                    $ziskejApiUrl = $cpkZiskej->getCurrentUrl();
+                }
+            }
+            $view->ziskejApiUrl = $ziskejApiUrl;
+
+            if ($cpkZiskej->isEnabled()) {
+                /** @var string|null ziskejMinUrl */
+                $view->ziskejMinUrl = $cpkZiskej->getZiskejTechlibUrl();
+
+                /** @var string|null $ziskejTechlibFrontUrl */
+                $view->ziskejTechlibFrontUrl = $cpkZiskej->getCurrentZiskejTechlibFrontUrl();
             }
         }
 

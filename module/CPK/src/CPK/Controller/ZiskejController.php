@@ -26,7 +26,6 @@
 namespace CPK\Controller;
 
 use CPK\Controller\Exception\TicketNotFoundException;
-use CPK\Ziskej\Ziskej;
 use VuFind\Controller\AbstractBase;
 
 
@@ -43,19 +42,24 @@ class ZiskejController extends AbstractBase
         /** @var \Zend\View\Model\ViewModel $view */
         $view = $this->createViewModel();
 
-        /** @var \CPK\Ziskej\Ziskej $cpkZiskej */
-        $cpkZiskej = $this->serviceLocator->get('CPK\Ziskej');
+        /** @var \CPK\Ziskej\ZiskejMvs $cpkZiskejMvs */
+        $cpkZiskejMvs = $this->serviceLocator->get(\CPK\Ziskej\ZiskejMvs::class);
 
-        if ($this->getRequest()->isPost() && $this->getRequest()->getPost('ziskej')) {
-            $cpkZiskej->setMode($this->getRequest()->getPost('ziskej'));
+        /** @var \CPK\Ziskej\ZiskejEdd $cpkZiskejEdd */
+        $cpkZiskejEdd = $this->serviceLocator->get(\CPK\Ziskej\ZiskejEdd::class);
+
+        if ($this->getRequest()->isPost()) {
+            if ($this->getRequest()->getPost('ziskejMvsMode')) {
+                $cpkZiskejMvs->setMode($this->getRequest()->getPost('ziskejMvsMode'));
+            }
+            if ($this->getRequest()->getPost('ziskejEddMode')) {
+                $cpkZiskejEdd->setMode($this->getRequest()->getPost('ziskejEddMode'));
+            }
             $this->flashMessenger()->addMessage('message_ziskej_mode_saved', 'success');
             return $this->redirect()->refresh();
         }
 
-        $view->setVariable('ziskejModes', $cpkZiskej->getModes());
-        $view->setVariable('ziskejCurrentMode', $cpkZiskej->getCurrentMode());
-
-        if (!$cpkZiskej->isEnabled()) {
+        if (!$cpkZiskejMvs->isEnabled() && !$cpkZiskejEdd->isEnabled()) {
             return $view;
         }
 

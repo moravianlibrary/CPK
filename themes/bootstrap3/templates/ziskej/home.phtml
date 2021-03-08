@@ -1,4 +1,4 @@
-<?
+<?php
 // Set page title.
 $this->headTitle('Ziskej Alpha');
 
@@ -6,197 +6,207 @@ $this->headTitle('Ziskej Alpha');
 $this->layout()->searchbox = false;
 ?>
 
-<?= $this->flashmessages() ?>
+<?=$this->flashmessages() ?>
 
 <!-- ziskej select mode -->
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title"><?= $this->translate('ziskej_settings_title_mode') ?></h3>
+    <h3 class="panel-title"><?=$this->translate('ziskej_settings_title_mode') ?></h3>
   </div>
   <div class="panel-body">
-    <form action="<?= $this->url('ziskej') ?>" id="ziskejForm" method="post" name="ziskejForm">
+    <form action="<?=$this->url('ziskej') ?>" id="ziskejForm" method="post" name="ziskejForm">
       <div class="form-group">
-        <label for="ziskejSelect"><?= $this->translate('ziskej_label_mode') ?>: </label>
-        <select name="ziskej" class="form-control" id="ziskejSelect">
-          <? foreach ($this->ziskejModes as $mode): ?>
-            <option value="<?= $this->escapeHtmlAttr($mode) ?>"
-                    <? if ($mode == $this->ziskejCurrentMode): ?>selected="selected"<? endif; ?>>
-              <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
+        <label for="selectZiskejMvs"><?=$this->translate('label_ziskej_mvs_mode') ?>: </label>
+        <select name="ziskejMvsMode" class="form-control" id="selectZiskejMvs">
+          <?php foreach ($this->Ziskej()->getModes() as $mode): ?>
+            <option value="<?=$this->escapeHtmlAttr($mode) ?>" <?php if ($mode == $this->Ziskej()->getCurrentMode()): ?>selected="selected"<?php endif; ?>>
+              <?=$this->translate(sprintf('Ziskej_%s', $mode)) ?>
             </option>
-          <? endforeach; ?>
+          <?php endforeach; ?>
         </select>
       </div>
+      <?php if(false): ?>
       <div class="form-group">
-        <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?= $this->translate('Set') ?>"
-               value="<?= $this->translate('Set') ?>">
+        <label for="selectZiskejEdd"><?=$this->translate('label_ziskej_edd_mode') ?>: </label>
+        <select name="ziskejEddMode" class="form-control" id="selectZiskejEdd">
+          <?php foreach ($this->ziskejEdd()->getModes() as $mode): ?>
+            <option value="<?=$this->escapeHtmlAttr($mode) ?>" <?php if ($mode == $this->ZiskejEdd()->getCurrentMode()): ?>selected="selected"<?php endif; ?>>
+              <?= $this->translate(sprintf('Ziskej_%s', $mode)) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <?php endif; ?>
+      <div class="form-group">
+        <input class="btn btn-primary" type="submit" name="submitZiskej" title="<?=$this->translate('Set') ?>" value="<?=$this->translate('Set') ?>">
       </div>
     </form>
   </div>
 </div>
 <!-- /ziskej select mode -->
 
-<? if ($this->Ziskej()->isEnabled()): ?>
+<?php if ($this->Ziskej()->isEnabled()): ?>
 
   <!-- user data -->
   <div class="panel panel-default">
     <div class="panel-heading">
-      <h3 class="panel-title"><?= $this->translate('ziskej_settings_title_user') ?></h3>
+      <h3 class="panel-title"><?=$this->translate('ziskej_settings_title_user') ?></h3>
     </div>
     <div class="panel-body">
-      <? if (!empty($this->user)): ?>
+      <?php if (!empty($this->user)): ?>
         <div class="row">
           <div class="col-md-6">
             <dl class="dl-horizontal">
-              <dt>Username:</dt>
-              <dd><?= $this->user->username; ?></dd>
-              <dt>Home library:</dt>
-              <dd><?= $this->user->home_library; ?></dd>
+              <dt><?=$this->translate('ziskej_settings_label_username') ?>:</dt>
+              <dd><?=$this->user->username ?></dd>
+              <dt><?=$this->translate('ziskej_settings_label_home_library') ?>:</dt>
+              <dd><?=$this->user->home_library ?></dd>
             </dl>
           </div>
           <div class="col-md-6">
             <dl class="dl-horizontal">
-              <dt>First name:</dt>
-              <dd><?= $this->user->firstname; ?></dd>
-              <dt>Last name:</dt>
-              <dd><?= $this->user->lastname; ?></dd>
-              <dt>Email:</dt>
-              <dd><?= $this->user->email; ?></dd>
+              <dt><?=$this->translate('ziskej_settings_label_name_first') ?>:</dt>
+              <dd><?=$this->user->firstname ?></dd>
+              <dt><?=$this->translate('ziskej_settings_label_name_last') ?>:</dt>
+              <dd><?=$this->user->lastname ?></dd>
+              <dt><?=$this->translate('ziskej_settings_label_email') ?>:</dt>
+              <dd><?=$this->user->email ?></dd>
             </dl>
           </div>
         </div>
-      <? else: ?>
+      <?php else: ?>
         <div class="alert alert-warning text-center">
-          <?= $this->translate('message_no_user_logged_in') ?>
+          <?=$this->translate('message_no_user_logged_in') ?>
         </div>
-      <? endif; ?>
+      <?php endif; ?>
     </div>
   </div>
   <!-- /user data -->
 
   <!-- ziskej data -->
-  <? if (!empty($this->data)): ?>
+  <?php if (!empty($this->data)): ?>
     <div>
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
-        <? $i = 1; ?>
-        <? foreach ($this->data as $eppn => $row): ?>
-          <li role="presentation" class="<? if ($i === 1): ?>active<? endif; ?>">
-            <a href="#tab_<?= $i; ?>" role="tab" data-toggle="tab"><?= $eppn; ?></a>
+        <?php $i = 1; ?>
+        <?php foreach ($this->data as $eppn => $row): ?>
+          <li role="presentation" class="<?php if ($i === 1): ?>active<?php endif; ?>">
+            <a href="#tab_<?=$i ?>" role="tab" data-toggle="tab"><?=$eppn ?></a>
           </li>
-          <? $i++; ?>
-        <? endforeach; ?>
+          <?php $i++; ?>
+        <?php endforeach; ?>
       </ul>
       <!-- Tab panes -->
       <div class="tab-content">
-        <? $i = 1; ?>
-        <? foreach ($this->data as $eppn => $row): ?>
-          <div class="tab-pane <? if ($i === 1): ?>active<? endif; ?>" id="tab_<?= $i; ?>">
-            <? if ($row['library_in_ziskej']): ?>
-              <?
+        <?php $i = 1; ?>
+        <?php foreach ($this->data as $eppn => $row): ?>
+          <div class="tab-pane <?php if ($i === 1): ?>active<?php endif; ?>" id="tab_<?=$i ?>">
+            <?php if ($row['library_in_ziskej']): ?>
+              <?php
               /** @var Mzk\ZiskejApi\ResponseModel\Reader $reader */
               $reader = !empty($row['reader']) ? $row['reader'] : null;
               ?>
-              <? if ($reader): ?>
-                <? if (!$reader->isActive()): ?>
+              <?php if ($reader): ?>
+                <?php if (!$reader->isActive()): ?>
                   <div class="alert alert-warning text-center">
-                    Reader is in Ziskej, but is not active
+                    <?=$this->translate('ziskej_settings_alert_reader_not_active') ?>
                   </div>
-                <? endif; ?>
+                <?php endif; ?>
                 <div class="panel panel-default">
                   <div class="panel-heading">
-                    <h3 class="panel-title">Reader</h3>
+                    <h3 class="panel-title"><?=$this->translate('ziskej_settings_label_reader') ?></h3>
                   </div>
                   <div class="panel-body">
                     <div class="row">
                       <div class="col-md-6">
                         <dl class="dl-horizontal">
-                          <dt>Is active</dt>
-                          <dd><?= $reader->isActive() ? 'Yes' : 'No'; ?></dd>
-                          <dt>Eppn:</dt>
-                          <dd><?= $eppn; ?></dd>
-                          <dt>Sigla</dt>
-                          <dd><?= $reader->getSigla(); ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_is_active') ?></dt>
+                          <dd><?=$reader->isActive() ? $this->translate('yes') : $this->translate('no') ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_eppn') ?>:</dt>
+                          <dd><?=$eppn ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_sigla') ?></dt>
+                          <dd><?=$reader->getSigla() ?></dd>
                         </dl>
                       </div>
                       <div class="col-md-6">
                         <dl class="dl-horizontal">
-                          <dt>First name:</dt>
-                          <dd><?= $reader->getFirstName(); ?></dd>
-                          <dt>Last name:</dt>
-                          <dd><?= $reader->getLastName(); ?></dd>
-                          <dt>Email:</dt>
-                          <dd><?= $reader->getEmail(); ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_name_first') ?>:</dt>
+                          <dd><?=$reader->getFirstName() ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_name_last') ?>:</dt>
+                          <dd><?=$reader->getLastName() ?></dd>
+                          <dt><?=$this->translate('ziskej_settings_label_email') ?>:</dt>
+                          <dd><?=$reader->getEmail() ?></dd>
                         </dl>
                       </div>
                     </div>
                   </div>
                 </div>
-                <? if ($reader->isActive()): ?>
-                  <?
+                <?php if ($reader->isActive()): ?>
+                  <?php
                   /** @var array $tickets */
                   $tickets = $row['tickets'];
                   ?>
                   <div class="panel panel-default">
                     <div class="panel-heading">
-                      <h3 class="panel-title">Tickets <span class="badge"><?= count($tickets); ?></span></h3>
+                      <h3 class="panel-title"><?=$this->translate('ziskej_settings_label_tickets') ?> <span class="badge"><?=count($tickets) ?></span></h3>
                     </div>
                     <div class="panel-body">
-                      <? if (count($tickets)): ?>
+                      <?php if (count($tickets)): ?>
                         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                          <? /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
+                          <?php
+                          /** @var \Mzk\ZiskejApi\ResponseModel\Ticket $ticket */
                           foreach ($tickets as $ticketDuo):
                             $ticket = $ticketDuo['ticket'];
                             ?>
                             <div class="panel panel-default">
                               <div class="panel-heading" role="tab">
                                 <h4 class="panel-title">
-                                  <a role="button" data-toggle="collapse" href="#ticket_<?= $ticket->getHid(); ?>">
-                                    <?= $this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()); ?>
-                                    | <?= $ticket->getId(); ?>
+                                  <a role="button" data-toggle="collapse" href="#ticket_<?=$ticket->getHid() ?>">
+                                    <?=$this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()) ?>
+                                    | <?=$ticket->getId() ?>
                                     <span class="pull-right">
-                              <? if (count($ticketDuo['messages'])): ?>
-                                <span class="badge"><?= count($ticketDuo['messages']); ?> messages</span>
-                              <? endif; ?>
-                            </span>
+                                      <?php if (count($ticketDuo['messages'])): ?>
+                                        <span class="badge"><?=$this->translate('ziskej_settings_label_count_messages') ?>: <?=count($ticketDuo['messages']) ?></span>
+                                      <?php endif; ?>
+                                    </span>
                                   </a>
                                 </h4>
                               </div>
-                              <div id="ticket_<?= $ticket->getHid(); ?>" class="panel-collapse collapse out"
-                                   role="tabpanel">
+                              <div id="ticket_<?=$ticket->getHid() ?>" class="panel-collapse collapse out" role="tabpanel">
                                 <div class="panel-body">
                                   <div class="row">
                                     <div class="col-md-6">
                                       <dl class="dl-horizontal">
-                                        <dt>ID:</dt>
-                                        <dd><?= $ticket->getId(); ?></dd>
-                                        <dt>HID:</dt>
-                                        <dd><?= $ticket->getHid(); ?></dd>
-                                        <dt>is_open:</dt>
-                                        <dd><?= $ticket->isOpen(); ?></dd>
-                                        <dt>doc_id:</dt>
-                                        <dd><?= $ticket->getDocumentId(); ?></dd>
-                                        <dt>sigla:</dt>
-                                        <dd><?= $ticket->getSigla(); ?></dd>
-                                        <dt>status_reader :</dt>
-                                        <dd><?= $ticket->getStatus(); ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_id') ?>:</dt>
+                                        <dd><?=$ticket->getId() ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_hid') ?>:</dt>
+                                        <dd><?=$ticket->getHid() ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_is_open') ?>:</dt>
+                                        <dd><?=$ticket->isOpen() ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_doc_id') ?>:</dt>
+                                        <dd><?=$ticket->getDocumentId() ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_sigla') ?>:</dt>
+                                        <dd><?=$ticket->getSigla() ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_status_reader') ?>:</dt>
+                                        <dd><?=$ticket->getStatus() ?></dd>
                                       </dl>
                                     </div>
                                     <div class="col-md-6">
-                                      <dl class="dl-horizontal">
-                                        <dt>date_created:</dt>
-                                        <dd><?= $this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()); ?></dd>
-                                        <dt>date_requested:</dt>
+                                      <dl>
+                                        <dt><?=$this->translate('ziskej_settings_label_date_created') ?>:</dt>
+                                        <dd><?=$this->Datetime()->convertToDisplayDateAndTime('U', $ticket->getCreatedAt()->getTimestamp()) ?></dd>
+                                        <dt><?=$this->translate('ziskej_settings_label_date_requested') ?>:</dt>
                                         <dd>
-                                          <?= !empty($ticket->getRequestedAt())
+                                          <?=!empty($ticket->getRequestedAt())
                                             ? $this->Datetime()->convertToDisplayDate('U', $ticket->getRequestedAt()->getTimestamp())
-                                            : '';
+                                            : '–'
                                           ?>
                                         </dd>
-                                        <dt>date_return:</dt>
+                                        <dt><?=$this->translate('ziskej_settings_label_date_return') ?>:</dt>
                                         <dd>
-                                          <?= !empty($ticket->getReturnAt())
+                                          <?=!empty($ticket->getReturnAt())
                                             ? $this->Datetime()->convertToDisplayDate('U', $ticket->getReturnAt()->getTimestamp())
-                                            : '';
+                                            : '–'
                                           ?>
                                         </dd>
                                       </dl>
@@ -206,32 +216,32 @@ $this->layout()->searchbox = false;
                                 </div>
                               </div>
                             </div>
-                          <? endforeach; ?>
+                          <?php endforeach; ?>
                         </div>
-                      <? else: ?>
+                      <?php else: ?>
                         <div class="alert alert-info text-center">
-                          No tickets
+                          <?=$this->translate('ziskej_settings_label_no_tickets') ?>
                         </div>
-                      <? endif; ?>
+                      <?php endif; ?>
                     </div>
                   </div>
-                <? endif; ?>
-              <? else: ?>
+                <?php endif; ?>
+              <?php else: ?>
                 <div class="alert alert-warning text-center">
-                  No reader in Ziskej
+                  <?=$this->translate('ziskej_settings_label_no_reader') ?>
                 </div>
-              <? endif; ?>
-            <? else: ?>
+              <?php endif; ?>
+            <?php else: ?>
               <div class="alert alert-warning text-center">
-                Library not in Ziskej
+                <?=$this->translate('ziskej_settings_label_no_library') ?>
               </div>
-            <? endif ?>
+            <?php endif ?>
           </div>
-          <? $i++; ?>
-        <? endforeach; ?>
+          <?php $i++; ?>
+        <?php endforeach; ?>
       </div>
     </div>
-  <? endif; ?>
+  <?php endif; ?>
   <!-- /ziskej data -->
 
-<? endif; ?>
+<?php endif; ?>

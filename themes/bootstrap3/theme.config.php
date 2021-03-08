@@ -58,6 +58,7 @@ $toRet = array(
             'obalkyknih' => 'CPK\View\Helper\CPK\Factory::getObalkyKnih',
             'notifications' => 'CPK\View\Helper\CPK\Factory::getNotifications',
             'feedback' => 'CPK\View\Helper\CPK\Factory::getFeedback',
+            'ziskejEdd' => 'CPK\View\Helper\CPK\Factory::getZiskejEdd',
             'ziskej' => 'CPK\View\Helper\CPK\Factory::getZiskej',
             'order' => 'CPK\View\Helper\CPK\Factory::getOrder',
         ),

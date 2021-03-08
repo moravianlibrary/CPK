@@ -19,7 +19,7 @@ class ZiskejApiFactory implements FactoryInterface
 {
 
     /**
-     * @var \CPK\Ziskej\Ziskej
+     * @var \CPK\Ziskej\ZiskejMvs
      */
     private $cpkZiskej;
 
@@ -32,7 +32,7 @@ class ZiskejApiFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator): Api
     {
-        $this->cpkZiskej = $serviceLocator->get('CPK\Ziskej');
+        $this->cpkZiskej = $serviceLocator->get(\CPK\Ziskej\ZiskejMvs::class);
 
         $config = $serviceLocator->get('VuFind\Config')->get('config');
 

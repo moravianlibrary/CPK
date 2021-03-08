@@ -464,12 +464,6 @@
     </div>
     <? endif; ?>
 
-    <?php if($this->Ziskej()->isEnabled() && !$this->Ziskej()->isProduction()): ?>
-      <div class="bar-ziskej">
-        <i class="fa fa-fw fa-exclamation-circle" aria-hidden="true"></i>
-        <?=$this->translate('ziskej_bar_info', ['%%mode%%' => $this->Ziskej()->getCurrentMode()])?>
-        <a href="<?=$this->url('ziskej')?>" title="<?=$this->translate('ziskej_bar_change_mode_title')?>"><?=$this->translate('ziskej_bar_change_mode')?></a>
-      </div>
-    <?php endif; ?>
+    <?=$this->render('ziskej-bar.phtml') ?>
   </body>
 </html>
