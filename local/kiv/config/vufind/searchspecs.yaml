@@ -311,6 +311,7 @@ AllFields:
     - title^500
     - title_alt^200
     - title_new^100
+    - title_old_spelling_txt_mv^50
     - series^50
     - series2^30
     - author^500
@@ -363,6 +364,8 @@ AllFields:
         - [and, 200]
       title_new:
         - [and, 100]
+      title_old_spelling_txt_mv:
+        - [and, 50]
     series:
       - [and, 50]
     series2:
@@ -439,6 +442,7 @@ adv_search_title_series:
     - title_new^100
     - title_old
     - titleSeries_search_txt_mv
+    - title_old_spelling_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_kiv^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
