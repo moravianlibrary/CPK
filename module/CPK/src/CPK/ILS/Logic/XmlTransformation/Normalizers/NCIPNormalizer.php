@@ -330,25 +330,6 @@ class NCIPNormalizer implements LoggerAwareInterface, NCIPNormalizerInterface
                 'ns1:ItemOptionalFields',
                 'ns1:CirculationStatus'
             );
-
-        // This condition is very weird ... it would be nice to find out what agency it belongs, to avoid misuse
-        if ($department == 'Podlesí') {
-
-            // Only append 'Not For Loan' to the end of item restriction
-            $itemRestriction = $response->getArray(
-                'LookupItemResponse',
-                'ItemOptionalFields',
-                'ItemUseRestrictionType'
-            );
-            $i = sizeof($itemRestriction);
-
-            $response->setDataValue(
-                'Not For Loan',
-                'ns1:LookupItemResponse',
-                'ns1:ItemOptionalFields',
-                "ns1:ItemUseRestrictionType[$i]"
-            );
-        }
     }
 
     public function normalizeLookupItemSetStatus(JsonXML &$response){}

@@ -160,29 +160,6 @@ class ArlNCIPNormalizer extends NCIPNormalizer
             }
 
             $this->normalizeItemRestrictionType($response, $itemInformation, $i);
-
-            // This condition is very weird ... it would be nice to find out what agency it belongs, to avoid misuse
-            if ($department == 'Podlesí') {
-
-                // Only append 'Not For Loan' to the end of item restriction
-                $itemRestrictions = $response->getArrayRelative(
-                    $itemInformation,
-                    'ItemOptionalFields',
-                    'ItemUseRestrictionType'
-                );
-                $j = sizeof($itemRestrictions);
-
-                $response->setDataValue(
-                    'Not For Loan',
-                    'ns1:LookupItemSetResponse',
-                    'ns1:BibInformation',
-                    'ns1:HoldingsSet',
-                    "ns1:ItemInformation[$i]",
-                    'ns1:ItemOptionalFields',
-                    "ns1:ItemUseRestrictionType[$j]"
-                );
-            }
-
         }
     }
 
