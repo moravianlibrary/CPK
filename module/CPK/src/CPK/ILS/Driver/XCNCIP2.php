@@ -2020,9 +2020,6 @@ class XCNCIP2 extends \VuFind\ILS\Driver\AbstractBase implements
         if (! empty($this->hideHoldLinks)) {
             return false;
         }
-        if ($department == 'Podlesí') {
-            return false;
-        }
         $status = empty($status) ? '' : (string) $status[0];
         $itemRestriction = empty($itemRestriction) ? '' : (string) $itemRestriction[0];
         $addLink = true;
