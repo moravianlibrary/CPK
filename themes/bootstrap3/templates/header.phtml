@@ -13,10 +13,7 @@
     <a class="navbar-brand lang-<?= $this->layout()->userLang ?>"
        href="<?= $this->themeConfiguration()->themeConfig['logo_href'] ?>"
        title="Knihovny.cz">
-      <i class="fa knihovny-logo"></i>
-      <span class="slogan">
-        <?= $this->translate('slogan') ?>
-      </span>
+      <img class="knihovny-logo" src="<?=$this->imageLink('logo-knihovny.cz.png') ?>" alt="Logo Knihovny.cz">
     </a>
   <? else: ?>
     <a href="<?= $this->themeConfiguration()->themeConfig['logo_href'] ?>" title="Knihovny.cz">
