@@ -131,7 +131,7 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
                     $namespace . 'RenewalNotPermitted'
                 );
             }
-            if ($renewalNotPermitted == "true" || empty($renewalNotPermitted)) {
+            if ($renewalNotPermitted === "true" || $renewalNotPermitted === true)) {
                 $response->setDataValue(
                     '',
                     $namespace . 'LookupUserResponse',
