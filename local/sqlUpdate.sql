@@ -1059,3 +1059,10 @@ ALTER TABLE `user_card`
     ADD CONSTRAINT `user_card_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
 UPDATE `system` SET `value` = '66' WHERE `key`='DB_VERSION';
+
+-- Change size of source column
+ALTER TABLE `inst_configs`
+CHANGE `source` `source` varchar(64) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
+
+UPDATE `system` SET `value` = '67' WHERE `key`='DB_VERSION';
+
