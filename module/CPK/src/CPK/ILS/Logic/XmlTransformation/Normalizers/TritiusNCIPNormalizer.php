@@ -74,16 +74,18 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
 
         $namespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject()) ? 'ns1:' : '';
 
-        $response->setDataValue(
-            array(
-                $namespace . 'ElectronicAddressType' => 'mailto',
-                $namespace . 'ElectronicAddressData' => $email
-            ),
-            $namespace . 'LookupUserResponse',
-            $namespace . 'UserOptionalFields',
-            $namespace . "UserAddressInformation[$countOfUserAddressInformations]",
-            $namespace . "ElectronicAddress[$countOfElectronicAddresses]"
-        );
+        if ($countOfElectronicAddresses === 0) {
+            $response->setDataValue(
+                array(
+                    $namespace . 'ElectronicAddressType' => 'mailto',
+                    $namespace . 'ElectronicAddressData' => $email
+                ),
+                $namespace . 'LookupUserResponse',
+                $namespace . 'UserOptionalFields',
+                $namespace . "UserAddressInformation[$countOfUserAddressInformations]",
+                $namespace . "ElectronicAddress[$countOfElectronicAddresses]"
+            );
+        }
     }
 
     public function normalizeLookupUserLoanedItems(JsonXML &$response)
@@ -99,12 +101,13 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
 
             $namespace = array_key_exists('ns1:LookupUserResponse', $response->toJsonObject()) ? 'ns1:' : '';
 
-            $response->setDataValue(
-                $dateDue,
-                $namespace . 'LookupUserResponse',
-                $namespace . (count($loanedItems) > 1) ? "LoanedItem[$i]" : 'LoanedItem',
-                $namespace . 'DateDue'
-            );
+            if (!empty($dateDue)) {
+                $response->setDataValue(
+                    $dateDue, $namespace . 'LookupUserResponse',
+                    $namespace . (count($loanedItems) > 1) ? "LoanedItem[$i]"
+                        : 'LoanedItem', $namespace . 'DateDue'
+                );
+            }
 
             $renewalNotPermitted = $response->getRelative(
                 $loanedItem,
@@ -128,7 +131,7 @@ class TritiusNCIPNormalizer extends NCIPNormalizer
                     $namespace . 'RenewalNotPermitted'
                 );
             }
-            if($renewalNotPermitted == "true") {
+            if ($renewalNotPermitted === "true" || $renewalNotPermitted === true) {
                 $response->setDataValue(
                     '',
                     $namespace . 'LookupUserResponse',
