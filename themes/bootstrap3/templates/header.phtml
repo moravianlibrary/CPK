@@ -12,13 +12,13 @@
     </button>
     <a class="navbar-brand lang-<?= $this->layout()->userLang ?>"
        href="<?= $this->themeConfiguration()->themeConfig['logo_href'] ?>"
-       title="Knihovny.cz">
-      <img class="knihovny-logo" src="<?=$this->imageLink('logo-knihovny.cz.svg') ?>" alt="Logo Knihovny.cz">
+       title="<?= $this->translate('logo_title') ?>">
+      <img class="knihovny-logo" src="<?=$this->imageLink('logo-knihovny.cz-'. $this->layout()->userLang .'.svg') ?>" alt="<?= $this->translate('logo_alt') ?>">
     </a>
   <? else: ?>
-    <a href="<?= $this->themeConfiguration()->themeConfig['logo_href'] ?>" title="Knihovny.cz">
+    <a href="<?= $this->themeConfiguration()->themeConfig['logo_href'] ?>" title="<?= $this->translate('logo_title') ?>">
       <img src="<?=$this->imageLink($this->themeConfiguration()->themeConfig['logo_image']) ?>"
-           alt="Knihovny.cz">
+           alt="<?= $this->translate('logo_alt') ?>">
     </a>
   <? endif; ?>
 </div>
