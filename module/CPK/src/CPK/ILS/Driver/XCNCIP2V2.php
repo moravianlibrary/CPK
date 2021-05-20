@@ -708,7 +708,8 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
         } catch (ILSException $e) {
             return array(
                 'item_id' => $id,
-                'usedGetStatus' => true
+                'usedGetStatus' => true,
+                'label' => 'label-unknown',
             );
         }
         if ($response == null)
