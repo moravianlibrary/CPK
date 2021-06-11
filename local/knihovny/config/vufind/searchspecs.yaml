@@ -340,6 +340,8 @@ AllFields:
     - fulltext_analyser_txt_mv^5
     - semantic_enrichment_txt_mv^5
     - auto_conspectus_txt_mv^5
+    - author_search_txt_mv
+    - title_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -446,6 +448,7 @@ adv_search_title_series:
     - titleSeries_search_txt_mv
     - uniftitle_viz
     - title_old_spelling_txt_mv
+    - title_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
@@ -471,6 +474,7 @@ adv_search_author_corporation:
     - author_additional
     - author_find
     - authorCorporation_search_txt_mv
+    - author_search_txt_mv
   DismaxParams:
     - [bq, "inspiration:top_results^1"]
     - [bf, "if(exists(merged_records_boolean),10000,0)" ]
