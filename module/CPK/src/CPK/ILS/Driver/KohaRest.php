@@ -28,7 +28,7 @@
  */
 namespace CPK\ILS\Driver;
 
-use CPK\Auth\KohaRestService;
+use CPK\Auth\Oauth2Service;
 use VuFind\ILS\Driver\AbstractBase;
 use CPK\ILS\Logic\KohaRestNormalizer;
 use VuFind\Exception\Date as DateException;
@@ -125,10 +125,10 @@ class KohaRest extends AbstractBase implements \Zend\Log\LoggerAwareInterface,
     /**
      * Constructor
      *
-     * @param DateConverter   $dateConverter   Date converter
-     * @param KohaRestService $kohaRestService Koha API authentication service
+     * @param DateConverter $dateConverter   Date converter
+     * @param Oauth2Service $kohaRestService Koha API authentication service
      */
-    public function __construct(DateConverter $dateConverter, KohaRestService $kohaRestService)
+    public function __construct(DateConverter $dateConverter, Oauth2Service $kohaRestService)
     {
         $this->dateConverter = $dateConverter;
         $this->kohaRestService = $kohaRestService;
