@@ -92,8 +92,20 @@ class Factory
 
         return new KohaRest(
             $sl->get('VuFind\DateConverter'),
-            $sl->get('CPK\KohaOAUTH2Service')
+            $sl->get('CPK\Auth\Oauth2Service')
         );
     }
 
+    /**
+     * Factory for XCNCIP2V2 driver.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return XCNCIP2V2
+     */
+    public static function getXcncip2V2(ServiceManager $sm)
+    {
+        $sl = $sm->getServiceLocator();
+        return new XCNCIP2V2($sl->get('CPK\Auth\Oauth2Service'));
+    }
 }
