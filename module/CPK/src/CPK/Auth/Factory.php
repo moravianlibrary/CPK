@@ -115,12 +115,12 @@ class Factory
      *
      * @param ServiceManager $sm
      *
-     * @return KohaRestService
+     * @return Oauth2Service
      * @throws \Exception
      */
-    public static function getKohaOAUTH2Service(ServiceManager $sm)
+    public static function getOauth2Service(ServiceManager $sm)
     {
-        return new KohaRestService(
+        return new Oauth2Service(
             $sm->get('VuFind\CacheManager'),
             $sm->get('VuFind\Config')->get('config')
         );

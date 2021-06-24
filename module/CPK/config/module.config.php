@@ -100,12 +100,12 @@ $config = array(
                 'invokables' => [
                     'dummy' => 'CPK\ILS\Driver\Dummy',
                     'xcncip2' => 'CPK\ILS\Driver\XCNCIP2',
-                    'xcncip2v2' => 'CPK\ILS\Driver\XCNCIP2V2'
                 ],
                 'factories' => array(
                     'multibackend' => 'CPK\ILS\Driver\Factory::getMultiBackend',
                     'aleph' => 'CPK\ILS\Driver\Factory::getAleph',
                     'koharest' => 'CPK\ILS\Driver\Factory::getKohaRest',
+                    'xcncip2v2' => 'CPK\ILS\Driver\Factory::getXcncip2V2',
                 ), /* factories */
             ], /* ils_driver */
             'autocomplete' => [
@@ -244,7 +244,7 @@ $config = array(
             'CPK\Mailer' => 'CPK\Mailer\Factory::createService',
             'VuFind\ILSHoldLogic' => 'CPK\ILS\Logic\Factory::getFlatHolds',
             'Mzk\ZiskejApi\Api' => 'CPK\ZiskejApiFactory',
-            'CPK\KohaOAUTH2Service' => 'CPK\Auth\Factory::getKohaOAUTH2Service',
+            'CPK\Auth\Oauth2Service' => 'CPK\Auth\Factory::getOauth2Service',
             \CPK\Ziskej\ZiskejEdd::class => \CPK\Ziskej\ZiskejEddFactory::class,
             \CPK\Ziskej\ZiskejMvs::class => \CPK\Ziskej\ZiskejMvsFactory::class,
         ), // Exceptions throwing system

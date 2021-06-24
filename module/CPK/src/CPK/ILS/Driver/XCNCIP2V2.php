@@ -29,12 +29,14 @@
 
 namespace CPK\ILS\Driver;
 
+use CPK\Auth\Oauth2Service;
 use CPK\ILS\Logic\XmlTransformation\JsonXML;
 use CPK\ILS\Logic\XmlTransformation\JsonXMLException;
 use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizerRouter;
 use CPK\ILS\Logic\XmlTransformation\NCIPNormalizer;
 use CPK\ILS\Logic\XmlTransformation\NCIPDenormalizer;
 use CPK\ILS\Logic\XmlTransformation\NCIPNormalizerRouter;
+use VuFind\Date\Converter as DateConverter;
 use VuFind\Exception\ILS as ILSException;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 use VuFind\ILS\Driver\AbstractBase;
@@ -125,6 +127,11 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
     protected $translator = false;
 
     /**
+     * @var \CPK\Auth\Oauth2Service
+     */
+    protected $oauth2Service;
+
+    /**
      * @var LoggerInterface
      */
     protected $logger = null;
@@ -133,6 +140,16 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
         'ns2' => 'https://ncip.knihovny.cz/ILSDI/ncip/2015/extensions',
         'ns1' => 'http://www.niso.org/2008/ncip',
     );
+
+    /**
+     * Constructor
+     *
+     * @param Oauth2Service $oauth2Service Oauth2 authentication service
+     */
+    public function __construct(Oauth2Service $oauth2Service)
+    {
+        $this->oauth2Service = $oauth2Service;
+    }
 
     /**
      * Set the HTTP service to be used for HTTP requests.
@@ -196,6 +213,12 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
         if (isset($this->config['Availability']['source']))
             $this->source = $this->config['Availability']['source'];
 
+        $clientId = $this->config['Catalog']['clientId'] ?? '';
+        if (!empty($clientId)) {
+            $this->oauth2Service->setConfig($this->config);
+            $this->oauth2Service->setSource($this->source);
+        }
+
         $this->requests = new NCIPRequests($this->config);
     }
 
@@ -254,12 +277,17 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
     {
         $this->denormalizeRequest($xml);
 
+        $apiUrl = $this->config['Catalog']['url'];
+        $clientId = $this->config['Catalog']['clientId'] ?? '';
+        if (!empty($clientId)) {
+            $client = $this->oauth2Service->createClient($apiUrl);
+        } else {
+            $client = $this->httpService->createClient($apiUrl);
+        }
+        // $client->setAdapter(new \Zend\Http\Client\Adapter\Socket());
 
         // Make the NCIP request:
         try {
-            $this->httpService->setDefaultAdapter(new \Zend\Http\Client\Adapter\Socket());
-            $client = $this->httpService->createClient($this->config['Catalog']['url']);
-            //$client->setRawBody($jsonXML->toXmlString());
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
@@ -273,7 +301,6 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
                 ));
 
             if ((!empty($this->config['Catalog']['username'])) && (!empty($this->config['Catalog']['password']))) {
-
                 $user = $this->config['Catalog']['username'];
                 $password = $this->config['Catalog']['password'];
                 $client->setAuth($user, $password);
