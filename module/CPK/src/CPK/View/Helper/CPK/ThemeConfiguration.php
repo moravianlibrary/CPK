@@ -59,9 +59,9 @@ class ThemeConfiguration extends AbstractHelper
 			.'&searchTypeTemplate=basic&limit=20',
 
 		'header_panel_fourth_column_link' => '/Search/Results/?'
-			.'type0%5B%5D=AllFields&bool0%5B%5D=AND&filter=JYOwzgDsBOCGAuwD2IBcAiApgaxMAFgJ4D62mxY8sAXpnukA'
-			.'&daterange=&publishDatefrom=&publishDateto=&limit=20&sort=relevance&page=1'
-			.'&searchTypeTemplate=basic&database=Solr&keepFacetsEnabled=true&join=AND',
+			.'type0%5B%5D=AllFields&bool0%5B%5D=AND&limit=20&sort=relevance&page=1'
+			.'&searchTypeTemplate=basic&database=Solr&keepFacetsEnabled=true&join=AND'
+			.'&filter%5B%5D=H4Gw9gxghiD6BOBTA5gSzAO1qjBnALqvgK6GawBmUEi-sB8sAtgG4BcARAEwD0A8vgAWieLh6IARmDABrHgFkA0gAUAojw5A',
 	];
 
 	/**
