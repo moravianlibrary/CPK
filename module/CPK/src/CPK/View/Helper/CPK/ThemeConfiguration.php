@@ -61,7 +61,8 @@ class ThemeConfiguration extends AbstractHelper
 		'header_panel_fourth_column_link' => '/Search/Results/?'
 			.'type0%5B%5D=AllFields&bool0%5B%5D=AND&limit=20&sort=relevance&page=1'
 			.'&searchTypeTemplate=basic&database=Solr&keepFacetsEnabled=true&join=AND'
-			.'&filter%5B%5D=H4Gw9gxghiD6BOBTA5gSzAO1qjBnALqvgK6GawBmUEi-sB8sAtgG4BcARAEwD0A8vgAWieLh6IARmDABrHgFkA0gAUAojw5A',
+			.'&filter=H4Gw9gxghiD6BOBTA5gSzAO1qjBnALqvgK6GawBmUEi-sB8sAtgG4BcARAEwD0A8vgAWieLh6IARmDABrHgFkA0gAUAojw4AfUJBgIU6LDgJFShytVr18jVp14Dho8VNkKAqgDkAksoBKqgDKgRpAA..
+',
 	];
 
 	/**
