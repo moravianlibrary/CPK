@@ -1677,6 +1677,7 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
      */
     protected function isLinkAllowed($status, &$itemRestriction)
     {
+        return true;
         $addLink = true;
         if (
             !empty($this->hideHoldLinks)
