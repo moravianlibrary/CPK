@@ -25,6 +25,8 @@
 						$statusClass = 'success';
 					} else if ($link[1] === 'unknown') {
 						$statusClass = 'warning';
+					} else if ($link[1] === 'na') {
+						$statusClass = 'default';
 					} else {
 						$statusClass = 'danger';
 					}
