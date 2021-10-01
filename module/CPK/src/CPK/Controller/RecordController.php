@@ -403,6 +403,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
             foreach ($userCards as $userCard){
                 if($userCard->eppn == $eppn){
                     $catUsername = $userCard->cat_username;
+                    $cardHomeLibrary = $userCard->home_library;
                     break;
                 }
             }
@@ -421,7 +422,7 @@ class RecordController extends RecordControllerBase implements LoggerAwareInterf
                 $user->firstname,
                 $user->lastname,
                 $email,
-                $driver->sourceToSigla($user->home_library),
+                $driver->sourceToSigla($cardHomeLibrary),
                 true,
                 true,
                 $catUsername
