@@ -139,7 +139,7 @@ class Oauth2Service implements \VuFindHttp\HttpServiceAwareInterface,
             throw new ILSException('Problem with getting OAuth2 access token.');
         }
 
-        $responseContent = json_decode($response->getContent(), true);
+        $responseContent = json_decode($response->getBody(), true);
         if ($response->getStatusCode() != 200) {
             $errorMessage = 'Error while getting OAuth2 access token';
             if (key_exists('error', $responseContent)) {

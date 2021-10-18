@@ -201,4 +201,23 @@ class VerbisNCIPNormalizer extends NCIPNormalizer
     public function normalizeLookupUserLoanedItemsHistory(JsonXML &$response)
     {
     }
+
+    protected function normalizeStatus(string $status)
+    {
+
+        $newStatus = null;
+        if ($status !== null) {
+            // Let's correct improper statuses
+            if ($status === 'Available on Shelf')
+                $newStatus = 'Available On Shelf';
+            else if ($status === 'Not available')
+                $newStatus = 'Not Available';
+            else if ($status === 'Available for Pickup')
+                $newStatus = 'Available For Pickup';
+            else if ($status === 'Waiting To Be Reshelved')
+                $newStatus = 'In Process';
+        }
+
+        return $newStatus;
+    }
 }

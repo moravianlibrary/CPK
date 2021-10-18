@@ -291,9 +291,13 @@ class XCNCIP2V2 extends AbstractBase implements HttpServiceAwareInterface, Trans
             $client->setRawBody($xml);
             $client->setEncType('application/xml; "charset=utf-8"');
             $client->setMethod('POST');
-            $client->setHeaders(array(
-                'Content-Type' => 'application/xml'
-            ));
+            $client->getRequest()->getHeaders()->addHeaderLine(
+                'Accept', 'application/xml'
+            );
+
+            $client->getRequest()->getHeaders()->addHeaderLine(
+                'Content-Type', 'application/xml'
+            );
 
             if (isset($this->timeout))
                 $client->setOptions(array(
