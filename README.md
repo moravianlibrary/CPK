@@ -1,3 +1,5 @@
+Deprecated. This version, based on Vufind 2.x, was replaced by https://github.com/moravianlibrary/Knihovny.cz
+
 CPK - Knihovny.cz
 =================
 
